@@ -1,0 +1,36 @@
+services:
+    mysql:
+      restart: unless-stopped
+      image: mysql:8.0
+      environment:
+        MYSQL_ROOT_PASSWORD: capstone_sas
+        MYSQL_DATABASE: capstone_sas
+        MYSQL_USER: capstone_sas_user
+        MYSQL_PASSWORD: capstone_sas_password 
+      ports:
+      - "3310:3310" 
+      volumes:
+      - mysql_data:/var/lib/mysql
+      networks:
+      - capstone_sas_network 
+
+    
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        restart: unless-stopped
+        environment:
+          PMA_HOST: mysql
+          PMA_USER: capstone_sas_user 
+          PMA_PASSWORD: capstone_sas_password 
+        ports:
+        - "8080:80"
+        depends_on:
+        - mysql
+        networks:
+        - capstone_sas_network 
+
+volumes:
+  mysql_data:
+
+networks:
+  capstone_sas_network: 
