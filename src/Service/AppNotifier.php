@@ -18,8 +18,31 @@ class AppNotifier
 
     public function notify(User $recipient, string $title, string $body, ?string $link = null): void
     {
-        $this->entityManager->persist(new Notification($recipient, $title, $body, $link));
+        $this->persistNotification($recipient, $title, $body, $link);
+        $this->entityManager->flush();
+        $this->sendMail($recipient, $title, $body, $link);
+    }
 
+    /** @param iterable<User> $recipients */
+    public function notifyMany(iterable $recipients, string $title, string $body, ?string $link = null): void
+    {
+        foreach ($recipients as $recipient) {
+            $this->persistNotification($recipient, $title, $body, $link);
+        }
+        $this->entityManager->flush();
+
+        foreach ($recipients as $recipient) {
+            $this->sendMail($recipient, $title, $body, $link);
+        }
+    }
+
+    private function persistNotification(User $recipient, string $title, string $body, ?string $link): void
+    {
+        $this->entityManager->persist(new Notification($recipient, $title, $body, $link));
+    }
+
+    private function sendMail(User $recipient, string $title, string $body, ?string $link): void
+    {
         try {
             $email = (new Email())
                 ->from('sas@norsu.edu.ph')
@@ -29,14 +52,6 @@ class AppNotifier
             $this->mailer->send($email);
         } catch (\Throwable) {
             // In-app notification is the source of truth; mail is best-effort.
-        }
-    }
-
-    /** @param iterable<User> $recipients */
-    public function notifyMany(iterable $recipients, string $title, string $body, ?string $link = null): void
-    {
-        foreach ($recipients as $recipient) {
-            $this->notify($recipient, $title, $body, $link);
         }
     }
 }

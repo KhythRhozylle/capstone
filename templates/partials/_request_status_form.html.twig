@@ -1,0 +1,12 @@
+<form method="post" action="{{ action }}" class="status-form">
+    <input type="hidden" name="_token" value="{{ csrf_token(token_id) }}">
+    <label>Status
+        <select name="status">
+            {% for status in statuses %}
+                <option value="{{ status.value }}" {% if current == status %}selected{% endif %}>{{ status.label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Note <span class="muted">(optional)</span><input type="text" name="note" placeholder="Add a note to the tracking history"></label>
+    <div class="form-actions"><button class="btn" type="submit">Update status</button></div>
+</form>

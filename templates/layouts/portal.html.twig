@@ -1,0 +1,27 @@
+{% extends 'layouts/app.html.twig' %}
+
+{% block body_class %}portal workspace-page{% endblock %}
+
+{% set workspace_title = 'Student portal' %}
+{% set workspace_label = 'Student' %}
+{% set workspace_home = 'portal_dashboard' %}
+{% set current_route = app.request.attributes.get('_route') %}
+{% set groups = [
+    {label: 'My workspace', items: [
+        {label: 'Dashboard', route: 'portal_dashboard', icon: 'dashboard', active: current_route == 'portal_dashboard'},
+        {label: 'Profile', route: 'portal_profile', icon: 'profile', active: current_route == 'portal_profile'}
+    ]},
+    {label: 'Student services', items: [
+        {label: 'Appointments', route: 'portal_appointments', icon: 'clock', active: current_route starts with 'portal_appointment'},
+        {label: 'Walk-in queue', route: 'portal_queue', icon: 'queue', active: current_route == 'portal_queue'},
+        {label: 'Service requests', route: 'portal_services', icon: 'request', active: current_route starts with 'portal_service'},
+        {label: 'Concerns', route: 'portal_concerns', icon: 'chat', active: current_route starts with 'portal_concern'},
+        {label: 'CARE counseling', route: 'portal_care', icon: 'care', active: current_route starts with 'portal_care'},
+        {label: 'Documents', route: 'portal_documents', icon: 'document', active: current_route starts with 'portal_document'}
+    ]},
+    {label: 'Updates', items: [
+        {label: 'Announcements', route: 'portal_announcements', icon: 'announcement', active: current_route == 'portal_announcements'},
+        {label: 'Notifications', route: 'portal_notifications', icon: 'bell', active: current_route starts with 'portal_notification'}
+    ]}
+] %}
+{% set sidebar %}{% include 'partials/_sidebar.html.twig' with {label: 'Student navigation', groups: groups} only %}{% endset %}

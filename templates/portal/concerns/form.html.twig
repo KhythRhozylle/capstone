@@ -1,0 +1,6 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}Submit concern{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Submit a concern or complaint</h1><p class="page-description">Describe what happened so the right office can assist you.</p></div><a class="btn btn-outline" href="{{ path('portal_concerns') }}">Back to concerns</a></div>
+<section class="panel form-panel"><div class="panel-header"><div><p class="panel-kicker">Your voice matters</p><h2 class="panel-title">Concern details</h2></div></div>{% include 'partials/_form.html.twig' with {form: form, submit_label: 'Submit'} %}</section>
+{% endblock %}

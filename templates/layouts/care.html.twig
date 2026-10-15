@@ -1,0 +1,18 @@
+{% extends 'layouts/app.html.twig' %}
+
+{% block body_class %}care workspace-page{% endblock %}
+
+{% set workspace_title = 'CARE workspace' %}
+{% set workspace_label = 'Guidance and counseling' %}
+{% set workspace_home = 'care_dashboard' %}
+{% set current_route = app.request.attributes.get('_route') %}
+{% set groups = [
+    {label: 'Guidance desk', items: [
+        {label: 'CARE dashboard', route: 'care_dashboard', icon: 'dashboard', active: current_route == 'care_dashboard'},
+        {label: 'Cases', route: 'care_cases', icon: 'care', active: current_route starts with 'care_case'}
+    ]},
+    {label: 'Workspace', items: [
+        {label: 'Staff desk', route: 'staff_dashboard', icon: 'request', active: current_route == 'staff_dashboard'}
+    ]}
+] %}
+{% set sidebar %}{% include 'partials/_sidebar.html.twig' with {label: 'CARE navigation', groups: groups} only %}{% endset %}

@@ -1,0 +1,28 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ appointment.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>{{ appointment.referenceCode }}</h1><p class="page-description">Appointment details and student visit history.</p></div>
+    <a class="btn btn-outline" href="{{ path('staff_appointments') }}">Back to appointments</a>
+</div>
+<div class="content-grid">
+    <div>
+        <section class="panel">
+            <div class="panel-header record-heading"><div><p class="panel-kicker">Student visit</p><h2 class="panel-title">Appointment details</h2></div>{{ ui.status_badge(appointment.status.label) }}</div>
+            <dl class="detail-grid">
+                <dt>Student</dt><dd>{{ appointment.student.fullName }}<small class="table-subtext">{{ appointment.student.email }}</small></dd>
+                <dt>Campus</dt><dd>{{ appointment.campus.name }}</dd>
+                <dt>Unit</dt><dd>{{ appointment.unit.name }}</dd>
+                <dt>Scheduled visit</dt><dd>{{ appointment.scheduledAt|date('M j, Y g:i A') }}</dd>
+                <dt>Purpose</dt><dd>{{ appointment.purpose|nl2br }}</dd>
+            </dl>
+        </section>
+        <section class="panel">
+            <div class="panel-header"><div><h2 class="panel-title">Update appointment</h2><p class="page-description">Choose a status and add an optional note for the record.</p></div></div>
+            {% include 'partials/_appointment_status_form.html.twig' %}
+        </section>
+    </div>
+    <section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
+</div>
+{% endblock %}

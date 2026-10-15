@@ -1,0 +1,9 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}CARE request{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Request CARE counseling</h1><p class="page-description">Connect with a counselor for guidance and support.</p></div><a class="btn btn-outline" href="{{ path('portal_care') }}">Back to CARE requests</a></div>
+<section class="panel form-panel">
+<div class="panel-header"><div><p class="panel-kicker">Guidance &amp; wellbeing</p><h2 class="panel-title">Counseling request</h2><p class="page-description">Clinical session notes are kept confidential. This form only captures scheduling and referral logistics.</p></div></div>
+{% include 'partials/_form.html.twig' with {form: form, submit_label: 'Submit request'} %}
+</section>
+{% endblock %}

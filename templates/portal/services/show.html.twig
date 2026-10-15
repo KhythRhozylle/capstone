@@ -1,0 +1,13 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ request.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ request.referenceCode }}</h1><p class="page-description">Your service request details and progress.</p></div><a class="btn btn-outline" href="{{ path('portal_services') }}">Back to service requests</a></div>
+<div class="content-grid">
+    <section class="panel">
+        <div class="panel-header record-heading"><div><p class="panel-kicker">Student support</p><h2 class="panel-title">Request details</h2></div>{{ ui.status_badge(request.status.label) }}</div>
+        <dl class="detail-grid"><dt>Unit</dt><dd>{{ request.unit.name }}</dd><dt>Subject</dt><dd>{{ request.subject }}</dd><dt>Details</dt><dd>{{ request.description|nl2br }}</dd></dl>
+    </section>
+    <section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
+</div>
+{% endblock %}

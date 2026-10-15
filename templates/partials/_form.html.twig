@@ -1,0 +1,6 @@
+{{ form_start(form, {attr: {class: 'stack-form'}}) }}
+    <div class="form-fields">{{ form_widget(form) }}</div>
+    <div class="form-actions">
+        <button class="btn" type="submit">{{ submit_label|default('Save') }}</button>
+    </div>
+{{ form_end(form) }}

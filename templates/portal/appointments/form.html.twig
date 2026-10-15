@@ -1,0 +1,6 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ title }}</h1><p class="page-description">Choose an office, schedule, and visit mode for your appointment.</p></div><a class="btn btn-outline" href="{{ path('portal_appointments') }}">Back to appointments</a></div>
+<section class="panel form-panel"><div class="panel-header"><div><p class="panel-kicker">Student visit</p><h2 class="panel-title">Appointment details</h2></div></div>{% include 'partials/_form.html.twig' with {form: form, submit_label: 'Submit request'} %}</section>
+{% endblock %}

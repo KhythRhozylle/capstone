@@ -1,0 +1,9 @@
+{% extends 'layouts/staff.html.twig' %}
+{% block title %}Publish announcement{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Publish announcement</h1><p class="page-description">Create an update for students and the campus community.</p></div><a class="btn btn-outline" href="{{ path('staff_announcements') }}">Back to announcements</a></div>
+<section class="panel form-panel">
+    <div class="panel-header"><div><p class="panel-kicker">Campus communications</p><h2 class="panel-title">Announcement details</h2></div></div>
+    {% include 'partials/_form.html.twig' with {form: form, submit_label: 'Publish'} %}
+</section>
+{% endblock %}

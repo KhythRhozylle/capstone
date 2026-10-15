@@ -35,4 +35,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         return array_values(array_filter($users, static fn (User $user) => \in_array($role, $user->getRoles(), true)));
     }
+
+    /** @return list<User> */
+    public function findStaff(): array
+    {
+        return array_values(array_filter($this->findAll(), static fn (User $user) => $user->isStaff()));
+    }
 }

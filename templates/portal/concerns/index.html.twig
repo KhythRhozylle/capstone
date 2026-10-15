@@ -1,0 +1,13 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Concerns{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Concerns &amp; grievances</h1><p class="page-description">Share a concern and follow how the university responds.</p></div><a class="btn" href="{{ path('portal_concern_new') }}">Submit concern</a></div>
+<section class="panel panel-table">
+    <div class="panel-header"><div><p class="panel-kicker">Your voice matters</p><h2 class="panel-title">Your concerns</h2></div><span class="badge">{{ concerns|length }} total</span></div>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th scope="col">Reference</th><th scope="col">Kind</th><th scope="col">Subject</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+        <tbody>{% for c in concerns %}<tr><td><a class="table-link" href="{{ path('portal_concern_show', {id: c.id}) }}">{{ c.referenceCode }}</a></td><td>{{ c.type.label }}</td><td>{{ c.subject }}</td><td>{{ ui.status_badge(c.status.label) }}</td><td><a class="btn btn-sm btn-outline" href="{{ path('portal_concern_show', {id: c.id}) }}">View</a></td></tr>{% else %}<tr><td colspan="5"><div class="empty-state"><strong>No concerns filed</strong><p>If something needs attention, you can submit a concern here.</p><a class="btn btn-outline" href="{{ path('portal_concern_new') }}">Submit concern</a></div></td></tr>{% endfor %}</tbody>
+    </table></div>
+</section>
+{% endblock %}

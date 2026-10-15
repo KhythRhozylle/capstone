@@ -1,0 +1,17 @@
+{% extends 'layouts/app.html.twig' %}
+
+{% block body_class %}vpsas workspace-page{% endblock %}
+
+{% set workspace_title = 'VPSAS workspace' %}
+{% set workspace_label = 'Executive office' %}
+{% set workspace_home = 'vpsas_dashboard' %}
+{% set current_route = app.request.attributes.get('_route') %}
+{% set groups = [
+    {label: 'Executive overview', items: [
+        {label: 'Executive dashboard', route: 'vpsas_dashboard', icon: 'chart', active: current_route == 'vpsas_dashboard'}
+    ]},
+    {label: 'Workspace', items: [
+        {label: 'Staff operations', route: 'staff_dashboard', icon: 'request', active: current_route starts with 'staff_'}
+    ]}
+] %}
+{% set sidebar %}{% include 'partials/_sidebar.html.twig' with {label: 'VPSAS navigation', groups: groups} only %}{% endset %}

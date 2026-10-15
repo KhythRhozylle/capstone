@@ -1,0 +1,20 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Appointments</h1><p class="page-description">Book a student services visit and track your upcoming appointments.</p></div><a class="btn" href="{{ path('portal_appointment_new') }}">Book appointment</a></div>
+<section class="panel panel-table">
+<div class="panel-header"><div><p class="panel-kicker">Your visits</p><h2 class="panel-title">Appointment overview</h2></div><span class="badge">{{ appointments|length }} total</span></div>
+<div class="table-wrap"><table class="data-table">
+<thead><tr><th scope="col">Reference</th><th scope="col">Unit</th><th scope="col">Schedule</th><th scope="col">Mode</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+<tbody>
+{% for a in appointments %}
+<tr>
+    <td><a class="table-link" href="{{ path('portal_appointment_show', {id: a.id}) }}">{{ a.referenceCode }}</a></td><td>{{ a.unit.name }}</td><td>{{ a.scheduledAt|date('M j, Y') }}<small class="table-subtext">{{ a.scheduledAt|date('g:i A') }}</small></td>
+    <td>{{ a.mode.label }}</td><td>{{ ui.status_badge(a.status.label) }}</td>
+    <td><a class="btn btn-sm btn-outline" href="{{ path('portal_appointment_show', {id: a.id}) }}">View</a></td>
+</tr>
+{% else %}<tr><td colspan="6"><div class="empty-state"><strong>No appointments yet</strong><p>Book your first visit to connect with a student services office.</p><a class="btn btn-outline" href="{{ path('portal_appointment_new') }}">Book appointment</a></div></td></tr>{% endfor %}
+</tbody></table></div>
+</section>
+{% endblock %}

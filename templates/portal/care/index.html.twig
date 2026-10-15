@@ -1,0 +1,13 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}CARE counseling{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>CARE counseling requests</h1><p class="page-description">Connect with guidance support and keep track of your follow-ups.</p></div><a class="btn" href="{{ path('portal_care_new') }}">Request counseling</a></div>
+<section class="panel panel-table">
+    <div class="panel-header"><div><p class="panel-kicker">Guidance &amp; wellbeing</p><h2 class="panel-title">Your CARE requests</h2></div><span class="badge">{{ cases|length }} total</span></div>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th scope="col">Reference</th><th scope="col">Status</th><th scope="col">Submitted</th><th scope="col">Action</th></tr></thead>
+        <tbody>{% for c in cases %}<tr><td><a class="table-link" href="{{ path('portal_care_show', {id: c.id}) }}">{{ c.referenceCode }}</a></td><td>{{ ui.status_badge(c.status.label) }}</td><td>{{ c.createdAt|date('M j, Y') }}</td><td><a class="btn btn-sm btn-outline" href="{{ path('portal_care_show', {id: c.id}) }}">View</a></td></tr>{% else %}<tr><td colspan="4"><div class="empty-state"><strong>No CARE requests yet</strong><p>Request a counseling session when you need guidance or support.</p><a class="btn btn-outline" href="{{ path('portal_care_new') }}">Request counseling</a></div></td></tr>{% endfor %}</tbody>
+    </table></div>
+</section>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% set chart_colors = ['#1f3b57', '#fccf2b', '#7193ac', '#aa8b3e', '#bcc8d0', '#d6c69b', '#415c72', '#a3a898'] %}
+{% set total = items|reduce((sum, item) => sum + item.count, 0) %}
+{% set stops = [] %}
+{% set offset = 0 %}
+{% for item in items %}
+    {% set portion = total ? item.count / total * 100 : 0 %}
+    {% set stops = stops|merge([chart_colors[loop.index0 % chart_colors|length] ~ ' ' ~ offset ~ '% ' ~ (offset + portion) ~ '%']) %}
+    {% set offset = offset + portion %}
+{% endfor %}
+<div class="donut-wrap"><div class="donut-chart" style="--donut-fill: {{ total ? 'conic-gradient(' ~ stops|join(', ') ~ ')' : 'var(--cream-2)' }}" role="img" aria-label="{{ total }} {{ total_label|default('records') }}. {% for item in items %}{{ item.label }}: {{ item.count }}. {% endfor %}"><div class="donut-center"><strong>{{ total }}</strong><span>{{ total_label|default('Total records') }}</span></div></div></div>
+<ul class="donut-legend">{% for item in items %}<li><span><i class="legend-dot" style="background: {{ chart_colors[loop.index0 % chart_colors|length] }}"></i>{{ item.label }}</span><strong>{{ item.count }}</strong></li>{% endfor %}</ul>

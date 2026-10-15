@@ -1,0 +1,29 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Dashboard</h1><p class="page-description">Welcome back, {{ app.user.firstName }}. {% if scope.unrestricted %}Your university-wide SAS overview.{% else %}{{ scope.unit ? scope.unit.name : 'All units' }} &middot; {{ scope.campus ? scope.campus.name : 'All campuses' }}{% endif %}</p></div>
+    <a class="btn btn-outline btn-sm" href="{{ path('staff_appointment_calendar') }}">{{ include('partials/_icon.html.twig', {name: 'calendar'}) }}View calendar</a>
+</div>
+{% set routes = ['staff_appointments', 'staff_concerns', 'staff_services', 'staff_documents'] %}
+<div class="metric-grid">
+    {% for category in activity.categories %}
+        <a class="metric-card" href="{{ path(routes[loop.index0]) }}"><span class="metric-icon metric-icon-{{ loop.index }}">{{ include('partials/_icon.html.twig', {name: category.icon}) }}</span><div><p class="metric-label">{{ category.label }}</p><strong class="metric-value">{{ category.total }}</strong><span class="metric-caption">{{ category.open }} open &middot; {{ category.closed }} closed</span></div></a>
+    {% endfor %}
+</div>
+{{ include('partials/_activity_charts.html.twig') }}
+<div class="dashboard-bottom">
+    <section class="panel campus-feature">
+        <img src="{{ asset('images/login-building.jpg') }}" alt="" loading="lazy">
+        <div><span class="panel-kicker">Student Affairs &amp; Services</span><h2>{{ scope.campus ? scope.campus.name : 'One university. Every student.' }}</h2><p>A connected workspace for appointments, requests, and student support.</p><a href="{{ path('staff_services') }}">View service requests &rarr;</a></div>
+    </section>
+    <section class="panel panel-table">
+        <div class="panel-header"><div><h2 class="panel-title">Recent appointments</h2><p class="panel-kicker">Latest scheduled visits in your workspace</p></div><a class="panel-link" href="{{ path('staff_appointments') }}">View all &rarr;</a></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Student</th><th>Schedule</th><th>Status</th><th></th></tr></thead><tbody>
+        {% for appointment in appointments|slice(0, 5) %}<tr><td><strong>{{ appointment.student.fullName }}</strong><small class="cell-secondary">{{ appointment.referenceCode }}</small></td><td>{{ appointment.scheduledAt|date('M j, Y') }}<small class="cell-secondary">{{ appointment.scheduledAt|date('g:i A') }}</small></td><td>{{ ui.status_badge(appointment.status.label) }}</td><td><a class="table-link" href="{{ path('staff_appointment_show', {id: appointment.id}) }}">Open</a></td></tr>
+        {% else %}<tr><td colspan="4" class="empty-state">No appointments yet. Scheduled visits will appear here.</td></tr>{% endfor %}
+        </tbody></table></div>
+    </section>
+</div>
+{% endblock %}

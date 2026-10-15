@@ -1,0 +1,12 @@
+<form method="post" action="{{ path('staff_appointment_status', {id: appointment.id}) }}" class="status-form">
+    <input type="hidden" name="_token" value="{{ csrf_token('appointment-status-' ~ appointment.id) }}">
+    <label>Status
+        <select name="status">
+            {% for status in enum('App\\Enum\\AppointmentStatus').cases() %}
+                <option value="{{ status.value }}" {% if appointment.status == status %}selected{% endif %}>{{ status.label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Note <span class="muted">(optional)</span><input type="text" name="note" placeholder="Add a note to the tracking history"></label>
+    <div class="form-actions"><button class="btn" type="submit">Update appointment</button></div>
+</form>

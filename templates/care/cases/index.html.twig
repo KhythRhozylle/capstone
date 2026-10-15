@@ -1,0 +1,25 @@
+{% extends 'layouts/care.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}CARE cases{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>CARE cases</h1><p class="page-description">Coordinate student care and follow-up support.</p></div></div>
+<section class="panel panel-table">
+<div class="panel-header"><div><p class="panel-kicker">Guidance &amp; wellbeing</p><h2 class="panel-title">Case overview</h2></div><span class="badge">{{ cases|length }} total</span></div>
+<div class="table-wrap"><table class="data-table">
+<thead><tr><th scope="col">Reference</th><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Submitted</th><th scope="col">Action</th></tr></thead>
+<tbody>
+{% for c in cases %}
+<tr>
+    <td><a class="table-link" href="{{ path('care_case_show', {id: c.id}) }}">{{ c.referenceCode }}</a></td>
+    <td>{{ c.student.fullName }}</td>
+    <td>{{ ui.status_badge(c.status.label) }}</td>
+    <td>{{ c.createdAt|date('M j, Y') }}</td>
+    <td><a class="btn btn-sm btn-outline" href="{{ path('care_case_show', {id: c.id}) }}">Open case</a></td>
+</tr>
+{% else %}
+<tr><td colspan="5"><div class="empty-state"><strong>No CARE cases yet</strong><p>Cases assigned for guidance support will appear here.</p></div></td></tr>
+{% endfor %}
+</tbody>
+</table></div>
+</section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Walk-in queue{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Walk-in queue</h1><p class="page-description">{{ unit.name }} &middot; {{ campus.name }}</p></div>
+    <form method="post"><input type="hidden" name="_token" value="{{ csrf_token('queue-call') }}"><button class="btn" type="submit">Call next ticket</button></form>
+</div>
+<section class="panel panel-table">
+    <div class="panel-header"><div><p class="panel-kicker">Live service desk</p><h2 class="panel-title">Today's tickets</h2></div><span class="badge">{{ tickets|length }} tickets</span></div>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th scope="col">Ticket</th><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Issued</th><th scope="col">Called</th></tr></thead>
+        <tbody>
+        {% for t in tickets %}
+            <tr><td><span class="queue-number">{{ t.number }}</span></td><td>{{ t.displayName }}</td><td>{{ ui.status_badge(t.status.value|replace({'_':' '})|title) }}</td><td>{{ t.createdAt|date('g:i A') }}</td><td>{{ t.calledAt ? t.calledAt|date('g:i A') : 'Not called' }}</td></tr>
+        {% else %}
+            <tr><td colspan="5"><div class="empty-state"><strong>The queue is clear</strong><p>Walk-in tickets for today will appear here.</p></div></td></tr>
+        {% endfor %}
+        </tbody>
+    </table></div>
+</section>
+{% endblock %}

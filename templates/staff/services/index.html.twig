@@ -1,0 +1,19 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Service requests{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Service requests</h1><p class="page-description">Review student needs and follow each request through to completion.</p></div></div>
+<section class="panel panel-table">
+    <div class="panel-header"><div><p class="panel-kicker">Student support</p><h2 class="panel-title">Request overview</h2></div><span class="badge">{{ requests|length }} total</span></div>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th scope="col">Reference</th><th scope="col">Student</th><th scope="col">Subject</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+        {% for r in requests %}
+            <tr><td><a class="table-link" href="{{ path('staff_service_show', {id: r.id}) }}">{{ r.referenceCode }}</a></td><td>{{ r.student.fullName }}</td><td>{{ r.subject }}</td><td>{{ ui.status_badge(r.status.label) }}</td><td><a class="btn btn-sm btn-outline" href="{{ path('staff_service_show', {id: r.id}) }}">Review</a></td></tr>
+        {% else %}
+            <tr><td colspan="5"><div class="empty-state"><strong>No service requests yet</strong><p>Requests assigned to your office will appear here.</p></div></td></tr>
+        {% endfor %}
+        </tbody>
+    </table></div>
+</section>
+{% endblock %}

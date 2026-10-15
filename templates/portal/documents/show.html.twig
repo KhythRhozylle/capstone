@@ -1,0 +1,25 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ document.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ document.referenceCode }}</h1><p class="page-description">Your document request and release updates.</p></div><a class="btn btn-outline" href="{{ path('portal_documents') }}">Back to documents</a></div>
+<div class="content-grid">
+<div>
+<section class="panel">
+<div class="panel-header record-heading"><div><p class="panel-kicker">Records &amp; documents</p><h2 class="panel-title">Document details</h2></div>{{ ui.status_badge(document.status.label) }}</div>
+<dl class="detail-grid">
+    <dt>Document</dt><dd>{{ document.documentType.label }}</dd>
+    <dt>Purpose</dt><dd>{{ document.purpose|nl2br }}</dd>
+</dl>
+</section>
+{% if document.status.value in ['ready', 'released'] %}
+<section class="panel">
+    <div class="panel-header"><div><p class="panel-kicker">Document authenticity</p><h2 class="panel-title">Verification QR code</h2><p class="page-description">Third parties can scan this code to confirm document authenticity.</p></div></div>
+    <img src="{{ path('app_verify_qr', {token: document.verificationToken}) }}" alt="Verification QR code" class="qr-image">
+    <p><a class="table-link" href="{{ verifyUrl }}" target="_blank" rel="noopener">{{ verifyUrl }}</a></p>
+</section>
+{% endif %}
+</div>
+<section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
+</div>
+{% endblock %}

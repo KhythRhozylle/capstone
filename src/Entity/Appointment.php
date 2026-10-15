@@ -205,4 +205,13 @@ class Appointment
     {
         return $this->createdAt;
     }
+
+    public function canStudentChange(): bool
+    {
+        return \in_array($this->status, [
+            AppointmentStatus::Pending,
+            AppointmentStatus::Approved,
+            AppointmentStatus::Rescheduled,
+        ], true);
+    }
 }

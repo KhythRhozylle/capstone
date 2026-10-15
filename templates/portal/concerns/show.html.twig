@@ -1,0 +1,20 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ concern.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ concern.referenceCode }}</h1><p class="page-description">Your concern, assigned office, and resolution updates.</p></div><a class="btn btn-outline" href="{{ path('portal_concerns') }}">Back to concerns</a></div>
+<div class="content-grid">
+<section class="panel">
+<div class="panel-header record-heading"><div><p class="panel-kicker">Student assistance</p><h2 class="panel-title">Concern details</h2></div>{{ ui.status_badge(concern.status.label) }}</div>
+<dl class="detail-grid">
+    <dt>Kind</dt><dd>{{ concern.type.label }}</dd>
+    <dt>Assigned unit</dt><dd>{{ concern.assignedUnit.name }}</dd>
+    {% if concern.referredToUnit %}<dt>Referred to</dt><dd>{{ concern.referredToUnit.name }}</dd>{% endif %}
+    <dt>Subject</dt><dd>{{ concern.subject }}</dd>
+    <dt>Description</dt><dd>{{ concern.description|nl2br }}</dd>
+    {% if concern.resolutionNotes %}<dt>Resolution</dt><dd>{{ concern.resolutionNotes|nl2br }}</dd>{% endif %}
+</dl>
+</section>
+<section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'layouts/vpsas.html.twig' %}
+{% block title %}VPSAS dashboard{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>VPSAS executive dashboard</h1><p class="page-description">Consolidated Student Affairs &amp; Services activity across NORSU campuses.</p></div><a class="btn btn-outline btn-sm" href="{{ path('staff_dashboard') }}">Open staff workspace</a></div>
+{% set metrics = [
+    {label: 'Students', value: stats.students, icon: 'profile'},
+    {label: 'Appointments', value: stats.appointments, icon: 'calendar'},
+    {label: 'Open concerns', value: stats.openConcerns, icon: 'chat'},
+    {label: 'CARE cases', value: stats.careCases, icon: 'care'},
+    {label: 'Documents', value: stats.documents, icon: 'document'},
+    {label: 'Service requests', value: stats.serviceRequests, icon: 'request'}
+] %}
+<section class="metric-grid metric-grid-3">{% for metric in metrics %}<article class="metric-card"><span class="metric-icon metric-icon-{{ loop.index0 % 4 + 1 }}">{{ include('partials/_icon.html.twig', {name: metric.icon}) }}</span><div><p class="metric-label">{{ metric.label }}</p><strong class="metric-value">{{ metric.value }}</strong><span class="metric-caption">Across all campuses</span></div></article>{% endfor %}</section>
+<div class="dashboard-grid">
+    <section class="panel panel-table">
+        <div class="panel-header"><div><h2 class="panel-title">Campus comparison</h2><p class="panel-kicker">Service activity across the university</p></div></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Campus</th><th>Appointments</th><th>Concerns</th><th>Services</th><th>Documents</th></tr></thead><tbody>
+        {% for row in stats.campusComparison %}<tr><td><strong>{{ row.name }}</strong></td><td>{{ row.appointments }}</td><td>{{ row.concerns }}</td><td>{{ row.services }}</td><td>{{ row.documents }}</td></tr>
+        {% else %}<tr><td colspan="5" class="empty-state">Campus activity will appear here.</td></tr>{% endfor %}
+        </tbody></table></div>
+    </section>
+    <section class="panel">
+        <div class="panel-header"><div><h2 class="panel-title">Appointments by status</h2><p class="panel-kicker">University-wide appointment progress</p></div></div>
+        {% set items = [] %}{% for label, count in stats.appointmentsByStatus %}{% set items = items|merge([{label: label, count: count}]) %}{% endfor %}
+        {{ include('partials/_donut.html.twig', {items: items, total_label: 'Appointments'}) }}
+    </section>
+</div>
+<div class="split">
+    <section class="panel">
+        <div class="panel-header"><div><h2 class="panel-title">Concerns by status</h2><p class="panel-kicker">Track the resolution of student concerns</p></div></div>
+        <ul class="progress-list">{% for label, count in stats.concernsByStatus %}<li><div><span>{{ label }}</span><strong>{{ count }}</strong></div><span class="progress-track" style="--progress: {{ stats.concerns ? count / stats.concerns * 100 : 0 }}%"><span></span></span></li>{% else %}<li class="empty-state">No concerns recorded yet.</li>{% endfor %}</ul>
+        {% if stats.avgResolutionHours is not null %}<p class="page-description" style="margin-top: 1.5rem">Average concern resolution: <strong>{{ stats.avgResolutionHours }} hours</strong></p>{% endif %}
+    </section>
+    <section class="panel">
+        <div class="panel-header"><div><h2 class="panel-title">Services by unit</h2><p class="panel-kicker">Where student requests are being handled</p></div></div>
+        <ul class="progress-list">{% for row in stats.servicesByUnit %}<li><div><span>{{ row.name }}</span><strong>{{ row.total }}</strong></div><span class="progress-track" style="--progress: {{ stats.serviceRequests ? row.total / stats.serviceRequests * 100 : 0 }}%"><span></span></span></li>{% else %}<li class="empty-state">No service requests recorded yet.</li>{% endfor %}</ul>
+    </section>
+</div>
+{% endblock %}

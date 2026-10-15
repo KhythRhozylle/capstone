@@ -1,0 +1,19 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Appointment {{ appointment.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ appointment.referenceCode }}</h1><p class="page-description">Your appointment details and latest updates.</p></div><a class="btn btn-outline" href="{{ path('portal_appointments') }}">Back to appointments</a></div>
+<div class="content-grid">
+<section class="panel">
+<div class="panel-header record-heading"><div><p class="panel-kicker">Your visit</p><h2 class="panel-title">Appointment details</h2></div>{{ ui.status_badge(appointment.status.label) }}</div>
+<dl class="detail-grid">
+    <dt>Unit</dt><dd>{{ appointment.unit.name }}</dd>
+    <dt>Schedule</dt><dd>{{ appointment.scheduledAt|date('M j, Y g:i A') }}</dd>
+    <dt>Mode</dt><dd>{{ appointment.mode.label }}</dd>
+    {% if appointment.meetingUrl %}<dt>Meeting URL</dt><dd><a href="{{ appointment.meetingUrl }}" target="_blank" rel="noopener">{{ appointment.meetingUrl }}</a></dd>{% endif %}
+    <dt>Purpose</dt><dd>{{ appointment.purpose|nl2br }}</dd>
+</dl>
+</section>
+<section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
+</div>
+{% endblock %}

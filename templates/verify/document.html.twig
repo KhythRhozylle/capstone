@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+{% block title %}Document verification{% endblock %}
+{% block body %}
+<div class="auth-panel" style="min-height:100vh">
+    <div class="auth-card">
+        <img class="auth-card-logo" src="{{ asset('images/sas-logo.png') }}" alt="NORSU SAS">
+        <h2>SAS document verification</h2>
+        {% if valid and document %}
+            <p>This document is authentic.</p>
+            <dl class="detail-grid">
+                <dt>Reference</dt><dd>{{ document.referenceCode }}</dd>
+                <dt>Type</dt><dd>{{ document.documentType.label }}</dd>
+                <dt>Student</dt><dd>{{ document.student.fullName }}</dd>
+                <dt>Campus</dt><dd>{{ document.campus.name }}</dd>
+                <dt>Status</dt><dd>{{ document.status.label }}</dd>
+            </dl>
+        {% else %}
+            <p class="flash flash-danger">This QR code is invalid or the document is not yet released.</p>
+        {% endif %}
+        <p class="auth-footer"><a href="{{ path('app_home') }}">Back to NORSU-SAS Insight</a></p>
+    </div>
+</div>
+{% endblock %}

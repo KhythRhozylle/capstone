@@ -32,4 +32,16 @@ class AnnouncementRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /** @return list<Announcement> */
+    public function latestUniversityWide(int $limit = 3): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.scope = :scope')
+            ->setParameter('scope', AnnouncementScope::University)
+            ->orderBy('a.publishedAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

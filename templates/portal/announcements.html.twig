@@ -1,0 +1,10 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}Announcements{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Announcements</h1><p class="page-description">The latest news and student services updates for your campus.</p></div></div>
+<div class="announcement-grid">
+{% for item in announcements %}
+<article class="panel announcement-card"><div class="panel-header"><p class="panel-kicker">{{ item.publishedAt|date('M j, Y') }}</p></div><h2 class="panel-title">{{ item.title }}</h2><p>{{ item.body|nl2br }}</p></article>
+{% else %}<section class="panel empty-state"><strong>No announcements for your campus</strong><p>New campus updates will appear here when published.</p></section>{% endfor %}
+</div>
+{% endblock %}

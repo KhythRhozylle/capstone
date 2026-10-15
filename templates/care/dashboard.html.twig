@@ -1,0 +1,28 @@
+{% extends 'layouts/care.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}CARE desk{% endblock %}
+{% block content %}
+{% set active = cases|filter(c => c.status.value != 'closed')|length %}
+{% set follow_up = cases|filter(c => c.status.value == 'follow_up')|length %}
+<div class="page-header"><div><h1>CARE counseling desk</h1><p class="page-description">A clear view of student support, ongoing cases, and follow-ups.</p></div><a class="btn btn-sm" href="{{ path('care_cases') }}">View all cases</a></div>
+<div class="metric-grid metric-grid-3">
+    <a class="metric-card" href="{{ path('care_cases') }}"><span class="metric-icon">{{ include('partials/_icon.html.twig', {name: 'care'}) }}</span><div><p class="metric-label">CARE cases</p><strong class="metric-value">{{ cases|length }}</strong><span class="metric-caption">In your workspace</span></div></a>
+    <a class="metric-card" href="{{ path('care_cases') }}"><span class="metric-icon metric-icon-2">{{ include('partials/_icon.html.twig', {name: 'chat'}) }}</span><div><p class="metric-label">Open cases</p><strong class="metric-value">{{ active }}</strong><span class="metric-caption">Awaiting or receiving support</span></div></a>
+    <a class="metric-card" href="{{ path('care_cases') }}"><span class="metric-icon metric-icon-3">{{ include('partials/_icon.html.twig', {name: 'calendar'}) }}</span><div><p class="metric-label">Follow-up cases</p><strong class="metric-value">{{ follow_up }}</strong><span class="metric-caption">Continued student care</span></div></a>
+</div>
+<div class="dashboard-grid">
+    <section class="panel panel-table">
+        <div class="panel-header"><div><h2 class="panel-title">Student care</h2><p class="panel-kicker">Students see only the status summary you share. Clinical notes stay on the counselor desk.</p></div></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Reference</th><th>Student</th><th>Campus</th><th>Status</th><th></th></tr></thead><tbody>
+        {% for case in cases %}<tr><td>{{ case.referenceCode }}</td><td>{{ case.student.fullName }}</td><td>{{ case.campus.name }}</td><td>{{ ui.status_badge(case.status.label) }}</td><td><a class="table-link" href="{{ path('care_case_show', {id: case.id}) }}">Open</a></td></tr>
+        {% else %}<tr><td colspan="5" class="empty-state">No CARE cases in your campus yet.</td></tr>{% endfor %}
+        </tbody></table></div>
+    </section>
+    <section class="panel">
+        <div class="panel-header"><div><h2 class="panel-title">Case status</h2><p class="panel-kicker">Progress across the care journey</p></div></div>
+        {% set items = [] %}
+        {% for status in enum('App\\Enum\\CareCaseStatus').cases() %}{% set items = items|merge([{label: status.label, count: cases|filter(c => c.status == status)|length}]) %}{% endfor %}
+        {{ include('partials/_donut.html.twig', {items: items, total_label: 'CARE cases'}) }}
+    </section>
+</div>
+{% endblock %}

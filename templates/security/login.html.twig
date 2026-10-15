@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sign in · NORSU-SAS Insight{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block body %}
+<main class="login-stage" style="background-image: linear-gradient(180deg, rgba(22, 42, 62, 0.7), rgba(22, 42, 62, 0.88)), url('{{ asset('images/newlogin.jpeg') }}');">
+    <a class="login-back" href="{{ path('app_home') }}">← Back to home</a>
+
+    <div class="login-tilt" data-controller="tilt" data-action="mousemove->tilt#move mouseleave->tilt#reset">
+        <div class="login-glass"></div>
+        <div class="login-content">
+            {{ include('security/_login_form.html.twig', {autofocus: true}) }}
+        </div>
+    </div>
+</main>
+{% endblock %}

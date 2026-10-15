@@ -1,0 +1,6 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}Request document{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Request SAS document</h1><p class="page-description">Choose the document you need and provide its purpose.</p></div><a class="btn btn-outline" href="{{ path('portal_documents') }}">Back to documents</a></div>
+<section class="panel form-panel"><div class="panel-header"><div><p class="panel-kicker">Records &amp; documents</p><h2 class="panel-title">Document request</h2></div></div>{% include 'partials/_form.html.twig' with {form: form, submit_label: 'Submit request'} %}</section>
+{% endblock %}

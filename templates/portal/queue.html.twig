@@ -1,0 +1,39 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Walk-in queue{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Walk-in queue</h1><p class="page-description">Get a ticket for an office visit and track today's place in line.</p></div>
+</div>
+<section class="panel form-panel">
+<div class="panel-header"><div><p class="panel-kicker">Student services desk</p><h2 class="panel-title">Join a queue</h2><p class="page-description">Choose the SAS unit you want to visit.</p></div></div>
+<form method="post" class="status-form">
+    <input type="hidden" name="_token" value="{{ csrf_token('portal-queue') }}">
+    <label>SAS unit<select name="unit" required>
+        <option value="">Choose SAS unit</option>
+        {% for unit in units %}
+            <option value="{{ unit.id }}">{{ unit.name }}</option>
+        {% endfor %}
+    </select></label>
+    <div class="form-actions"><button class="btn" type="submit">Get ticket</button></div>
+</form>
+</section>
+<section class="panel panel-table">
+<div class="panel-header"><div><p class="panel-kicker">Today's visits</p><h2 class="panel-title">Your tickets today</h2></div><span class="badge">{{ tickets|length }} tickets</span></div>
+<div class="table-wrap"><table class="data-table">
+<thead><tr><th scope="col">Ticket</th><th scope="col">Unit</th><th scope="col">Status</th><th scope="col">Issued</th></tr></thead>
+<tbody>
+{% for t in tickets %}
+<tr>
+    <td><span class="queue-number">{{ t.number }}</span></td>
+    <td>{{ t.unit.name }}</td>
+    <td>{{ ui.status_badge(t.status.value|replace({'_': ' '})|title) }}</td>
+    <td>{{ t.createdAt|date('g:i A') }}</td>
+</tr>
+{% else %}
+<tr><td colspan="4"><div class="empty-state"><strong>No tickets yet today</strong><p>Choose an office above to get a walk-in ticket.</p></div></td></tr>
+{% endfor %}
+</tbody>
+</table></div>
+</section>
+{% endblock %}

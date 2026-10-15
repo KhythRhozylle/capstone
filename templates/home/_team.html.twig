@@ -1,0 +1,32 @@
+<section id="team" class="landing-section landing-team" aria-labelledby="team-heading">
+    <div class="landing-container">
+        <div class="team-heading" data-reveal>
+            <p class="eyebrow eyebrow-dark">People behind student support</p>
+            <h2 id="team-heading">Meet the SAS team</h2>
+            <p class="section-lead">Here to listen, guide, and help you make the most of university life. Meet the people connecting you with Student Affairs &amp; Services.</p>
+        </div>
+        <ul class="team-grid">
+            {% for member in team %}
+                <li class="team-member" data-reveal style="--d: {{ loop.index0 * 0.1 }}s">
+                    <div class="team-portrait team-portrait-{{ loop.index }}" aria-hidden="true">
+                        {% if member.portrait %}
+                            <span class="team-photo">
+                                <img class="team-photo-image" src="{{ asset(member.portrait.image) }}" alt="" loading="lazy" draggable="false"
+                                     style="--portrait-width: {{ member.portrait.width }}%; --portrait-left: {{ member.portrait.left }}%; --portrait-top: {{ member.portrait.top }}%;">
+                            </span>
+                        {% else %}
+                            <span class="team-initials">{{ member.user.firstName|first }}{{ member.user.lastName|first }}</span>
+                        {% endif %}
+                    </div>
+                    <h3>{{ member.user.fullName }}</h3>
+                    <p class="team-title">{{ member.title }}</p>
+                    {% if member.user.staffUnit %}
+                        <p class="team-meta">{{ member.user.staffUnit.name }}</p>
+                    {% endif %}
+                </li>
+            {% else %}
+                <li class="landing-empty">Team directory coming soon.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>

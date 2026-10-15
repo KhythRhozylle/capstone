@@ -1,0 +1,22 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Appointments</h1><p class="page-description">Review student bookings and keep every visit on track.</p></div>
+    <a class="btn btn-outline" href="{{ path('staff_appointment_calendar') }}">View calendar</a>
+</div>
+<section class="panel panel-table">
+    <div class="panel-header"><div><p class="panel-kicker">Student visits</p><h2 class="panel-title">Appointment overview</h2></div><span class="badge">{{ appointments|length }} total</span></div>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th scope="col">Reference</th><th scope="col">Student</th><th scope="col">Campus</th><th scope="col">Schedule</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+        {% for a in appointments %}
+            <tr><td><a class="table-link" href="{{ path('staff_appointment_show', {id: a.id}) }}">{{ a.referenceCode }}</a></td><td>{{ a.student.fullName }}</td><td>{{ a.campus.name }}</td><td>{{ a.scheduledAt|date('M j, Y') }}<small class="table-subtext">{{ a.scheduledAt|date('g:i A') }}</small></td><td>{{ ui.status_badge(a.status.label) }}</td><td><a class="btn btn-sm btn-outline" href="{{ path('staff_appointment_show', {id: a.id}) }}">Review</a></td></tr>
+        {% else %}
+            <tr><td colspan="6"><div class="empty-state"><strong>No appointments yet</strong><p>Student bookings will appear here when they are submitted.</p></div></td></tr>
+        {% endfor %}
+        </tbody>
+    </table></div>
+</section>
+{% endblock %}

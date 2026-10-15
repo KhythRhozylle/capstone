@@ -1,0 +1,6 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}New service request{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>New service request</h1><p class="page-description">Tell student services what assistance you need.</p></div><a class="btn btn-outline" href="{{ path('portal_services') }}">Back to service requests</a></div>
+<section class="panel form-panel"><div class="panel-header"><div><p class="panel-kicker">Student support</p><h2 class="panel-title">Request details</h2></div></div>{% include 'partials/_form.html.twig' with {form: form, submit_label: 'Submit'} %}</section>
+{% endblock %}

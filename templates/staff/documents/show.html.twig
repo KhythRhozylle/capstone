@@ -1,0 +1,27 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ document.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>{{ document.referenceCode }}</h1><p class="page-description">Document request details and release tracking.</p></div>
+    <a class="btn btn-outline" href="{{ path('staff_documents') }}">Back to documents</a>
+</div>
+<div class="content-grid">
+    <div>
+        <section class="panel">
+            <div class="panel-header record-heading"><div><p class="panel-kicker">Records &amp; documents</p><h2 class="panel-title">Document details</h2></div>{{ ui.status_badge(document.status.label) }}</div>
+            <dl class="detail-grid"><dt>Student</dt><dd>{{ document.student.fullName }}</dd><dt>Document</dt><dd>{{ document.documentType.label }}</dd><dt>Purpose</dt><dd>{{ document.purpose|nl2br }}</dd></dl>
+        </section>
+        <section class="panel">
+            <div class="panel-header"><div><h2 class="panel-title">Update document</h2><p class="page-description">Record processing progress and release status.</p></div></div>
+            {% include 'partials/_request_status_form.html.twig' with {
+                action: path('staff_document_status', {id: document.id}),
+                token_id: 'document-status-' ~ document.id,
+                statuses: enum('App\\Enum\\RequestStatus').cases(),
+                current: document.status
+            } %}
+        </section>
+    </div>
+    <section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% set gallery_id = directorate_code|lower ~ '-' ~ offering.slug ~ '-gallery' %}
+<section id="{{ gallery_id }}" class="unit-gallery" data-unit-code="{{ offering.code }}" aria-labelledby="{{ gallery_id }}-heading">
+    <div class="unit-gallery-heading" data-reveal>
+        <span class="unit-gallery-accent" aria-hidden="true"></span>
+        <h3 id="{{ gallery_id }}-heading">{{ offering.name }}</h3>
+    </div>
+    <div class="unit-gallery-grid{% if offering.images|length <= 2 %} unit-gallery-grid-compact{% endif %}">
+        {% for photo in offering.images %}
+            <figure class="unit-gallery-item" tabindex="0" aria-label="{{ photo.alt }}">
+                <img src="{{ asset(photo.image) }}" alt="{{ photo.alt }}" width="1024" height="576" loading="lazy" decoding="async" draggable="false">
+            </figure>
+        {% endfor %}
+    </div>
+</section>

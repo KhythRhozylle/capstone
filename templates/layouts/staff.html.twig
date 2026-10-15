@@ -1,0 +1,28 @@
+{% extends 'layouts/app.html.twig' %}
+
+{% block body_class %}staff workspace-page{% endblock %}
+
+{% set workspace_title = 'Staff workspace' %}
+{% set workspace_label = 'SAS staff member' %}
+{% set workspace_home = 'staff_dashboard' %}
+{% set current_route = app.request.attributes.get('_route') %}
+{% set operations = [
+    {label: 'Dashboard', route: 'staff_dashboard', icon: 'dashboard', active: current_route == 'staff_dashboard'},
+    {label: 'Appointments', route: 'staff_appointments', icon: 'clock', active: (current_route starts with 'staff_appointment') and current_route != 'staff_appointment_calendar'},
+    {label: 'Calendar', route: 'staff_appointment_calendar', icon: 'calendar', active: current_route == 'staff_appointment_calendar'},
+    {label: 'Service requests', route: 'staff_services', icon: 'request', active: current_route starts with 'staff_service'},
+    {label: 'Concerns', route: 'staff_concerns', icon: 'chat', active: current_route starts with 'staff_concern'},
+    {label: 'Documents', route: 'staff_documents', icon: 'document', active: current_route starts with 'staff_document'},
+    {label: 'Walk-in queue', route: 'staff_queue', icon: 'queue', active: current_route == 'staff_queue'},
+    {label: 'Announcements', route: 'staff_announcements', icon: 'announcement', active: current_route starts with 'staff_announcement'}
+] %}
+{% set desks = [] %}
+{% if is_granted('ROLE_VPSAS') %}
+    {% set desks = desks|merge([{label: 'VPSAS dashboard', route: 'vpsas_dashboard', icon: 'chart', active: current_route == 'vpsas_dashboard'}]) %}
+{% endif %}
+{% if is_granted('ROLE_GUIDANCE') %}
+    {% set desks = desks|merge([{label: 'CARE desk', route: 'care_dashboard', icon: 'care', active: current_route starts with 'care_'}]) %}
+{% endif %}
+{% set groups = [{label: 'Workspace', items: operations}] %}
+{% if desks|length %}{% set groups = groups|merge([{label: 'Specialist desks', items: desks}]) %}{% endif %}
+{% set sidebar %}{% include 'partials/_sidebar.html.twig' with {label: 'Staff navigation', groups: groups} only %}{% endset %}

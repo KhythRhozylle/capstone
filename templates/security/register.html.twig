@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Student registration · NORSU-SAS Insight{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block body %}
+<div class="auth-split">
+    <section class="auth-visual" style="--auth-visual: url('{{ asset('images/login-building.jpg') }}')">
+        <div class="auth-visual-inner">
+            <div class="auth-brand">
+                <img src="{{ asset('images/sas-logo.png') }}" alt="NORSU Student Affairs and Services">
+                <span>NORSU-SAS Insight</span>
+            </div>
+            <div class="auth-copy">
+                <h1>Join the SAS<br>student portal.</h1>
+                <p>Create your account to access appointments, CARE counseling, document requests, and campus announcements.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="auth-panel">
+        <div class="auth-card auth-card-wide">
+            <img class="auth-card-logo" src="{{ asset('images/sas-logo.png') }}" alt="NORSU SAS">
+            <h2>Create your student account</h2>
+            {{ form_start(form, {attr: {class: 'auth-form stack-form'}}) }}
+                {{ form_widget(form) }}
+                <button class="btn btn-gold" type="submit">Sign up</button>
+            {{ form_end(form) }}
+            <p class="auth-footer">Already have an account? <a href="{{ path('app_login') }}">Log in</a></p>
+        </div>
+    </section>
+</div>
+{% endblock %}

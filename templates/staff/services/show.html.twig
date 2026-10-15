@@ -1,0 +1,27 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ request.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>{{ request.referenceCode }}</h1><p class="page-description">Service request details and progress.</p></div>
+    <a class="btn btn-outline" href="{{ path('staff_services') }}">Back to service requests</a>
+</div>
+<div class="content-grid">
+    <div>
+        <section class="panel">
+            <div class="panel-header record-heading"><div><p class="panel-kicker">Student support</p><h2 class="panel-title">Request details</h2></div>{{ ui.status_badge(request.status.label) }}</div>
+            <dl class="detail-grid"><dt>Student</dt><dd>{{ request.student.fullName }}</dd><dt>Subject</dt><dd>{{ request.subject }}</dd><dt>Details</dt><dd>{{ request.description|nl2br }}</dd></dl>
+        </section>
+        <section class="panel">
+            <div class="panel-header"><div><h2 class="panel-title">Update request</h2><p class="page-description">Keep the student informed as their request progresses.</p></div></div>
+            {% include 'partials/_request_status_form.html.twig' with {
+                action: path('staff_service_status', {id: request.id}),
+                token_id: 'service-status-' ~ request.id,
+                statuses: enum('App\\Enum\\RequestStatus').cases(),
+                current: request.status
+            } %}
+        </section>
+    </div>
+    <section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
+</div>
+{% endblock %}

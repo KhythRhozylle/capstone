@@ -1,0 +1,69 @@
+{% extends 'layouts/landing.html.twig' %}
+
+{% block title %}{{ service.name }} · NORSU-SAS Insight{% endblock %}
+{% block page_class %}service-detail-page{% endblock %}
+
+{% block main %}
+    <section class="landing-section landing-section-alt service-detail-intro" aria-labelledby="service-title">
+        <div class="landing-container" data-reveal>
+            <a class="service-back" href="{{ path('app_home') }}#services">
+                <span aria-hidden="true">&#8592;</span> Back to student services
+            </a>
+            <p class="eyebrow eyebrow-dark">Student Affairs &amp; Services &middot; {{ service.code }}</p>
+            <h1 id="service-title" class="service-detail-title">{{ service.name }}</h1>
+            <p class="section-lead">{{ service.summary }}</p>
+            <div class="service-detail-copy">
+                <p>{{ service.description }}</p>
+                <p class="service-detail-focus"><strong>Our focus</strong><span>{{ service.focus }}</span></p>
+            </div>
+            <h2 id="service-gallery-heading" class="service-offerings-heading">A look around campus</h2>
+        </div>
+        {{ include('partials/_service_carousel.html.twig', {service: service}, with_context: false) }}
+        <p class="service-gallery-note landing-container">Campus views from the SAS website gallery.</p>
+    </section>
+
+    <section class="landing-section service-unit-galleries" aria-labelledby="service-offerings-heading">
+        <div class="landing-container">
+            <div data-reveal>
+                <p class="eyebrow eyebrow-dark">Our gallery</p>
+                <h2 id="service-offerings-heading">Services under {{ service.code }}</h2>
+                <p class="section-lead">Explore the individual galleries of our student service units.</p>
+            </div>
+            <div class="unit-galleries">
+                {% for offering in service.offerings %}
+                    {{ include('services/_unit_gallery.html.twig', {directorate_code: service.code, offering: offering}, with_context: false) }}
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-section landing-section-alt" aria-labelledby="service-help-heading">
+        <div class="landing-container service-help" data-reveal>
+            <div>
+                <p class="eyebrow eyebrow-dark">Your next step</p>
+                <h2 id="service-help-heading">Get help from {{ service.code }}</h2>
+                <p class="section-lead">Sign in to choose a SAS unit, book an appointment or submit a request. You can follow its status in your student portal. If you are unsure where to start, contact the SAS office for help finding the right unit.</p>
+            </div>
+            <div class="service-help-actions">
+                <a class="btn" href="{{ path('app_login') }}" data-action="login-morph#open">Sign in to get help</a>
+                <a class="btn btn-outline" href="{{ path('app_contact') }}">Contact SAS</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-section service-related" aria-labelledby="service-related-heading">
+        <div class="landing-container" data-reveal>
+            <p class="eyebrow eyebrow-dark">Explore student support</p>
+            <h2 id="service-related-heading">Our three directorates</h2>
+            <nav class="service-related-links" aria-label="Student service directorates">
+                {% for other in services %}
+                    <a href="{{ path(other.route) }}"{% if other.code == service.code %} aria-current="page"{% endif %}>
+                        <span class="campus-code">{{ other.code }}</span>
+                        <span>{{ other.name }}</span>
+                        <span aria-hidden="true">&#8594;</span>
+                    </a>
+                {% endfor %}
+            </nav>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Profile</h1><p class="page-description">Keep your student information and contact details up to date.</p></div></div>
+<section class="panel form-panel">
+<div class="panel-header"><div><p class="panel-kicker">Your account</p><h2 class="panel-title">Student profile</h2></div><span class="badge">Student no. {{ profile ? profile.studentNumber : '—' }}</span></div>
+{% include 'partials/_form.html.twig' with {form: form, submit_label: 'Update profile'} %}
+</section>
+{% endblock %}

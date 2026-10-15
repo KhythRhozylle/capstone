@@ -1,0 +1,68 @@
+{% extends 'layouts/care.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ case.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>{{ case.referenceCode }}</h1><p class="page-description">Student care details and follow-up support.</p></div>
+    <a class="btn btn-outline" href="{{ path('care_cases') }}">Back to CARE cases</a>
+</div>
+<div class="content-grid">
+    <div>
+        <section class="panel">
+            <div class="panel-header record-heading"><div><p class="panel-kicker">Guidance &amp; wellbeing</p><h2 class="panel-title">Case details</h2></div>{{ ui.status_badge(case.status.label) }}</div>
+            <dl class="detail-grid">
+                <dt>Student</dt><dd>{{ case.student.fullName }}<small class="table-subtext">{{ case.student.email }}</small></dd>
+                <dt>Campus</dt><dd>{{ case.campus.name }}</dd>
+                <dt>Reason</dt><dd>{{ case.reason|nl2br }}</dd>
+                {% if case.studentVisibleSummary %}<dt>Student-visible summary</dt><dd>{{ case.studentVisibleSummary|nl2br }}</dd>{% endif %}
+            </dl>
+        </section>
+        <section class="panel">
+            <div class="panel-header"><div><h2 class="panel-title">Update case</h2><p class="page-description">Manage the case status, student summary, and staff notes.</p></div></div>
+            <form method="post" action="{{ path('care_case_status', {id: case.id}) }}" class="stack-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('care-status-' ~ case.id) }}">
+                <label>Status
+                    <select name="status">
+                        {% for status in enum('App\\Enum\\CareCaseStatus').cases() %}
+                            <option value="{{ status.value }}" {% if case.status == status %}selected{% endif %}>{{ status.label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Student-visible summary
+                    <textarea name="studentVisibleSummary" rows="3">{{ case.studentVisibleSummary }}</textarea>
+                </label>
+                <label>Clinical notes (staff only)
+                    <textarea name="clinicalNotes" rows="4">{{ case.clinicalNotes }}</textarea>
+                </label>
+                <div class="form-actions"><button class="btn" type="submit">Update case</button></div>
+            </form>
+        </section>
+    </div>
+    <div>
+        <section class="panel">
+            <div class="panel-header"><div><p class="panel-kicker">Continued support</p><h2 class="panel-title">Follow-ups</h2></div></div>
+            <ul class="simple-list follow-up-list">
+            {% for f in case.followUps %}
+                <li>
+                    <div class="record-heading"><strong>{{ f.dueAt|date('M j, Y') }}</strong>{% if f.isOverdue %}{{ ui.status_badge('Overdue') }}{% elseif f.completedAt %}{{ ui.status_badge('Completed') }}{% endif %}</div>
+                    <small class="muted">Due {{ f.dueAt|date('g:i A') }}{% if f.completedAt %} &middot; completed {{ f.completedAt|date('M j, Y') }}{% endif %}</small>
+                    <p>{{ f.notes }}</p>
+                    {% if not f.completedAt %}
+                        <form method="post" action="{{ path('care_follow_up_complete', {id: f.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('follow-up-' ~ f.id) }}">
+                            <button class="btn btn-sm btn-outline" type="submit">Mark complete</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% else %}
+                <li class="empty-state"><strong>No follow-ups yet</strong><p>Schedule the student's next check-in below.</p></li>
+            {% endfor %}
+            </ul>
+        </section>
+        <section class="panel">
+            <div class="panel-header"><div><h2 class="panel-title">Schedule follow-up</h2><p class="page-description">Set the next check-in and record what needs attention.</p></div></div>
+            {% include 'partials/_form.html.twig' with {form: followForm, submit_label: 'Add follow-up'} %}
+        </section>
+    </div>
+</div>
+{% endblock %}

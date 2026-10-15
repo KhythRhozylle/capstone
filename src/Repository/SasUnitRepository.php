@@ -18,4 +18,14 @@ class SasUnitRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['code' => $code]);
     }
+
+    /** @return list<SasUnit> */
+    public function findAppointmentUnits(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.handlesAppointments = true')
+            ->orderBy('u.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

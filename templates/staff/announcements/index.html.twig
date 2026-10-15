@@ -1,0 +1,16 @@
+{% extends 'layouts/staff.html.twig' %}
+{% block title %}Announcements{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Announcements</h1><p class="page-description">Share updates and keep the campus community informed.</p></div><a class="btn" href="{{ path('staff_announcement_new') }}">Publish announcement</a></div>
+<div class="announcement-grid">
+{% for item in announcements %}
+    <article class="panel announcement-card">
+        <div class="panel-header"><p class="panel-kicker">{{ item.publishedAt|date('M j, Y') }}</p><span class="badge">{{ item.scope.label }}</span></div>
+        <h2 class="panel-title">{{ item.title }}</h2>
+        <p>{{ item.body|length > 240 ? item.body|slice(0, 240) ~ '…' : item.body }}</p>
+    </article>
+{% else %}
+    <section class="panel empty-state"><strong>No announcements published</strong><p>Publish an update to share it with the campus community.</p><a class="btn btn-outline" href="{{ path('staff_announcement_new') }}">Create announcement</a></section>
+{% endfor %}
+</div>
+{% endblock %}

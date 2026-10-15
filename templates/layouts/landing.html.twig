@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block body_class %}landing {% block page_class %}{% endblock %}{% endblock %}
+
+{% block body %}
+<div data-controller="login-morph">
+<header class="landing-nav">
+    <div class="landing-nav-inner">
+        <nav class="landing-links" aria-label="Main">
+            <a href="{{ path('app_home') }}#welcome">Home</a>
+            <a href="{{ path('app_home') }}#about">About</a>
+            <a href="{{ path('app_home') }}#campuses">Campuses</a>
+            <a href="{{ path('app_home') }}#people">People</a>
+            <a href="{{ path('app_home') }}#services"{% if app.current_route in ['app_sds', 'app_sws', 'app_isps'] %} class="is-active" aria-current="page"{% endif %}>Services</a>
+            <a href="{{ path('app_home') }}#announcements">Announcements</a>
+            <a href="{{ path('app_home') }}#team">Team</a>
+            <a href="{{ path('app_contact') }}"{% if app.current_route == 'app_contact' %} class="is-active" aria-current="page"{% endif %}>Contact</a>
+        </nav>
+        <a class="btn btn-sm landing-signin" href="{{ path('app_login') }}" data-action="login-morph#open">Sign in</a>
+    </div>
+</header>
+
+<main data-controller="reveal">
+    {% block main %}{% endblock %}
+</main>
+
+<footer class="landing-footer">
+    <p>&copy; {{ 'now'|date('Y') }} Negros Oriental State University · Student Affairs &amp; Services</p>
+</footer>
+
+<div class="login-modal" id="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title" hidden
+     data-login-morph-target="modal" data-action="click->login-morph#closeOnBackdrop">
+    <div class="login-backdrop" data-login-morph-target="backdrop"></div>
+    <div class="login-tilt" data-controller="tilt" data-action="mousemove->tilt#move mouseleave->tilt#reset">
+        <div class="login-glass" data-login-morph-target="glass"></div>
+        <div class="login-content" data-login-morph-target="content">
+            <button type="button" class="login-close" aria-label="Close sign in" data-action="login-morph#close">&times;</button>
+            {{ include('security/_login_form.html.twig') }}
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

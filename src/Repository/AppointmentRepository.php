@@ -41,4 +41,23 @@ class AppointmentRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /** @return list<Appointment> */
+    public function scheduledBetween(?SasUnit $unit, ?Campus $campus, \DateTimeImmutable $from, \DateTimeImmutable $to): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.scheduledAt >= :from')
+            ->andWhere('a.scheduledAt < :to')
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->orderBy('a.scheduledAt', 'ASC');
+        if ($unit instanceof SasUnit) {
+            $qb->andWhere('a.unit = :unit')->setParameter('unit', $unit);
+        }
+        if ($campus instanceof Campus) {
+            $qb->andWhere('a.campus = :campus')->setParameter('campus', $campus);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

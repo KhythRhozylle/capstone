@@ -1,0 +1,23 @@
+{% set gallery_id = service.code|lower ~ '-carousel' %}
+<div class="carousel service-detail-gallery" role="region" aria-roledescription="carousel" aria-labelledby="service-gallery-heading"
+     data-controller="carousel" data-reveal>
+    <div id="{{ gallery_id }}-track" class="carousel-track" data-carousel-target="track" tabindex="0"
+         aria-label="Campus images" aria-describedby="{{ gallery_id }}-help" aria-live="off"
+         data-action="keydown.left->carousel#prev:prevent keydown.right->carousel#next:prevent">
+        {% for slide in service.slides %}
+            <article class="carousel-slide" data-carousel-target="slide" role="group" aria-roledescription="slide"
+                     aria-label="{{ loop.index }} of {{ service.slides|length }}: {{ slide.title }}">
+                <img src="{{ asset(slide.image) }}" alt="{{ slide.alt }}" loading="{{ loop.first ? 'eager' : 'lazy' }}" draggable="false" width="1600" height="900">
+                <div class="carousel-caption">
+                    <span class="campus-code">{{ service.code }}</span>
+                    <h3>{{ slide.title }}</h3>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+    <button type="button" class="carousel-btn carousel-prev" aria-label="Previous image" aria-controls="{{ gallery_id }}-track"
+            data-carousel-target="previous" data-action="carousel#prev" hidden>&#8249;</button>
+    <button type="button" class="carousel-btn carousel-next" aria-label="Next image" aria-controls="{{ gallery_id }}-track"
+            data-carousel-target="next" data-action="carousel#next" hidden>&#8250;</button>
+    <p id="{{ gallery_id }}-help" class="carousel-help">Swipe or scroll to explore the images. Use the left and right arrow keys when the photos are focused.</p>
+</div>

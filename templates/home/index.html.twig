@@ -1,0 +1,126 @@
+{% extends 'layouts/landing.html.twig' %}
+
+{% block title %}NORSU-SAS Insight{% endblock %}
+
+{% block main %}
+    {# 1. Hero / Welcome #}
+    <section id="welcome" class="hero" style="background-image: linear-gradient(180deg, rgba(22, 42, 62, 0.72), rgba(22, 42, 62, 0.88)), url('{{ asset('images/newlogin.jpeg') }}');">
+        <div class="hero-inner">
+            <div class="hero-emblem">
+                <img class="hero-logo" src="{{ asset('images/sas-logo.png') }}" alt="NORSU Student Affairs and Services seal" width="240" height="240" fetchpriority="high">
+            </div>
+            <p class="eyebrow">Negros Oriental State University</p>
+            <h1>Integrated Student Affairs &amp; Services Management</h1>
+            <p class="lead">Book appointments, submit concerns, request SAS documents, and track every request across NORSU campuses — with consolidated analytics for VPSAS decision-makers.</p>
+            <div class="hero-actions">
+                <a class="btn" href="{{ path('app_login') }}" data-action="login-morph#open">Student / staff sign in</a>
+                <a class="btn btn-outline" href="{{ path('app_register') }}">Create student account</a>
+            </div>
+        </div>
+    </section>
+
+    {# 2. About #}
+    <section id="about" class="landing-section">
+        <div class="landing-container about-grid">
+            <div data-reveal>
+                <p class="eyebrow eyebrow-dark">About SAS</p>
+                <h2>One office for every student need</h2>
+                <p class="section-lead">The Office of the Vice President for Student Affairs &amp; Services brings together the units that support NORSU students, from guidance and counselling to scholarships, student government and housing. This system gives every campus one place to ask for help and follow it through.</p>
+                <ul class="about-stats">
+                    <li><strong>{{ campuses|length }}</strong><span>Campuses</span></li>
+                    <li><strong>{{ directorates|length }}</strong><span>Directorates</span></li>
+                    <li><strong>{{ directorates|map(d => d.units|length)|reduce((total, n) => total + n, 0) }}</strong><span>SAS units</span></li>
+                </ul>
+            </div>
+            <ul class="about-features">
+                <li data-reveal style="--d: .05s"><h3>Appointments &amp; queue</h3><p>Book a slot with any SAS unit and get a queue ticket.</p></li>
+                <li data-reveal style="--d: .15s"><h3>Concerns &amp; grievances</h3><p>File a concern and track it until it is resolved.</p></li>
+                <li data-reveal style="--d: .25s"><h3>Documents &amp; QR verification</h3><p>Request SAS documents and verify them with a QR code.</p></li>
+                <li data-reveal style="--d: .35s"><h3>CARE guidance</h3><p>Counselling, referrals and follow-ups in one place.</p></li>
+            </ul>
+        </div>
+    </section>
+
+    {# 3. Campuses carousel #}
+    <section id="campuses" class="landing-section landing-section-alt">
+        <div class="landing-container" data-reveal>
+            <p class="eyebrow eyebrow-dark">One university, many campuses</p>
+            <h2 id="campuses-heading">Our campuses</h2>
+            <p class="section-lead">Student Affairs &amp; Services are available on every NORSU campus. Your requests are routed to the SAS office of your home campus.</p>
+        </div>
+        {% if slides %}
+            <div class="carousel" role="region" aria-roledescription="carousel" aria-labelledby="campuses-heading"
+                 data-controller="carousel" data-reveal>
+                <div id="campus-carousel-track" class="carousel-track" data-carousel-target="track" tabindex="0"
+                     aria-label="Campus photos" aria-describedby="campus-carousel-help" aria-live="off"
+                     data-action="keydown.left->carousel#prev:prevent keydown.right->carousel#next:prevent">
+                    {% for slide in slides %}
+                        <article class="carousel-slide" data-carousel-target="slide" role="group" aria-roledescription="slide"
+                                 aria-label="{{ loop.index }} of {{ slides|length }}: {{ slide.campus.name }}">
+                            <img src="{{ asset(slide.image) }}" alt="" loading="lazy" draggable="false">
+                            <div class="carousel-caption">
+                                <span class="campus-code">{{ slide.campus.code }}</span>
+                                <h3>{{ slide.campus.name }}</h3>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+                <button type="button" class="carousel-btn carousel-prev" aria-label="Previous campus" aria-controls="campus-carousel-track"
+                        data-carousel-target="previous" data-action="carousel#prev" hidden>&#8249;</button>
+                <button type="button" class="carousel-btn carousel-next" aria-label="Next campus" aria-controls="campus-carousel-track"
+                        data-carousel-target="next" data-action="carousel#next" hidden>&#8250;</button>
+                <p id="campus-carousel-help" class="carousel-help">Swipe or scroll to explore campuses. Use the left and right arrow keys when the photos are focused.</p>
+            </div>
+        {% else %}
+            <p class="landing-empty landing-container">Campus list coming soon.</p>
+        {% endif %}
+    </section>
+
+    {# 4. People — glass 3D org chart #}
+    <section id="people" class="landing-section landing-people">
+        <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="landing-container">
+            <div class="people-heading" data-reveal>
+                <p class="eyebrow">People behind student support</p>
+                <h2>Office of the Vice President</h2>
+                <p class="section-lead">Student Affairs &amp; Services</p>
+            </div>
+            <figure class="org-chart" data-reveal>
+                <div class="org-tilt" data-controller="tilt" data-tilt-max-value="4" data-action="mousemove->tilt#move mouseleave->tilt#reset">
+                    <div class="org-glass">
+                        <img class="org-chart-image" src="{{ asset('images/sas-org-chart.jpg') }}" width="1400" height="2100" loading="lazy"
+                             alt="Organizational chart of the Office of the Vice President for Student Affairs and Services: the University President, the Vice President for Student Affairs and Services, his secretary and office staff, the directors of Student Development Services, Student Welfare Services and Institutional Student Programs and Services, and the heads of each SAS unit.">
+                    </div>
+                </div>
+            </figure>
+        </div>
+    </section>
+
+    {# 5. Student services #}
+    {{ include('home/_student_services.html.twig', {services: student_services}, with_context: false) }}
+
+    {# 6. Latest announcements #}
+    <section id="announcements" class="landing-section landing-section-alt">
+        <div class="landing-container">
+            <div data-reveal>
+                <p class="eyebrow eyebrow-dark">What's new</p>
+                <h2>Latest announcements</h2>
+            </div>
+            <div class="card-grid card-grid-3">
+                {% for announcement in announcements %}
+                    <article class="landing-card announcement-card" data-reveal style="--d: {{ loop.index0 * 0.1 }}s">
+                        <time datetime="{{ announcement.publishedAt|date('c') }}">{{ announcement.publishedAt|date('F j, Y') }}</time>
+                        <h3>{{ announcement.title }}</h3>
+                        <p>{{ announcement.body|length > 180 ? announcement.body|slice(0, 180)|trim ~ '…' : announcement.body }}</p>
+                    </article>
+                {% else %}
+                    <p class="landing-empty">No announcements yet. Check back soon.</p>
+                {% endfor %}
+            </div>
+            <p class="section-more"><a href="{{ path('app_login') }}">Sign in to see all announcements, including those for your campus →</a></p>
+        </div>
+    </section>
+
+    {# 7. Team #}
+    {{ include('home/_team.html.twig', {team: team}, with_context: false) }}
+{% endblock %}

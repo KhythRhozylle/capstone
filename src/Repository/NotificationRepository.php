@@ -37,4 +37,17 @@ class NotificationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function markAllRead(User $user): void
+    {
+        $this->createQueryBuilder('n')
+            ->update()
+            ->set('n.readAt', ':now')
+            ->andWhere('n.recipient = :user')
+            ->andWhere('n.readAt IS NULL')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->execute();
+    }
 }

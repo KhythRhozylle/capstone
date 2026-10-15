@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Campus;
 use App\Entity\QueueTicket;
 use App\Entity\SasUnit;
+use App\Entity\User;
 use App\Enum\QueueStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -60,6 +61,19 @@ class QueueTicketRepository extends ServiceEntityRepository
             ->setParameter('unit', $unit)
             ->setParameter('today', new \DateTimeImmutable('today'))
             ->orderBy('q.number', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return list<QueueTicket> */
+    public function todayForStudent(User $student): array
+    {
+        return $this->createQueryBuilder('q')
+            ->andWhere('q.student = :student')
+            ->andWhere('q.createdAt >= :today')
+            ->setParameter('student', $student)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('q.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }

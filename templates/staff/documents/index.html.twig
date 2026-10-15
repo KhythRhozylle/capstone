@@ -1,0 +1,19 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Documents{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Document requests</h1><p class="page-description">Manage student documents from submission to release.</p></div></div>
+<section class="panel panel-table">
+    <div class="panel-header"><div><p class="panel-kicker">Records &amp; documents</p><h2 class="panel-title">Document overview</h2></div><span class="badge">{{ documents|length }} total</span></div>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th scope="col">Reference</th><th scope="col">Student</th><th scope="col">Document type</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+        {% for d in documents %}
+            <tr><td><a class="table-link" href="{{ path('staff_document_show', {id: d.id}) }}">{{ d.referenceCode }}</a></td><td>{{ d.student.fullName }}</td><td>{{ d.documentType.label }}</td><td>{{ ui.status_badge(d.status.label) }}</td><td><a class="btn btn-sm btn-outline" href="{{ path('staff_document_show', {id: d.id}) }}">Review</a></td></tr>
+        {% else %}
+            <tr><td colspan="5"><div class="empty-state"><strong>No document requests yet</strong><p>New student requests will appear here for review.</p></div></td></tr>
+        {% endfor %}
+        </tbody>
+    </table></div>
+</section>
+{% endblock %}

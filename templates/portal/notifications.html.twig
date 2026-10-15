@@ -1,0 +1,19 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Notifications</h1><p class="page-description">Stay up to date on your appointments, requests, and campus services.</p></div></div>
+<ul class="simple-list">
+{% for n in notifications %}
+    <li class="panel">
+        <div class="panel-header"><div><p class="panel-kicker">{{ n.createdAt|date('M j, Y g:i A') }}</p><h2 class="panel-title">{{ n.title }}</h2></div>{% if not n.read %}<span class="badge badge-pending-approval">Unread</span>{% else %}<span class="badge">Read</span>{% endif %}</div>
+        <p>{{ n.body }}</p>
+        {% if not n.read %}
+            <form method="post" action="{{ path('portal_notification_read', {id: n.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('notification-read-' ~ n.id) }}">
+                <div class="detail-actions"><button class="btn btn-sm btn-outline" type="submit">Mark read</button></div>
+            </form>
+        {% endif %}
+    </li>
+{% else %}<li class="panel empty-state"><strong>You're all caught up</strong><p>Updates to your appointments and requests will appear here.</p></li>{% endfor %}
+</ul>
+{% endblock %}

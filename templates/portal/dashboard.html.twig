@@ -1,0 +1,33 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Welcome, {{ app.user.firstName }}</h1><p class="page-description">{{ app.user.campus ? app.user.campus.name : 'Your student workspace' }} &middot; {{ unreadCount }} unread notification{{ unreadCount == 1 ? '' : 's' }}</p></div>
+    <a class="btn btn-sm" href="{{ path('portal_appointment_new') }}">{{ include('partials/_icon.html.twig', {name: 'calendar'}) }}Book appointment</a>
+</div>
+{% set routes = ['portal_appointments', 'portal_concerns', 'portal_services', 'portal_documents'] %}
+<div class="metric-grid">
+    {% for category in activity.categories %}
+        <a class="metric-card" href="{{ path(routes[loop.index0]) }}"><span class="metric-icon metric-icon-{{ loop.index }}">{{ include('partials/_icon.html.twig', {name: category.icon}) }}</span><div><p class="metric-label">{{ category.label }}</p><strong class="metric-value">{{ category.total }}</strong><span class="metric-caption">{{ category.open }} open &middot; {{ category.closed }} closed</span></div></a>
+    {% endfor %}
+</div>
+{{ include('partials/_activity_charts.html.twig') }}
+<div class="dashboard-bottom">
+    <section class="panel">
+        <div class="panel-header"><div><h2 class="panel-title">Announcements</h2><p class="panel-kicker">University and campus updates</p></div><a class="panel-link" href="{{ path('portal_announcements') }}">View all &rarr;</a></div>
+        <ul class="activity-feed">
+            {% for item in announcements %}
+            <li><span class="feed-icon">{{ include('partials/_icon.html.twig', {name: 'announcement'}) }}</span><div><h3>{{ item.title }}</h3><p>{{ item.body|length > 180 ? item.body|slice(0, 180) ~ '…' : item.body }}</p><time datetime="{{ item.publishedAt|date('c') }}">{{ item.publishedAt|date('M j, Y') }}</time></div></li>
+            {% else %}<li class="empty-state">No announcements for your campus yet.</li>{% endfor %}
+        </ul>
+    </section>
+    <section class="panel">
+        <div class="panel-header"><div><h2 class="panel-title">Recent notifications</h2><p class="panel-kicker">Updates on your requests</p></div><a class="panel-link" href="{{ path('portal_notifications') }}">View all &rarr;</a></div>
+        <ul class="activity-feed">
+            {% for notification in notifications|slice(0, 5) %}
+                <li><span class="feed-icon">{{ include('partials/_icon.html.twig', {name: 'bell'}) }}</span><div><h3>{{ notification.title }}</h3><p>{{ notification.body }}</p><time datetime="{{ notification.createdAt|date('c') }}">{{ notification.createdAt|date('M j, g:i A') }}</time></div></li>
+            {% else %}<li class="empty-state">You're all caught up. New updates will appear here.</li>{% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ concern.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>{{ concern.referenceCode }}</h1><p class="page-description">Concern details, referrals, and resolution history.</p></div>
+    <a class="btn btn-outline" href="{{ path('staff_concerns') }}">Back to concerns</a>
+</div>
+<div class="content-grid">
+    <div>
+        <section class="panel">
+            <div class="panel-header record-heading"><div><p class="panel-kicker">Student assistance</p><h2 class="panel-title">Concern details</h2></div>{{ ui.status_badge(concern.status.label) }}</div>
+            <dl class="detail-grid">
+                <dt>Student</dt><dd>{{ concern.student.fullName }}</dd>
+                <dt>Kind</dt><dd>{{ concern.type.label }}</dd>
+                <dt>Description</dt><dd>{{ concern.description|nl2br }}</dd>
+            </dl>
+        </section>
+        <section class="panel">
+            <div class="panel-header"><div><h2 class="panel-title">Update concern</h2><p class="page-description">Record the current status and any progress notes.</p></div></div>
+            {% include 'partials/_request_status_form.html.twig' with {
+                action: path('staff_concern_status', {id: concern.id}),
+                token_id: 'concern-status-' ~ concern.id,
+                statuses: enum('App\\Enum\\RequestStatus').cases(),
+                current: concern.status
+            } %}
+        </section>
+        <section class="panel">
+            <div class="panel-header"><div><h2 class="panel-title">Refer to another unit</h2><p class="page-description">Connect the student with the office best suited to help.</p></div></div>
+            {% include 'partials/_form.html.twig' with {form: referForm, submit_label: 'Refer'} %}
+        </section>
+    </div>
+    <section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
+</div>
+{% endblock %}

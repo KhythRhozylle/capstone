@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Campus;
 use App\Entity\DocumentRequest;
+use App\Entity\SasUnit;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -29,5 +31,19 @@ class DocumentRequestRepository extends ServiceEntityRepository
     public function findOneByToken(string $token): ?DocumentRequest
     {
         return $this->findOneBy(['verificationToken' => $token]);
+    }
+
+    /** @return list<DocumentRequest> */
+    public function findForStaff(?SasUnit $unit, ?Campus $campus): array
+    {
+        $qb = $this->createQueryBuilder('d')->orderBy('d.createdAt', 'DESC');
+        if ($unit instanceof SasUnit) {
+            $qb->andWhere('d.unit = :unit')->setParameter('unit', $unit);
+        }
+        if ($campus instanceof Campus) {
+            $qb->andWhere('d.campus = :campus')->setParameter('campus', $campus);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

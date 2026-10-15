@@ -1,0 +1,41 @@
+{% set colors = ['#1f3b57', '#fccf2b', '#7193ac', '#aa8b3e'] %}
+<div class="dashboard-grid">
+    <section class="panel activity-panel" aria-labelledby="activity-heading">
+        <div class="panel-header">
+            <div><h2 class="panel-title" id="activity-heading">Activity overview</h2><p class="panel-kicker">All records in your workspace</p></div>
+            <div class="chart-legend"><span><i class="legend-dot legend-navy"></i>Open</span><span><i class="legend-dot legend-gold"></i>Closed</span></div>
+        </div>
+        <div class="activity-chart" role="img" aria-label="Open and closed records by category. {{ activity.open }} open and {{ activity.closed }} closed in total.">
+            <div class="chart-scale" aria-hidden="true"><span>{{ activity.maximum }}</span><span>{{ (activity.maximum / 2)|round(1) }}</span><span>0</span></div>
+            <div class="activity-bars">
+                {% for category in activity.categories %}
+                    <div class="chart-category">
+                        <div class="chart-bar-pair">
+                            <div class="chart-bar chart-bar-open" style="--bar-height: {{ category.open / activity.maximum * 100 }}%" title="{{ category.label }}: {{ category.open }} open"><span>{{ category.open }}</span></div>
+                            <div class="chart-bar chart-bar-closed" style="--bar-height: {{ category.closed / activity.maximum * 100 }}%" title="{{ category.label }}: {{ category.closed }} closed"><span>{{ category.closed }}</span></div>
+                        </div>
+                        <span class="chart-label">{{ category.label }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if not activity.total %}<p class="chart-empty">Your activity will appear here as requests come in.</p>{% endif %}
+        <details class="chart-data"><summary>View chart data</summary><table class="data-table"><thead><tr><th scope="col">Category</th><th scope="col">Open</th><th scope="col">Closed</th></tr></thead><tbody>{% for category in activity.categories %}<tr><th scope="row">{{ category.label }}</th><td>{{ category.open }}</td><td>{{ category.closed }}</td></tr>{% endfor %}</tbody></table></details>
+    </section>
+    <section class="panel request-mix-panel" aria-labelledby="request-mix-heading">
+        <div class="panel-header"><div><h2 id="request-mix-heading" class="panel-title">Request mix</h2><p class="panel-kicker">How your records are distributed</p></div></div>
+        {% set stops = [] %}
+        {% set offset = 0 %}
+        {% for category in activity.categories %}
+            {% set portion = activity.total ? category.total / activity.total * 100 : 0 %}
+            {% set stops = stops|merge([colors[loop.index0] ~ ' ' ~ offset ~ '% ' ~ (offset + portion) ~ '%']) %}
+            {% set offset = offset + portion %}
+        {% endfor %}
+        <div class="donut-wrap">
+            <div class="donut-chart" style="--donut-fill: {{ activity.total ? 'conic-gradient(' ~ stops|join(', ') ~ ')' : 'var(--cream-2)' }}" role="img" aria-label="{{ activity.total }} total records. {% for category in activity.categories %}{{ category.label }}: {{ category.total }}. {% endfor %}">
+                <div class="donut-center"><strong>{{ activity.total }}</strong><span>Total records</span></div>
+            </div>
+        </div>
+        <ul class="donut-legend">{% for category in activity.categories %}<li><span><i class="legend-dot" style="background: {{ colors[loop.index0] }}"></i>{{ category.label }}</span><strong>{{ category.total }}</strong></li>{% endfor %}</ul>
+    </section>
+</div>

@@ -1,0 +1,20 @@
+{% extends 'layouts/portal.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}{{ case.referenceCode }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ case.referenceCode }}</h1><p class="page-description">Your CARE request updates and follow-up schedule.</p></div><a class="btn btn-outline" href="{{ path('portal_care') }}">Back to CARE requests</a></div>
+<div class="content-grid">
+    <section class="panel">
+        <div class="panel-header record-heading"><div><p class="panel-kicker">Guidance &amp; wellbeing</p><h2 class="panel-title">CARE update</h2></div>{{ ui.status_badge(case.status.label) }}</div>
+        {% if case.studentVisibleSummary %}<dl class="detail-grid"><dt>Update from CARE</dt><dd>{{ case.studentVisibleSummary|nl2br }}</dd></dl>{% else %}<div class="empty-state"><strong>Your request is being tracked</strong><p>An update from the CARE team will appear here when available.</p></div>{% endif %}
+    </section>
+    <section class="panel">
+        <div class="panel-header"><div><p class="panel-kicker">Continued support</p><h2 class="panel-title">Follow-ups</h2></div></div>
+        <ul class="simple-list follow-up-list">
+            {% for f in case.followUps %}
+                <li><div class="record-heading"><strong>{{ f.dueAt|date('M j, Y') }}</strong>{% if f.completedAt %}{{ ui.status_badge('Completed') }}{% endif %}</div><small class="muted">Due {{ f.dueAt|date('g:i A') }}</small></li>
+            {% else %}<li class="empty-state"><strong>No follow-ups scheduled</strong><p>Your next CARE check-in will appear here.</p></li>{% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}
