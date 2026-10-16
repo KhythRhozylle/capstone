@@ -6,7 +6,7 @@
 <div data-controller="login-morph">
 <header class="landing-nav">
     <div class="landing-nav-inner">
-        <nav class="landing-links" aria-label="Main">
+        <nav class="landing-links" aria-label="Main" data-controller="scrollspy">
             <a href="{{ path('app_home') }}#welcome">Home</a>
             <a href="{{ path('app_home') }}#about">About</a>
             <a href="{{ path('app_home') }}#campuses">Campuses</a>
@@ -25,7 +25,39 @@
 </main>
 
 <footer class="landing-footer">
-    <p>&copy; {{ 'now'|date('Y') }} Negros Oriental State University · Student Affairs &amp; Services</p>
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <img src="{{ asset('images/sas-logo.png') }}" alt="" width="72" height="72" loading="lazy">
+            <div>
+                <strong>NORSU Student Affairs &amp; Services</strong>
+                <span>Negros Oriental State University</span>
+            </div>
+            <p>One place to ask for help and follow it through, on every campus.</p>
+        </div>
+        <nav class="footer-col" aria-label="Footer">
+            <h2>Explore</h2>
+            <a href="{{ path('app_home') }}#about">About</a>
+            <a href="{{ path('app_home') }}#campuses">Campuses</a>
+            <a href="{{ path('app_home') }}#services">Services</a>
+            <a href="{{ path('app_home') }}#announcements">Announcements</a>
+            <a href="{{ path('app_vpsas_office') }}">Office of the VPSAS</a>
+        </nav>
+        <div class="footer-col">
+            <h2>Services</h2>
+            <a href="{{ path('app_sds') }}">Student Development</a>
+            <a href="{{ path('app_sws') }}">Student Welfare</a>
+            <a href="{{ path('app_isps') }}">Institutional Programs</a>
+            <a href="{{ path('app_login') }}" data-action="login-morph#open">Sign in</a>
+        </div>
+        <div class="footer-col footer-contact">
+            <h2>Contact</h2>
+            <span>{{ sas_contact.address }}</span>
+            <a href="mailto:{{ sas_contact.email }}">{{ sas_contact.email }}</a>
+            <span>{{ sas_contact.office_hours }}</span>
+            <a class="footer-cta" href="{{ path('app_contact') }}">Get in touch</a>
+        </div>
+    </div>
+    <p class="footer-legal">&copy; {{ 'now'|date('Y') }} Negros Oriental State University &middot; Student Affairs &amp; Services</p>
 </footer>
 
 <div class="login-modal" id="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title" hidden

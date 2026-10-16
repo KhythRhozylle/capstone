@@ -7,8 +7,9 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @phpstan-type GalleryImage array{image: string, alt: string, title: string}
+ * @phpstan-type Person array{image: string, name: string, role: string}
  * @phpstan-type Offering array{code: string, slug: string, name: string, description: string, images: list<GalleryImage>}
- * @phpstan-type StudentService array{code: string, name: string, summary: string, description: string, focus: string, route: string, offerings: list<Offering>, slides: list<GalleryImage>}
+ * @phpstan-type StudentService array{code: string, name: string, summary: string, description: string, focus: string, route: string, director: Person, heads: list<Person>, offerings: list<Offering>, slides: list<GalleryImage>}
  */
 class StudentServiceCatalog
 {
@@ -33,6 +34,13 @@ class StudentServiceCatalog
             'description' => 'Student Development Services (SDS) brings together the units that support student leadership, participation, responsible conduct and sports. It helps students build confidence, teamwork and a sense of responsibility alongside their academic learning.',
             'focus' => 'Leadership, participation and personal growth',
             'route' => 'app_sds',
+            'director' => ['image' => 'images/people/ventolero.jpg', 'name' => 'Julio E. Ventolero, MTE, MMM', 'role' => 'Director, Student Development Services'],
+            'heads' => [
+                ['image' => 'images/people/cabanlit.jpg', 'name' => 'Roche Cabanlit', 'role' => 'Head, Student Government'],
+                ['image' => 'images/people/bugay.jpg', 'name' => 'Dr. Apollo Marr F. Bugay', 'role' => 'Head, Board of Discipline & League of Student Organization'],
+                ['image' => 'images/people/torres.jpg', 'name' => 'Donald S. Torres', 'role' => 'Head, Student Publication'],
+                ['image' => 'images/people/llera.jpg', 'name' => 'Stella Marie Llera', 'role' => 'Head, Foreign International Student Services'],
+            ],
             'offerings' => [
                 [
                     'code' => 'OSAS',
@@ -63,6 +71,11 @@ class StudentServiceCatalog
             'description' => 'Student Welfare Services (SWS) focuses on student well-being and support throughout university life. Its units bring together counselling, assessment, resources and enhancement, along with student enterprise development, to help students address concerns and explore their potential.',
             'focus' => 'Well-being, guidance and student enterprise',
             'route' => 'app_sws',
+            'director' => ['image' => 'images/people/taguba.jpg', 'name' => 'Annie Rose Taguba, RGC, RPM', 'role' => 'Director, Student Welfare Services'],
+            'heads' => [
+                ['image' => 'images/people/de-guzman.jpg', 'name' => 'Dulce Maria Rosario S. De Guzman', 'role' => 'Head, Counseling Assessment, Resources & Enhancement'],
+                ['image' => 'images/people/enquilino.jpg', 'name' => 'Pirl I. Enquilino', 'role' => 'Head, Student Enterprise Development'],
+            ],
             'offerings' => [
                 [
                     'code' => 'CARE',
@@ -83,6 +96,15 @@ class StudentServiceCatalog
             'description' => 'Institutional Student Programs & Services (ISPS) brings together programs that support students with different backgrounds, interests and needs. It covers scholarship and financial assistance, multi-faith services, student publications, international student support, food and housing concerns, and services for students with special needs.',
             'focus' => 'Access, inclusion and everyday student support',
             'route' => 'app_isps',
+            'director' => ['image' => 'images/people/bernaldez.jpg', 'name' => 'Dr. Carlou G. Bernaldez', 'role' => 'Director, Institutional Student Programs & Services'],
+            'heads' => [
+                ['image' => 'images/people/ibero.jpg', 'name' => 'Orly V. Ibero', 'role' => 'Head, Sports Development Program'],
+                ['image' => 'images/people/oliveros.jpg', 'name' => 'Dr. Michael Oliveros', 'role' => 'Head, University Clinic'],
+                ['image' => 'images/people/escorial.jpg', 'name' => 'Shiela May L. Escorial', 'role' => 'Head, Scholarship and Financial Assistance'],
+                ['image' => 'images/people/eliaga.jpg', 'name' => 'Miriam Eliaga', 'role' => 'Head, Multi-Faith Services'],
+                ['image' => 'images/people/rizada.jpg', 'name' => 'Ma. Leroz P. Rizada', 'role' => 'Head, Food, Student Housing & Residential'],
+                ['image' => 'images/people/alama.jpg', 'name' => 'Efreneth G. Alama', 'role' => 'Head, Services for Students w/ Special Needs'],
+            ],
             'offerings' => [
                 [
                     'code' => 'SCHOL',

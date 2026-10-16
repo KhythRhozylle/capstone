@@ -6,8 +6,17 @@
             <p class="section-lead">Find your place, look after your well-being, and discover the support you need to thrive at NORSU.</p>
         </div>
         <div class="services-banner" data-reveal>
-            <img src="{{ asset('images/login-building.jpg') }}" width="1024" height="576" alt="" loading="lazy">
+            <img src="{{ asset('images/office.jpg') }}" width="1024" height="576" alt="" loading="lazy">
         </div>
+        <a class="vpsas-card" href="{{ path('app_vpsas_office') }}" data-reveal>
+            <img class="vpsas-card-photo" src="{{ asset('images/vpsas/vice-president.jpg') }}" width="360" height="360" alt="" loading="lazy">
+            <span class="vpsas-card-copy">
+                <span class="service-code">VPSAS</span>
+                <strong>Office of the Vice President, Student Affairs &amp; Services</strong>
+                <span>Meet the Vice President, the office staff and the secretary who lead student affairs across NORSU.</span>
+            </span>
+            <span class="service-more" aria-hidden="true">Meet the office <span>&#8594;</span></span>
+        </a>
         <div class="services-grid">
             {% for service in services %}
                 <article class="service-card" data-reveal style="--d: {{ loop.index0 * 0.1 }}s">

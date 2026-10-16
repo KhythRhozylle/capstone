@@ -9,35 +9,125 @@
             <div class="hero-emblem">
                 <img class="hero-logo" src="{{ asset('images/sas-logo.png') }}" alt="NORSU Student Affairs and Services seal" width="240" height="240" fetchpriority="high">
             </div>
-            <p class="eyebrow">Negros Oriental State University</p>
-            <h1>Integrated Student Affairs &amp; Services Management</h1>
-            <p class="lead">Book appointments, submit concerns, request SAS documents, and track every request across NORSU campuses — with consolidated analytics for VPSAS decision-makers.</p>
+            <h1 class="hero-title">DANGOP</h1>
+            <p class="hero-tagline">Integrated Student Affairs &amp; Services Management</p>
             <div class="hero-actions">
-                <a class="btn" href="{{ path('app_login') }}" data-action="login-morph#open">Student / staff sign in</a>
-                <a class="btn btn-outline" href="{{ path('app_register') }}">Create student account</a>
+                <a class="btn" href="#about">Find out more</a>
             </div>
         </div>
+        <svg class="hero-wave" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="wave-back" d="M0 70 C240 10 520 20 760 70 S1220 130 1440 40 V160 H0 Z"/>
+            <path class="wave-mid" d="M0 95 C260 40 540 50 780 100 S1230 150 1440 70 V160 H0 Z"/>
+            <path class="wave-front" d="M0 125 C280 80 560 90 800 125 S1240 160 1440 105 V160 H0 Z"/>
+        </svg>
     </section>
 
     {# 2. About #}
-    <section id="about" class="landing-section">
-        <div class="landing-container about-grid">
-            <div data-reveal>
-                <p class="eyebrow eyebrow-dark">About SAS</p>
-                <h2>One office for every student need</h2>
+    <section id="about" class="landing-section about-us has-highlights">
+        <div class="landing-container about-us-grid">
+            <div class="about-us-copy" data-reveal>
+                <h2 class="about-us-title">About us</h2>
+                <span class="about-us-rule" aria-hidden="true"></span>
                 <p class="section-lead">The Office of the Vice President for Student Affairs &amp; Services brings together the units that support NORSU students, from guidance and counselling to scholarships, student government and housing. This system gives every campus one place to ask for help and follow it through.</p>
+                <a class="btn about-us-btn" href="#campuses">Learn more</a>
                 <ul class="about-stats">
-                    <li><strong>{{ campuses|length }}</strong><span>Campuses</span></li>
+                    <li><strong>6</strong><span>Campuses</span></li>
                     <li><strong>{{ directorates|length }}</strong><span>Directorates</span></li>
-                    <li><strong>{{ directorates|map(d => d.units|length)|reduce((total, n) => total + n, 0) }}</strong><span>SAS units</span></li>
+                    <li><strong>15</strong><span>SAS units</span></li>
                 </ul>
             </div>
-            <ul class="about-features">
-                <li data-reveal style="--d: .05s"><h3>Appointments &amp; queue</h3><p>Book a slot with any SAS unit and get a queue ticket.</p></li>
-                <li data-reveal style="--d: .15s"><h3>Concerns &amp; grievances</h3><p>File a concern and track it until it is resolved.</p></li>
-                <li data-reveal style="--d: .25s"><h3>Documents &amp; QR verification</h3><p>Request SAS documents and verify them with a QR code.</p></li>
-                <li data-reveal style="--d: .35s"><h3>CARE guidance</h3><p>Counselling, referrals and follow-ups in one place.</p></li>
-            </ul>
+            <div class="about-us-art" data-reveal style="--d: .1s">
+                <svg viewBox="0 0 560 460" role="img" aria-label="Illustration of four students and staff standing together" focusable="false">
+                    <path class="art-blob" d="M120 60 C210 0 330 20 420 40 C520 62 560 150 540 250 C522 340 540 420 420 450 C300 478 180 440 110 390 C40 340 20 250 50 170 C64 120 80 85 120 60Z"/>
+                    <path class="art-blob-2" d="M400 20 C470 10 540 60 550 130 C556 190 520 210 470 190 C420 170 360 150 360 100 C360 60 370 25 400 20Z"/>
+                    <g class="art-leaves">
+                        <ellipse cx="108" cy="250" rx="14" ry="42" transform="rotate(-30 108 250)"/>
+                        <ellipse cx="128" cy="205" rx="12" ry="38" transform="rotate(-8 128 205)"/>
+                        <ellipse cx="520" cy="215" rx="13" ry="40" transform="rotate(25 520 215)"/>
+                        <ellipse cx="498" cy="170" rx="11" ry="34" transform="rotate(8 498 170)"/>
+                        <ellipse cx="262" cy="108" rx="11" ry="32" transform="rotate(-20 262 108)"/>
+                    </g>
+                    <g class="art-person p-back-right">
+                        <circle class="hair" cx="432" cy="144" r="33"/>
+                        <rect class="skin" x="421" y="170" width="22" height="34"/>
+                        <circle class="skin" cx="432" cy="152" r="29"/>
+                        <path class="body" d="M360 440 C360 270 390 198 432 198 C474 198 504 270 504 440Z"/>
+                    </g>
+                    <g class="art-person p-back-mid">
+                        <circle class="hair" cx="318" cy="118" r="35"/>
+                        <rect class="skin" x="306" y="146" width="24" height="36"/>
+                        <circle class="skin" cx="318" cy="127" r="31"/>
+                        <path class="body-gold" d="M232 440 C232 250 272 176 318 176 C364 176 404 250 404 440Z"/>
+                    </g>
+                    <g class="art-person p-left">
+                        <rect class="hair" x="124" y="150" width="104" height="130" rx="46"/>
+                        <rect class="skin" x="164" y="196" width="24" height="40"/>
+                        <circle class="skin" cx="176" cy="180" r="34"/>
+                        <path class="hair" d="M142 176 C146 138 206 134 212 176 C190 160 166 160 142 176Z"/>
+                        <path class="body-soft" d="M70 450 C70 300 108 242 176 242 C244 242 282 300 282 450Z"/>
+                        <path class="body-deep" d="M146 246 L176 330 L206 246 C194 240 158 240 146 246Z"/>
+                    </g>
+                    <g class="art-person p-front">
+                        <circle class="hair" cx="318" cy="210" r="44"/>
+                        <rect class="skin" x="302" y="244" width="32" height="44"/>
+                        <circle class="skin" cx="318" cy="222" r="40"/>
+                        <path class="body" d="M190 460 C190 330 240 282 318 282 C396 282 446 330 446 460Z"/>
+                        <path class="body-gold" d="M288 284 L318 350 L348 284 C336 278 300 278 288 284Z"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        {# Highlights, part of About #}
+        <div class="highlights-band">
+        <div class="landing-container highlights-grid">
+            <article class="highlight-card" data-reveal>
+                <svg class="highlight-art" viewBox="0 0 200 150" role="img" aria-label="Illustration of a calendar and a queue ticket" focusable="false">
+                    <ellipse class="h-shadow" cx="100" cy="132" rx="70" ry="9"/>
+                    <rect class="h-teal" x="42" y="22" width="92" height="88" rx="10"/>
+                    <rect class="h-teal-dark" x="42" y="22" width="92" height="20" rx="10"/>
+                    <rect class="h-teal-dark" x="62" y="12" width="8" height="18" rx="4"/>
+                    <rect class="h-teal-dark" x="106" y="12" width="8" height="18" rx="4"/>
+                    <g class="h-line"><rect x="54" y="54" width="14" height="10" rx="3"/><rect x="76" y="54" width="14" height="10" rx="3"/><rect x="98" y="54" width="14" height="10" rx="3"/><rect x="54" y="72" width="14" height="10" rx="3"/><rect class="h-orange" x="76" y="72" width="14" height="10" rx="3"/><rect x="98" y="72" width="14" height="10" rx="3"/><rect x="54" y="90" width="14" height="10" rx="3"/><rect x="76" y="90" width="14" height="10" rx="3"/></g>
+                    <rect class="h-orange" x="122" y="70" width="58" height="40" rx="8" transform="rotate(-8 151 90)"/>
+                    <text class="h-ticket" x="151" y="96" text-anchor="middle" transform="rotate(-8 151 90)">A-12</text>
+                    <circle class="h-pink" cx="170" cy="28" r="9"/>
+                </svg>
+                <h3>Appointment &amp; Queue</h3>
+                <p>Book a slot with any SAS unit and get a queue ticket.</p>
+                <a class="highlight-btn" href="{{ path('app_login') }}" data-action="login-morph#open">More</a>
+            </article>
+            <article class="highlight-card" data-reveal style="--d: .1s">
+                <svg class="highlight-art" viewBox="0 0 200 150" role="img" aria-label="Illustration of a shield with a check mark" focusable="false">
+                    <ellipse class="h-shadow" cx="100" cy="132" rx="70" ry="9"/>
+                    <path class="h-teal" d="M100 14 L148 32 V70 C148 102 128 120 100 130 C72 120 52 102 52 70 V32 Z"/>
+                    <path class="h-teal-dark" d="M100 14 L148 32 V70 C148 102 128 120 100 130 Z"/>
+                    <path class="h-check" d="M78 72 L94 88 L124 56"/>
+                    <rect class="h-orange" x="146" y="86" width="38" height="26" rx="6"/>
+                    <path class="h-ticket-line" d="M154 96 H176 M154 103 H168"/>
+                    <circle class="h-pink" cx="34" cy="40" r="9"/>
+                </svg>
+                <h3>Safety and Security Report</h3>
+                <p>File a concern and track it until it is resolved.</p>
+                <a class="highlight-btn" href="{{ path('app_login') }}" data-action="login-morph#open">More</a>
+            </article>
+            <article class="highlight-card" data-reveal style="--d: .2s">
+                <svg class="highlight-art" viewBox="0 0 200 150" role="img" aria-label="Illustration of a document with a QR code" focusable="false">
+                    <ellipse class="h-shadow" cx="100" cy="132" rx="70" ry="9"/>
+                    <rect class="h-paper" x="52" y="14" width="96" height="112" rx="8"/>
+                    <g class="h-line"><rect x="64" y="26" width="48" height="6" rx="3"/><rect x="64" y="38" width="72" height="5" rx="2.5"/></g>
+                    <g class="h-qr"><rect x="68" y="56" width="26" height="26"/><rect x="106" y="56" width="26" height="26"/><rect x="68" y="92" width="26" height="26"/></g>
+                    <g class="h-qr-in"><rect x="74" y="62" width="14" height="14"/><rect x="112" y="62" width="14" height="14"/><rect x="74" y="98" width="14" height="14"/></g>
+                    <g class="h-qr"><rect x="106" y="92" width="10" height="10"/><rect x="122" y="104" width="10" height="14"/><rect x="108" y="108" width="8" height="10"/></g>
+                    <circle class="h-orange" cx="150" cy="108" r="22"/>
+                    <path class="h-check h-check-light" d="M140 108 L148 116 L162 100"/>
+                    <circle class="h-pink" cx="40" cy="36" r="9"/>
+                </svg>
+                <h3>Document Verification</h3>
+                <p>Request SAS documents and verify them with a QR code.</p>
+                <a class="highlight-btn" href="{{ path('app_login') }}" data-action="login-morph#open">More</a>
+            </article>
+        </div>
         </div>
     </section>
 
@@ -100,24 +190,34 @@
     {{ include('home/_student_services.html.twig', {services: student_services}, with_context: false) }}
 
     {# 6. Latest announcements #}
-    <section id="announcements" class="landing-section landing-section-alt">
+    <section id="announcements" class="landing-section landing-announcements" aria-labelledby="announcements-heading">
         <div class="landing-container">
-            <div data-reveal>
-                <p class="eyebrow eyebrow-dark">What's new</p>
-                <h2>Latest announcements</h2>
+            <div class="announce-heading" data-reveal>
+                <span class="announce-megaphone" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v6h4l10 6V7L8 13H4Z"/><path d="M22 12a5 5 0 0 1 0 8M25 9a9 9 0 0 1 0 14"/></svg>
+                </span>
+                <p class="eyebrow">What's new</p>
+                <h2 id="announcements-heading">Latest announcements</h2>
             </div>
-            <div class="card-grid card-grid-3">
-                {% for announcement in announcements %}
-                    <article class="landing-card announcement-card" data-reveal style="--d: {{ loop.index0 * 0.1 }}s">
-                        <time datetime="{{ announcement.publishedAt|date('c') }}">{{ announcement.publishedAt|date('F j, Y') }}</time>
+            <div class="announce-grid">
+                {% for announcement in announcements|slice(0, 3) %}
+                    <article class="announce-card" data-reveal style="--d: {{ loop.index0 * 0.1 }}s">
+                        <span class="announce-number" aria-hidden="true">{{ '%02d'|format(loop.index) }}</span>
+                        <div class="announce-date">
+                            <time datetime="{{ announcement.publishedAt|date('c') }}">
+                                <strong>{{ announcement.publishedAt|date('d') }}</strong>
+                                <span>{{ announcement.publishedAt|date('M Y') }}</span>
+                            </time>
+                        </div>
+                        {% if loop.first %}<span class="announce-new">New</span>{% endif %}
                         <h3>{{ announcement.title }}</h3>
-                        <p>{{ announcement.body|length > 180 ? announcement.body|slice(0, 180)|trim ~ '…' : announcement.body }}</p>
+                        <p>{{ announcement.body|length > 160 ? announcement.body|slice(0, 160)|trim ~ '…' : announcement.body }}</p>
                     </article>
                 {% else %}
-                    <p class="landing-empty">No announcements yet. Check back soon.</p>
+                    <p class="landing-empty announce-empty">No announcements yet. Check back soon.</p>
                 {% endfor %}
             </div>
-            <p class="section-more"><a href="{{ path('app_login') }}">Sign in to see all announcements, including those for your campus →</a></p>
+            <p class="announce-more"><a href="{{ path('app_login') }}">Sign in to see all announcements, including those for your campus <span aria-hidden="true">&#8594;</span></a></p>
         </div>
     </section>
 

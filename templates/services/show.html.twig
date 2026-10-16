@@ -22,6 +22,31 @@
         <p class="service-gallery-note landing-container">Campus views from the SAS website gallery.</p>
     </section>
 
+    <section class="landing-section service-people" aria-labelledby="service-director-name">
+        <div class="landing-container" data-controller="office-team">
+            <div class="vpsas-leader" data-reveal>
+                <p class="eyebrow eyebrow-dark">Our director</p>
+                <button type="button" class="vpsas-face" data-office-team-target="trigger" data-action="office-team#toggle"
+                        aria-expanded="false" aria-controls="service-heads"
+                        aria-label="{{ service.director.name }}. Show or hide the unit heads">
+                    <img src="{{ asset(service.director.image) }}" width="300" height="300" alt="Portrait of {{ service.director.name }}">
+                </button>
+                <h2 id="service-director-name" class="vpsas-name">{{ service.director.name }}</h2>
+                <p class="vpsas-position">{{ service.director.role }}</p>
+                <p class="vpsas-hint">Select the portrait to meet the unit heads.</p>
+            </div>
+            <div id="service-heads" class="vpsas-team" data-office-team-target="panel" hidden>
+                {% for head in service.heads %}
+                    <article class="vpsas-member">
+                        <img src="{{ asset(head.image) }}" width="300" height="300" alt="Portrait of {{ head.name }}" loading="lazy">
+                        <h3>{{ head.name }}</h3>
+                        <p>{{ head.role }}</p>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
     <section class="landing-section service-unit-galleries" aria-labelledby="service-offerings-heading">
         <div class="landing-container">
             <div data-reveal>
