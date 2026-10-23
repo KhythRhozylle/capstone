@@ -1,0 +1,6 @@
+<turbo-frame id="office-profile-panel" aria-live="polite">
+    {% if saved|default(false) %}<p class="account-profile-saved" role="status">Profile updated.</p>{% endif %}
+    {% include 'account/_profile_card.html.twig' %}
+    <turbo-stream action="update" target="account-profile-avatar"><template>{% if app.user.profilePhoto('account') %}<img src="{{ asset('uploads/profile-photos/' ~ app.user.profilePhoto('account')) }}" alt="">{% else %}{{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}{% endif %}</template></turbo-stream>
+    <turbo-stream action="update" target="account-profile-name"><template>{{ app.user.fullName ?: app.user.email }}</template></turbo-stream>
+</turbo-frame>

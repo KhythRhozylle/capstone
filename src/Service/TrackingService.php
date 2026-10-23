@@ -12,6 +12,8 @@ class TrackingService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly StatusHistoryRepository $historyRepository,
+        private readonly OfficeProfileContext $profiles,
+        private readonly StaffWorkspace $workspace,
     ) {
     }
 
@@ -24,6 +26,11 @@ class TrackingService
         }
 
         $history = new StatusHistory($entity::class, (int) $id, $from, $to, $actor, $note);
+        if ($this->profiles->supports($actor)) {
+            $history->setActorName($this->profiles->current($actor)->label());
+        } elseif ($this->workspace->supports($actor)) {
+            $history->setActorName($actor->getFullName());
+        }
         $this->entityManager->persist($history);
     }
 

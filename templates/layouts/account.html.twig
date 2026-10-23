@@ -1,0 +1,7 @@
+{% extends 'layouts/app.html.twig' %}
+{% block body_class %}workspace-page{% endblock %}
+{% set workspace_title = 'My account' %}
+{% set workspace_label = 'Student affairs and services' %}
+{% set workspace_home = 'vpsas_chat' %}
+{% set notification_count = notification_unread_count(app.user) %}
+{% set sidebar %}{% include 'partials/_sidebar.html.twig' with {label: 'Account navigation', groups: [{label: 'My account', items: [{label: 'Chat', route: 'vpsas_chat', icon: 'chat', active: false}]}]} only %}{% endset %}

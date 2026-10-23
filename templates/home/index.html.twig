@@ -37,44 +37,7 @@
                 </ul>
             </div>
             <div class="about-us-art" data-reveal style="--d: .1s">
-                <svg viewBox="0 0 560 460" role="img" aria-label="Illustration of four students and staff standing together" focusable="false">
-                    <path class="art-blob" d="M120 60 C210 0 330 20 420 40 C520 62 560 150 540 250 C522 340 540 420 420 450 C300 478 180 440 110 390 C40 340 20 250 50 170 C64 120 80 85 120 60Z"/>
-                    <path class="art-blob-2" d="M400 20 C470 10 540 60 550 130 C556 190 520 210 470 190 C420 170 360 150 360 100 C360 60 370 25 400 20Z"/>
-                    <g class="art-leaves">
-                        <ellipse cx="108" cy="250" rx="14" ry="42" transform="rotate(-30 108 250)"/>
-                        <ellipse cx="128" cy="205" rx="12" ry="38" transform="rotate(-8 128 205)"/>
-                        <ellipse cx="520" cy="215" rx="13" ry="40" transform="rotate(25 520 215)"/>
-                        <ellipse cx="498" cy="170" rx="11" ry="34" transform="rotate(8 498 170)"/>
-                        <ellipse cx="262" cy="108" rx="11" ry="32" transform="rotate(-20 262 108)"/>
-                    </g>
-                    <g class="art-person p-back-right">
-                        <circle class="hair" cx="432" cy="144" r="33"/>
-                        <rect class="skin" x="421" y="170" width="22" height="34"/>
-                        <circle class="skin" cx="432" cy="152" r="29"/>
-                        <path class="body" d="M360 440 C360 270 390 198 432 198 C474 198 504 270 504 440Z"/>
-                    </g>
-                    <g class="art-person p-back-mid">
-                        <circle class="hair" cx="318" cy="118" r="35"/>
-                        <rect class="skin" x="306" y="146" width="24" height="36"/>
-                        <circle class="skin" cx="318" cy="127" r="31"/>
-                        <path class="body-gold" d="M232 440 C232 250 272 176 318 176 C364 176 404 250 404 440Z"/>
-                    </g>
-                    <g class="art-person p-left">
-                        <rect class="hair" x="124" y="150" width="104" height="130" rx="46"/>
-                        <rect class="skin" x="164" y="196" width="24" height="40"/>
-                        <circle class="skin" cx="176" cy="180" r="34"/>
-                        <path class="hair" d="M142 176 C146 138 206 134 212 176 C190 160 166 160 142 176Z"/>
-                        <path class="body-soft" d="M70 450 C70 300 108 242 176 242 C244 242 282 300 282 450Z"/>
-                        <path class="body-deep" d="M146 246 L176 330 L206 246 C194 240 158 240 146 246Z"/>
-                    </g>
-                    <g class="art-person p-front">
-                        <circle class="hair" cx="318" cy="210" r="44"/>
-                        <rect class="skin" x="302" y="244" width="32" height="44"/>
-                        <circle class="skin" cx="318" cy="222" r="40"/>
-                        <path class="body" d="M190 460 C190 330 240 282 318 282 C396 282 446 330 446 460Z"/>
-                        <path class="body-gold" d="M288 284 L318 350 L348 284 C336 278 300 278 288 284Z"/>
-                    </g>
-                </svg>
+                {{ include('partials/_about_art.html.twig') }}
             </div>
         </div>
 
@@ -200,24 +163,16 @@
                 <h2 id="announcements-heading">Latest announcements</h2>
             </div>
             <div class="announce-grid">
-                {% for announcement in announcements|slice(0, 3) %}
-                    <article class="announce-card" data-reveal style="--d: {{ loop.index0 * 0.1 }}s">
-                        <span class="announce-number" aria-hidden="true">{{ '%02d'|format(loop.index) }}</span>
-                        <div class="announce-date">
-                            <time datetime="{{ announcement.publishedAt|date('c') }}">
-                                <strong>{{ announcement.publishedAt|date('d') }}</strong>
-                                <span>{{ announcement.publishedAt|date('M Y') }}</span>
-                            </time>
-                        </div>
-                        {% if loop.first %}<span class="announce-new">New</span>{% endif %}
-                        <h3>{{ announcement.title }}</h3>
-                        <p>{{ announcement.body|length > 160 ? announcement.body|slice(0, 160)|trim ~ '…' : announcement.body }}</p>
-                    </article>
-                {% else %}
-                    <p class="landing-empty announce-empty">No announcements yet. Check back soon.</p>
-                {% endfor %}
+                <a class="announce-poster" href="{{ path('app_channel_tn') }}" data-reveal aria-label="The NORSUnian announcements">
+                    <img src="{{ asset('images/announcements/the-norsunian.webp') }}" width="760" height="1048" alt="Announcement from @The NORSUnian: The NORSUnian (TN) is the official weekly student publication of Negros Oriental State University." loading="lazy">
+                </a>
+                <a class="announce-poster" href="{{ path('app_channel_hadurawan') }}" data-reveal style="--d: .1s" aria-label="HADURAWAN announcements">
+                    <img src="{{ asset('images/announcements/hadurawan.webp') }}" width="760" height="1048" alt="Announcement from @HADURAWAN: HADURAWAN NORSU showcases the creativity, talents, and artistic expressions of the NORSU community." loading="lazy">
+                </a>
+                <a class="announce-poster" href="{{ path('app_channel_norsu_media') }}" data-reveal style="--d: .2s" aria-label="NORSU Media announcements">
+                    <img src="{{ asset('images/announcements/norsu-media.webp') }}" width="760" height="1048" alt="Announcement from @NORSU Media: NORSU Media shares university news, events, and updates to keep the NORSU community informed and connected." loading="lazy">
+                </a>
             </div>
-            <p class="announce-more"><a href="{{ path('app_login') }}">Sign in to see all announcements, including those for your campus <span aria-hidden="true">&#8594;</span></a></p>
         </div>
     </section>
 

@@ -1,0 +1,14 @@
+{# events: list of {date: 'Y-m-d', time, title, sub, status, url}; calendar_route: optional route name #}
+<section class="panel cal-panel" data-controller="mini-calendar" data-mini-calendar-events-value="{{ events|json_encode }}" aria-label="Schedule calendar">
+    <div class="cal-head">
+        <button type="button" class="cal-nav cal-prev" aria-label="Previous month" data-action="mini-calendar#prev">{{ include('partials/_icon.html.twig', {name: 'chevron'}) }}</button>
+        <h2 class="cal-title" data-mini-calendar-target="title" aria-live="polite"></h2>
+        <button type="button" class="cal-nav" aria-label="Next month" data-action="mini-calendar#next">{{ include('partials/_icon.html.twig', {name: 'chevron'}) }}</button>
+    </div>
+    <div class="cal-weekdays" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+    <div class="cal-grid" data-mini-calendar-target="grid"></div>
+    <div class="schedule">
+        <div class="schedule-head"><h3 data-mini-calendar-target="listTitle">Today</h3>{% if calendar_route is defined %}<a class="panel-link" href="{{ path(calendar_route) }}">Open calendar &rarr;</a>{% endif %}</div>
+        <ul class="schedule-list" data-mini-calendar-target="list"></ul>
+    </div>
+</section>

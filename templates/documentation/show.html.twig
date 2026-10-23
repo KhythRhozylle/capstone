@@ -1,0 +1,10 @@
+{% extends is_granted('ROLE_STUDENT') ? 'layouts/portal.html.twig' : (is_granted('ROLE_VPSAS') ? 'layouts/vpsas.html.twig' : 'layouts/staff.html.twig') %}
+{% block title %}{{ guide.title }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ guide.title }}</h1><p class="page-description">Updated {{ guide.updatedAt|date('M j, Y g:i A', 'Asia/Manila') }} by {{ guide.updatedBy.fullName }}</p></div><a class="btn btn-outline" href="{{ path('documentation_index') }}">All guides</a></div>
+<article class="panel documentation-content">{{ guide.body|nl2br }}</article>
+{% if is_granted('DOCUMENTATION_MANAGE') %}
+<div class="page-header"><a class="btn" href="{{ path('documentation_edit', {id: guide.id}) }}">Edit guide</a>
+<form method="post" action="{{ path('documentation_delete', {id: guide.id}) }}"><input type="hidden" name="_token" value="{{ csrf_token('delete_guide_' ~ guide.id) }}"><button class="btn btn-outline" type="submit">Delete guide</button></form></div>
+{% endif %}
+{% endblock %}

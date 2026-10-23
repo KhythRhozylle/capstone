@@ -4,25 +4,27 @@
 {% block page_class %}service-detail-page{% endblock %}
 
 {% block main %}
-    <section class="landing-section landing-section-alt service-detail-intro" aria-labelledby="service-title">
-        <div class="landing-container" data-reveal>
-            <a class="service-back" href="{{ path('app_home') }}#services">
-                <span aria-hidden="true">&#8592;</span> Back to student services
-            </a>
-            <p class="eyebrow eyebrow-dark">Student Affairs &amp; Services &middot; {{ service.code }}</p>
-            <h1 id="service-title" class="service-detail-title">{{ service.name }}</h1>
-            <p class="section-lead">{{ service.summary }}</p>
-            <div class="service-detail-copy">
-                <p>{{ service.description }}</p>
-                <p class="service-detail-focus"><strong>Our focus</strong><span>{{ service.focus }}</span></p>
+    <section class="landing-section about-us service-detail-intro" aria-labelledby="service-title">
+        <div class="landing-container about-us-grid">
+            <div class="about-us-copy" data-reveal>
+                <a class="service-back" href="{{ path('app_home') }}#services">Back</a>
+                <p class="eyebrow eyebrow-dark">Student Affairs &amp; Services &middot; {{ service.code }}</p>
+                <h1 id="service-title" class="about-us-title service-detail-title">{{ service.name }}</h1>
+                <span class="about-us-rule" aria-hidden="true"></span>
+                <p class="section-lead">{{ service.summary }}</p>
+                <div class="service-detail-copy">
+                    <p class="service-detail-text">{{ service.description }}</p>
+                    <p class="service-detail-focus"><strong>Our focus</strong><span>{{ service.focus }}</span></p>
+                </div>
+                <a class="btn about-us-btn" href="{{ path('app_contact') }}">Contact us</a>
             </div>
-            <h2 id="service-gallery-heading" class="service-offerings-heading">A look around campus</h2>
+            <div class="about-us-art" data-reveal style="--d: .1s">
+                {{ include('partials/_about_art.html.twig') }}
+            </div>
         </div>
-        {{ include('partials/_service_carousel.html.twig', {service: service}, with_context: false) }}
-        <p class="service-gallery-note landing-container">Campus views from the SAS website gallery.</p>
     </section>
 
-    <section class="landing-section service-people" aria-labelledby="service-director-name">
+    <section class="landing-section service-people" aria-labelledby="service-director-name" data-controller="profile">
         <div class="landing-container" data-controller="office-team">
             <div class="vpsas-leader" data-reveal>
                 <p class="eyebrow eyebrow-dark">Our director</p>
@@ -38,26 +40,42 @@
             <div id="service-heads" class="vpsas-team" data-office-team-target="panel" hidden>
                 {% for head in service.heads %}
                     <article class="vpsas-member">
-                        <img src="{{ asset(head.image) }}" width="300" height="300" alt="Portrait of {{ head.name }}" loading="lazy">
-                        <h3>{{ head.name }}</h3>
-                        <p>{{ head.role }}</p>
+                        <button type="button" class="vpsas-member-btn" data-action="profile#open" data-profile-template-param="head-{{ loop.index }}"
+                                aria-haspopup="dialog" aria-label="View the profile of {{ head.name }}">
+                            <img src="{{ asset(head.image) }}" width="300" height="300" alt="Portrait of {{ head.name }}" loading="lazy">
+                            <h3>{{ head.name }}</h3>
+                            <p>{{ head.role }}</p>
+                            <span class="vpsas-member-summary">{{ head.summary }}</span>
+                            <span class="vpsas-member-more">View profile</span>
+                        </button>
+                        <template id="head-{{ loop.index }}">
+                            <div class="profile-layout">
+                                <div class="profile-person">
+                                    <img class="profile-photo" src="{{ asset(head.image) }}" width="300" height="300" alt="Portrait of {{ head.name }}">
+                                    <p class="eyebrow eyebrow-dark">{{ service.code }} &middot; Unit Head</p>
+                                    <h2 class="profile-name" data-profile-title>{{ head.name }}</h2>
+                                    <p class="profile-position">{{ head.role }}</p>
+                                    <p class="profile-summary">{{ head.summary }} {{ head.responsibilities }}</p>
+                                    <p class="profile-services-label">Other services</p>
+                                    <ul class="profile-services">{% for item in head.services %}<li>{{ item }}</li>{% endfor %}</ul>
+                                </div>
+                                <div class="profile-about">
+                                    {% for photo in head.photos %}
+                                        <img class="profile-tile" src="{{ asset(photo) }}" alt="{{ head.unit }}, photo {{ loop.index }}" width="400" height="300" loading="lazy">
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </template>
                     </article>
                 {% endfor %}
             </div>
         </div>
-    </section>
 
-    <section class="landing-section service-unit-galleries" aria-labelledby="service-offerings-heading">
-        <div class="landing-container">
-            <div data-reveal>
-                <p class="eyebrow eyebrow-dark">Our gallery</p>
-                <h2 id="service-offerings-heading">Services under {{ service.code }}</h2>
-                <p class="section-lead">Explore the individual galleries of our student service units.</p>
-            </div>
-            <div class="unit-galleries">
-                {% for offering in service.offerings %}
-                    {{ include('services/_unit_gallery.html.twig', {directorate_code: service.code, offering: offering}, with_context: false) }}
-                {% endfor %}
+        <div class="profile-modal" data-profile-target="modal" hidden role="dialog" aria-modal="true" aria-label="Unit head profile"
+             data-action="click->profile#backdrop keydown.esc->profile#close">
+            <div class="profile-card" data-profile-target="card" tabindex="-1">
+                <button type="button" class="profile-close" aria-label="Close profile" data-action="profile#close" data-profile-target="close">&times;</button>
+                <div class="profile-body" data-profile-target="body"></div>
             </div>
         </div>
     </section>

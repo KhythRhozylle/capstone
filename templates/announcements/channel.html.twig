@@ -1,0 +1,23 @@
+{% extends 'layouts/landing.html.twig' %}
+
+{% block title %}{{ channel.name }} · NORSU-SAS Insight{% endblock %}
+{% block page_class %}channel-page{% endblock %}
+
+{% block main %}
+    <section class="landing-section about-us channel-intro" aria-labelledby="channel-title">
+        <div class="landing-container channel-copy" data-reveal>
+            <a class="service-back" href="{{ path('app_home') }}#announcements">Back</a>
+            <p class="eyebrow eyebrow-dark">{{ channel.handle }}</p>
+            <h1 id="channel-title" class="about-us-title service-detail-title">{{ channel.name }}</h1>
+            <span class="about-us-rule" aria-hidden="true"></span>
+            <p class="section-lead">{{ channel.description }}</p>
+        </div>
+    </section>
+
+    <section class="landing-section landing-section-alt" aria-labelledby="channel-announcements-heading">
+        <div class="landing-container" data-reveal>
+            <h2 id="channel-announcements-heading">Announcements</h2>
+            <p class="landing-empty">No announcements from {{ channel.name }} yet. Check back soon.</p>
+        </div>
+    </section>
+{% endblock %}

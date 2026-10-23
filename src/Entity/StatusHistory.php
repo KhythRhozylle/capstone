@@ -32,6 +32,9 @@ class StatusHistory
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $note = null;
 
+    #[ORM\Column(length: 180, nullable: true)]
+    private ?string $actorName = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -74,6 +77,16 @@ class StatusHistory
     public function getActor(): ?User
     {
         return $this->actor;
+    }
+
+    public function setActorName(string $name): void
+    {
+        $this->actorName = $name;
+    }
+
+    public function getActorDisplayName(): ?string
+    {
+        return $this->actorName ?? $this->actor?->getFullName();
     }
 
     public function getNote(): ?string

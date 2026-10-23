@@ -1,0 +1,17 @@
+{# form: the AppointmentRescheduleType view, appointment: the Appointment, intro: short help text #}
+<section class="panel reschedule-panel" id="reschedule">
+    <div class="panel-header"><div><p class="panel-kicker">Need another time?</p><h2 class="panel-title">Reschedule appointment</h2><p class="panel-kicker">{{ intro }}</p></div></div>
+    {{ form_start(form, {attr: {
+        class: 'stack-form',
+        'data-controller': 'slot-picker',
+        'data-slot-picker-url-value': path('appointment_slots'),
+        'data-slot-picker-unit-value': appointment.unit.id,
+        'data-slot-picker-campus-value': appointment.campus.id,
+        'data-slot-picker-exclude-value': appointment.id
+    }}) }}
+        {{ form_row(form.scheduledAt) }}
+        {{ form_row(form.note) }}
+        {{ form_rest(form) }}
+        <div class="form-actions"><button class="btn" type="submit">Reschedule</button></div>
+    {{ form_end(form, {render_rest: false}) }}
+</section>

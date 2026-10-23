@@ -1,0 +1,56 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}Book an appointment{% endblock %}
+
+{% macro card(person, bookable, tier) %}
+    {% set open = bookable[person.unitCode] is defined %}
+    {% set tag = open ? 'a' : 'div' %}
+    <{{ tag }} class="official-card official-card-{{ tier }}{{ open ? '' : ' is-closed' }}"
+        {% if open %}href="{{ path('portal_appointment_new', {unit: person.unitCode}) }}" aria-label="Book an appointment with {{ person.name }}, {{ person.role }}"{% else %}aria-disabled="true"{% endif %}>
+        <span class="official-photo"><img src="{{ asset(person.image) }}" width="300" height="300" alt="" loading="lazy"></span>
+        <span class="official-info">
+            <strong>{{ person.name }}</strong>
+            <span>{{ person.role }}</span>
+            <em>{{ open ? 'Book appointment' : 'Not open for booking yet' }}</em>
+        </span>
+    </{{ tag }}>
+{% endmacro %}
+
+{% block content %}
+{% import _self as ui %}
+<div class="page-header">
+    <div>
+        <h1>Book an appointment</h1>
+        <p class="page-description">Choose the official you would like to meet. They are listed the way the SAS organizational chart is arranged.</p>
+    </div>
+    <a class="btn btn-outline" href="{{ path('portal_appointments') }}">Back to appointments</a>
+</div>
+
+<section class="officials" aria-label="SAS officials">
+    <div class="officials-tier officials-tier-top">
+        <p class="officials-label">Office of the Vice President</p>
+        <div class="officials-row">{{ ui.card(officials.vicePresident, bookable, 'vp') }}</div>
+    </div>
+
+    <div class="officials-tier">
+        <p class="officials-label">Directors</p>
+        <div class="officials-row">
+            {% for directorate in officials.directorates %}
+                {{ ui.card(directorate.director, bookable, 'director') }}
+            {% endfor %}
+        </div>
+    </div>
+
+    {% for directorate in officials.directorates %}
+        <div class="officials-tier">
+            <p class="officials-label">Unit heads under {{ directorate.name }}</p>
+            <div class="officials-row{{ directorate.heads|length > 4 ? ' officials-row-three' : '' }}">
+                {% for head in directorate.heads %}
+                    {{ ui.card(head, bookable, 'head') }}
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</section>
+
+<p class="officials-alt">Prefer a simple form? <a href="{{ path('portal_appointment_new') }}">Use the quick booking form</a>.</p>
+{% endblock %}

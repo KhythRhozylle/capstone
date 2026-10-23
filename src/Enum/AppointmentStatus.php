@@ -26,4 +26,14 @@ enum AppointmentStatus: string
             self::Cancelled => 'Cancelled',
         };
     }
+
+    /**
+     * Statuses in which an appointment still holds its time slot.
+     *
+     * @return list<self>
+     */
+    public static function occupying(): array
+    {
+        return [self::Pending, self::Approved, self::Rescheduled, self::CheckedIn];
+    }
 }

@@ -1,0 +1,6 @@
+{% extends is_granted('ROLE_VPSAS') ? 'layouts/vpsas.html.twig' : 'layouts/staff.html.twig' %}
+{% block title %}{{ guide.id ? 'Edit guide' : 'Create guide' }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ guide.id ? 'Edit guide' : 'Create guide' }}</h1><p class="page-description">Publish instructions students can view in their documentation guide.</p></div><a class="btn btn-outline" href="{{ path('documentation_index') }}">All guides</a></div>
+<section class="panel">{{ form_start(form) }}{{ form_widget(form) }}<button class="btn" type="submit">{{ guide.id ? 'Save changes' : 'Publish guide' }}</button>{{ form_end(form) }}</section>
+{% endblock %}

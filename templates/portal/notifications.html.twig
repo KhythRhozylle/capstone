@@ -1,19 +1,33 @@
-{% extends 'layouts/portal.html.twig' %}
+{% extends is_granted('ROLE_STUDENT') ? 'layouts/portal.html.twig' : (is_granted('ROLE_VPSAS') ? 'layouts/vpsas.html.twig' : 'layouts/staff.html.twig') %}
 {% block title %}Notifications{% endblock %}
 {% block content %}
-<div class="page-header"><div><h1>Notifications</h1><p class="page-description">Stay up to date on your appointments, requests, and campus services.</p></div></div>
-<ul class="simple-list">
-{% for n in notifications %}
-    <li class="panel">
-        <div class="panel-header"><div><p class="panel-kicker">{{ n.createdAt|date('M j, Y g:i A') }}</p><h2 class="panel-title">{{ n.title }}</h2></div>{% if not n.read %}<span class="badge badge-pending-approval">Unread</span>{% else %}<span class="badge">Read</span>{% endif %}</div>
-        <p>{{ n.body }}</p>
-        {% if not n.read %}
-            <form method="post" action="{{ path('portal_notification_read', {id: n.id}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('notification-read-' ~ n.id) }}">
-                <div class="detail-actions"><button class="btn btn-sm btn-outline" type="submit">Mark read</button></div>
-            </form>
-        {% endif %}
-    </li>
-{% else %}<li class="panel empty-state"><strong>You're all caught up</strong><p>Updates to your appointments and requests will appear here.</p></li>{% endfor %}
-</ul>
+<section class="notification-inbox" aria-labelledby="notification-heading">
+    <header class="notification-inbox-header">
+        <h1 id="notification-heading">Notifications {% if notification_count > 0 %}<span class="notification-total" aria-label="{{ notification_count }} unread">{{ notification_count }}</span>{% endif %}</h1>
+        {% if notifications|length %}<form method="post" action="{{ path('notifications_clear_all') }}"><input type="hidden" name="_token" value="{{ csrf_token('notifications-clear-all') }}"><button class="notification-text-button" type="submit">Clear All</button></form>{% endif %}
+    </header>
+    {% if notification_count > 0 %}<form class="notification-read-all" method="post" action="{{ path('notifications_read_all') }}"><input type="hidden" name="_token" value="{{ csrf_token('notifications-read-all') }}"><button class="notification-text-button" type="submit">Mark all read</button></form>{% endif %}
+    <ul class="simple-list notification-cards">
+    {% set previous_group = '' %}
+    {% for n in notifications %}
+        {% set day = n.createdAt|date('Y-m-d') %}
+        {% set group = day == 'now'|date('Y-m-d') ? 'Today' : (day == 'yesterday'|date('Y-m-d') ? 'Yesterday' : (n.createdAt|date('U') >= 'monday this week'|date('U') ? 'This week' : 'Earlier')) %}
+        {% set seconds = max(0, 'now'|date('U') - n.createdAt|date('U')) %}
+        <li class="notification-entry">
+            {% if group != previous_group %}<h2 class="notification-date-group">{{ group }}</h2>{% set previous_group = group %}{% endif %}
+            <article class="notification-card{{ not n.read ? ' is-unread' : '' }}" aria-labelledby="notification-title-{{ n.id }}">
+                <span class="notification-card-icon" aria-hidden="true">{% include 'partials/_icon.html.twig' with {name: 'bell'} only %}</span>
+                <div class="notification-card-content">
+                    <div class="notification-card-heading"><h3 id="notification-title-{{ n.id }}">{{ n.title }}</h3><time datetime="{{ n.createdAt|date('c') }}" title="{{ n.createdAt|date('M j, Y g:i A') }}">{% if seconds < 60 %}Just now{% elseif seconds < 3600 %}{{ (seconds / 60)|round(0, 'floor') }}m ago{% elseif seconds < 86400 and group == 'Today' %}{{ (seconds / 3600)|round(0, 'floor') }}h ago{% elseif group == 'Yesterday' %}Yesterday{% else %}{{ n.createdAt|date('M j') }}{% endif %}</time></div>
+                    <p>{{ n.body }}</p>
+                    <div class="notification-card-actions">
+                        {% if not n.read %}<form method="post" action="{{ path('notifications_read', {id: n.id}) }}"><input type="hidden" name="_token" value="{{ csrf_token('notification-read-' ~ n.id) }}"><button class="notification-text-button" type="submit">Mark read</button></form>{% endif %}
+                        <form method="post" action="{{ path('notifications_delete', {id: n.id}) }}"><input type="hidden" name="_token" value="{{ csrf_token('notification-delete-' ~ n.id) }}"><button class="notification-delete" type="submit" aria-label="Delete notification: {{ n.title }}" title="Delete notification">{% include 'partials/_icon.html.twig' with {name: 'trash'} only %}<span>Delete</span></button></form>
+                    </div>
+                </div>
+            </article>
+        </li>
+    {% else %}<li class="notification-empty"><strong>You're all caught up</strong><p>Updates to your appointments and requests will appear here.</p></li>{% endfor %}
+    </ul>
+</section>
 {% endblock %}

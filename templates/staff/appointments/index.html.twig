@@ -2,21 +2,29 @@
 {% import 'macros.html.twig' as ui %}
 {% block title %}Appointments{% endblock %}
 {% block content %}
-<div class="page-header">
-    <div><h1>Appointments</h1><p class="page-description">Review student bookings and keep every visit on track.</p></div>
-    <a class="btn btn-outline" href="{{ path('staff_appointment_calendar') }}">View calendar</a>
+<div class="people-header">
+    <div><h1>Appointments</h1><p class="people-sub">{{ office_profile(app.user) ? 'People who booked an appointment with the VPSAS office.' : 'Review student bookings and keep every visit on track.' }}</p></div>
+    {% if staff_workspace(app.user) and staff_workspace(app.user).code %}<a class="btn btn-outline" href="{{ path('staff_office_hours') }}">Office hours</a><a class="btn btn-outline" href="{{ office_profile(app.user) ? path('vpsas_availability') : path('staff_availability', {code: staff_workspace(app.user).code}) }}">Set unavailable</a>{% endif %}
+    <a class="people-add" href="{{ path('staff_appointment_calendar') }}">{{ include('partials/_icon.html.twig', {name: 'calendar'}) }}View calendar</a>
 </div>
-<section class="panel panel-table">
-    <div class="panel-header"><div><p class="panel-kicker">Student visits</p><h2 class="panel-title">Appointment overview</h2></div><span class="badge">{{ appointments|length }} total</span></div>
-    <div class="table-wrap"><table class="data-table">
-        <thead><tr><th scope="col">Reference</th><th scope="col">Student</th><th scope="col">Campus</th><th scope="col">Schedule</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+<section class="people-card" data-controller="paged-table" data-paged-table-per-page-value="5" aria-label="Appointment overview">
+    <table class="people-table">
+        <thead><tr><th scope="col">People</th><th scope="col">Status</th><th scope="col">Schedule</th><th scope="col">Reference</th><th scope="col">Action</th></tr></thead>
         <tbody>
         {% for a in appointments %}
-            <tr><td><a class="table-link" href="{{ path('staff_appointment_show', {id: a.id}) }}">{{ a.referenceCode }}</a></td><td>{{ a.student.fullName }}</td><td>{{ a.campus.name }}</td><td>{{ a.scheduledAt|date('M j, Y') }}<small class="table-subtext">{{ a.scheduledAt|date('g:i A') }}</small></td><td>{{ ui.status_badge(a.status.label) }}</td><td><a class="btn btn-sm btn-outline" href="{{ path('staff_appointment_show', {id: a.id}) }}">Review</a></td></tr>
-        {% else %}
-            <tr><td colspan="6"><div class="empty-state"><strong>No appointments yet</strong><p>Student bookings will appear here when they are submitted.</p></div></td></tr>
+            <tr data-paged-table-target="row">
+                <td><div class="person"><span class="avatar av-{{ a.id % 5 }}" aria-hidden="true">{{ (a.student.firstName|slice(0, 1) ~ a.student.lastName|slice(0, 1))|upper }}</span><div><strong>{{ a.student.fullName }}</strong><small>{{ a.unit.name }} &middot; {{ a.campus.name }}</small></div></div></td>
+                <td>{{ ui.status_pill(a.status.value, a.status.label) }}</td>
+                <td><span class="figure">{{ a.scheduledAt|date('M j') }}</span> <span class="figure-unit">{{ a.scheduledAt|date('Y') }}</span><small class="sub">{{ a.scheduledAt|date('g:i A') }} &middot; {{ a.mode.label }}</small></td>
+                <td><span class="figure figure-ref">{{ a.referenceCode }}</span></td>
+                <td><a class="people-edit" href="{{ path('staff_appointment_show', {id: a.id}) }}">{{ include('partials/_icon.html.twig', {name: 'request'}) }}Open</a></td>
+            </tr>
         {% endfor %}
         </tbody>
-    </table></div>
+    </table>
+    {% if not appointments %}
+        <div class="empty-state"><strong>No appointments yet</strong><p>Student bookings will appear here when they are submitted.</p></div>
+    {% endif %}
+    <nav class="people-pages" aria-label="Appointment pages" data-paged-table-target="nav"></nav>
 </section>
 {% endblock %}

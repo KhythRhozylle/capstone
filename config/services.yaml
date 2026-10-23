@@ -12,6 +12,10 @@ parameters:
         address: 'Kagawasan Ave., Dumaguete City, Negros Oriental 6200'
         office_hours: 'Monday to Friday, 8:00 AM to 5:00 PM'
         email: 'sas@norsu.edu.ph'
+        # Official SAS social pages; an empty value hides that icon.
+        social:
+            facebook: ''
+            youtube: ''
         phones:
             - { label: 'Office of the VPSAS', number: '(035) 000-0000' }
             - { label: 'University OSAS', number: '(035) 000-0000' }

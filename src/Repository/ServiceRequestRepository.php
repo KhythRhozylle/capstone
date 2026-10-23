@@ -21,6 +21,8 @@ class ServiceRequestRepository extends ServiceEntityRepository
     public function findForStudent(User $student): array
     {
         return $this->createQueryBuilder('r')
+            ->leftJoin('r.campus', 'display_campus')->addSelect('display_campus')
+            ->leftJoin('r.unit', 'display_unit')->addSelect('display_unit')
             ->andWhere('r.student = :student')
             ->setParameter('student', $student)
             ->orderBy('r.createdAt', 'DESC')
@@ -29,14 +31,25 @@ class ServiceRequestRepository extends ServiceEntityRepository
     }
 
     /** @return list<ServiceRequest> */
-    public function findForStaff(?SasUnit $unit, ?Campus $campus): array
+    public function findForStaff(?SasUnit $unit, ?Campus $campus, ?string $directorateCode = null): array
     {
-        $qb = $this->createQueryBuilder('r')->orderBy('r.createdAt', 'DESC');
+        $qb = $this->createQueryBuilder('r')
+            ->leftJoin('r.campus', 'display_campus')->addSelect('display_campus')
+            ->leftJoin('r.unit', 'display_unit')->addSelect('display_unit')
+            ->leftJoin('r.student', 'display_student')->addSelect('display_student')
+            ->leftJoin('display_student.studentProfile', 'display_profile')->addSelect('display_profile')
+            ->orderBy('r.createdAt', 'DESC');
         if ($unit instanceof SasUnit) {
             $qb->andWhere('r.unit = :unit')->setParameter('unit', $unit);
         }
         if ($campus instanceof Campus) {
             $qb->andWhere('r.campus = :campus')->setParameter('campus', $campus);
+        }
+
+        if (null !== $directorateCode) {
+            $qb->join('r.unit', 'scope_unit')->join('scope_unit.directorate', 'scope_directorate')
+                ->andWhere('scope_directorate.code = :directorate')->andWhere('scope_unit.code != :vpsas')
+                ->setParameter('directorate', $directorateCode)->setParameter('vpsas', 'VPSAS');
         }
 
         return $qb->getQuery()->getResult();

@@ -24,6 +24,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     private string $email = '';
 
+    /** @var array<string, string> */
+    #[ORM\Column]
+    private array $profilePhotos = [];
+
     /** @var list<string> */
     #[ORM\Column]
     private array $roles = [];
@@ -70,6 +74,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->email = $email;
 
         return $this;
+    }
+
+    public function getProfilePhoto(string $profile): ?string
+    {
+        return $this->profilePhotos[$profile] ?? null;
+    }
+
+    public function setProfilePhoto(string $profile, ?string $filename): void
+    {
+        if (null === $filename) {
+            unset($this->profilePhotos[$profile]);
+        } else {
+            $this->profilePhotos[$profile] = $filename;
+        }
     }
 
     public function getUserIdentifier(): string

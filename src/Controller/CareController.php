@@ -8,6 +8,7 @@ use App\Enum\CareCaseStatus;
 use App\Form\FollowUpType;
 use App\Repository\CareCaseRepository;
 use App\Service\AppNotifier;
+use App\Service\StaffScope;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,6 +50,10 @@ class CareController extends AbstractController
         if (!$case) {
             throw $this->createNotFoundException();
         }
+        $scope = StaffScope::for($user);
+        if ($scope->campus && $scope->campus->getId() !== $case->getCampus()->getId()) {
+            throw $this->createAccessDeniedException();
+        }
 
         $followUp = new CareFollowUp();
         $followUp->setDueAt(new \DateTimeImmutable('+7 days'));
@@ -82,6 +87,10 @@ class CareController extends AbstractController
         $case = $cases->find($id);
         if (!$case) {
             throw $this->createNotFoundException();
+        }
+        $scope = StaffScope::for($user);
+        if ($scope->campus && $scope->campus->getId() !== $case->getCampus()->getId()) {
+            throw $this->createAccessDeniedException();
         }
         if (!$this->isCsrfTokenValid('care-status-'.$id, (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
@@ -124,10 +133,15 @@ class CareController extends AbstractController
         int $id,
         Request $request,
         EntityManagerInterface $entityManager,
+        #[CurrentUser] User $user,
     ): Response {
         $followUp = $entityManager->find(CareFollowUp::class, $id);
         if (!$followUp) {
             throw $this->createNotFoundException();
+        }
+        $scope = StaffScope::for($user);
+        if ($scope->campus && $scope->campus->getId() !== $followUp->getCareCase()->getCampus()->getId()) {
+            throw $this->createAccessDeniedException();
         }
         if (!$this->isCsrfTokenValid('follow-up-'.$id, (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();

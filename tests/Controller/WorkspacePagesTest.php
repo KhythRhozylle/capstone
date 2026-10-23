@@ -40,7 +40,7 @@ class WorkspacePagesTest extends WebTestCase
     public static function sidebarPages(): iterable
     {
         yield 'staff dashboard' => ['osas@norsu.edu.ph', '/staff', '.metric-card'];
-        yield 'staff appointments' => ['osas@norsu.edu.ph', '/staff/appointments', 'table.data-table'];
+        yield 'staff appointments' => ['osas@norsu.edu.ph', '/staff/appointments', 'table.people-table'];
         yield 'staff calendar' => ['osas@norsu.edu.ph', '/staff/appointments/calendar', 'a[href="/staff/appointments"]'];
         yield 'staff service requests' => ['osas@norsu.edu.ph', '/staff/services', 'table.data-table'];
         yield 'staff concerns' => ['osas@norsu.edu.ph', '/staff/concerns', 'table.data-table'];
@@ -49,8 +49,7 @@ class WorkspacePagesTest extends WebTestCase
         yield 'staff announcements' => ['osas@norsu.edu.ph', '/staff/announcements', 'a[href="/staff/announcements/new"]'];
         yield 'student dashboard' => ['student@norsu.edu.ph', '/portal', '.metric-card'];
         yield 'student profile' => ['student@norsu.edu.ph', '/portal/profile', 'form[method="post"]'];
-        yield 'student appointments' => ['student@norsu.edu.ph', '/portal/appointments', 'table.data-table'];
-        yield 'student walk-in queue' => ['student@norsu.edu.ph', '/portal/queue', 'form[method="post"] select[name="unit"]'];
+        yield 'student appointments' => ['student@norsu.edu.ph', '/portal/appointments', 'table.people-table'];
         yield 'student service requests' => ['student@norsu.edu.ph', '/portal/services', 'table.data-table'];
         yield 'student concerns' => ['student@norsu.edu.ph', '/portal/concerns', 'table.data-table'];
         yield 'student CARE counseling' => ['student@norsu.edu.ph', '/portal/care', 'table.data-table'];

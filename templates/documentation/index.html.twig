@@ -1,0 +1,9 @@
+{% extends is_granted('ROLE_STUDENT') ? 'layouts/portal.html.twig' : (is_granted('ROLE_VPSAS') ? 'layouts/vpsas.html.twig' : 'layouts/staff.html.twig') %}
+{% block title %}Documentation guide{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Documentation guide</h1><p class="page-description">Instructions and student service guides from the Office of the VPSAS.</p></div>
+{% if is_granted('DOCUMENTATION_MANAGE') %}<a class="btn" href="{{ path('documentation_new') }}">Create guide</a>{% endif %}</div>
+{% for guide in guides %}
+<article class="panel"><h2><a href="{{ path('documentation_show', {id: guide.id}) }}">{{ guide.title }}</a></h2><p class="muted">Updated {{ guide.updatedAt|date('M j, Y g:i A', 'Asia/Manila') }} by {{ guide.updatedBy.fullName }}</p><p>{{ guide.body|slice(0, 220) }}{% if guide.body|length > 220 %}…{% endif %}</p><a class="btn btn-outline" href="{{ path('documentation_show', {id: guide.id}) }}">Read guide</a></article>
+{% else %}<section class="panel empty-state"><h2>No guides published yet</h2><p>Guides will appear here when the Office of the VPSAS publishes them.</p></section>{% endfor %}
+{% endblock %}

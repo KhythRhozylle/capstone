@@ -1,0 +1,8 @@
+{# kicker, title, text, cta, route #}
+<section class="promo-card">
+    <img class="promo-logo" src="{{ asset('images/sas-logo.png') }}" alt="" width="96" height="96" loading="lazy">
+    <p class="promo-kicker">{{ kicker }}</p>
+    <h2>{{ title }}</h2>
+    <p class="promo-text">{{ text }}</p>
+    <a class="promo-btn" href="{{ path(route) }}">{{ cta }}</a>
+</section>

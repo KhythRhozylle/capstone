@@ -84,7 +84,7 @@ class Notification
 
     public function markRead(): static
     {
-        $this->readAt = new \DateTimeImmutable();
+        $this->readAt ??= new \DateTimeImmutable();
 
         return $this;
     }

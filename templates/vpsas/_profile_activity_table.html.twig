@@ -1,0 +1,5 @@
+<div class="panel table-wrap"><table class="data-table"><thead><tr><th scope="col">User</th><th scope="col">Action</th><th scope="col">Description</th><th scope="col">Date &amp; Time</th></tr></thead><tbody>
+{% for activity in activities %}<tr><td>{{ activity.userLabel }}</td><td><span class="badge">{{ activity.actionLabel }}</span></td><td>{{ activity.description }}</td><td>{{ activity.occurredAt|date('M. j, Y, g:i A', 'Asia/Manila') }}</td></tr>
+{% else %}<tr><td colspan="4">No activity recorded yet.</td></tr>{% endfor %}
+</tbody></table></div>
+{% if pages|default(1) > 1 %}<nav aria-label="Activity pages">{% if page > 1 %}<a class="btn btn-outline" href="{{ path(activityRoute|default('vpsas_profile_activity'), {page: page - 1}) }}">Newer</a>{% endif %}<span>Page {{ page }} of {{ pages }}</span>{% if page < pages %}<a class="btn btn-outline" href="{{ path(activityRoute|default('vpsas_profile_activity'), {page: page + 1}) }}">Older</a>{% endif %}</nav>{% endif %}

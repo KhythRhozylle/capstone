@@ -1,0 +1,8 @@
+{% extends 'layouts/staff.html.twig' %}
+{% block title %}{{ staff_workspace(app.user).specialist }}{% endblock %}
+{% block content %}
+<h1>{{ staff_workspace(app.user).specialist }}</h1><p>{{ app.user.fullName }} · {{ office_profile(app.user) ? 'Executive office' : (staff_workspace(app.user).directorate ? 'Directorate oversight' : 'Unit head') }}</p>
+<div class="dashboard-grid">{% for unit in units %}<section class="panel"><h2>{{ unit.name }}</h2><p>{{ unit.directorate.name }}</p><p>{{ purposes[unit.id] }}</p>
+<ul>{% if unit.handlesAppointments %}<li>Appointments and office availability</li>{% endif %}{% if unit.handlesDocuments %}<li>Document processing and certifications</li>{% endif %}{% if unit.handlesCare %}<li>Counseling, assessments and follow-ups</li>{% endif %}{% if unit.handlesGrievance %}<li>Discipline and student organization concerns</li>{% endif %}</ul>
+</section>{% else %}<section class="panel"><p>No units are assigned to this account.</p></section>{% endfor %}</div>
+{% endblock %}

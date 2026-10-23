@@ -11,7 +11,7 @@ enum ConcernType: string
     {
         return match ($this) {
             self::Concern => 'Concern',
-            self::Complaint => 'Complaint / grievance',
+            self::Complaint => 'Complaint',
         };
     }
 }

@@ -1,0 +1,8 @@
+{% extends office_profile(app.user) ? 'layouts/vpsas.html.twig' : 'layouts/staff.html.twig' %}
+{% block title %}Feedbacks{% endblock %}
+{% block content %}
+<h1>Feedbacks</h1><p>{{ summary.responses }} responses{% if summary.average is not null %} · Average {{ summary.average|number_format(2) }} / 5{% endif %}</p>
+<section class="panel table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Student</th><th>Unit</th><th>Rating</th><th>Feedback</th></tr></thead><tbody>
+{% for entry in feedbacks %}<tr><td>{{ entry.createdAt|date('M j, Y g:i A', 'Asia/Manila') }}</td><td>{{ entry.student.fullName }}</td><td>{{ entry.unit.name }}</td><td>{{ entry.rating }} / 5</td><td>{{ entry.comment|default('No comment') }}</td></tr>{% else %}<tr><td colspan="5">No feedback received yet.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}

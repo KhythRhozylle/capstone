@@ -50,4 +50,14 @@ class NotificationRepository extends ServiceEntityRepository
             ->getQuery()
             ->execute();
     }
+    public function deleteAllFor(User $user): void
+    {
+        $this->createQueryBuilder('n')
+            ->delete()
+            ->andWhere('n.recipient = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->execute();
+    }
+
 }

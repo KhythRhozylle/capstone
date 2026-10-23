@@ -1,0 +1,3 @@
+{% extends is_granted('ROLE_STUDENT') ? 'layouts/portal.html.twig' : 'layouts/staff.html.twig' %}
+{% block title %}Office availability{% endblock %}
+{% block content %}<h1>Office availability</h1><p>Choose an office to view unavailable dates before booking an appointment.</p><section class="panel"><ul>{% for unit in units %}<li><a href="{{ path('staff_availability', {code: unit.code}) }}">{{ unit.name }}</a></li>{% endfor %}</ul></section>{% endblock %}

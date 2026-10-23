@@ -10,11 +10,11 @@ use App\Entity\ServiceRequest;
 use App\Entity\User;
 use App\Enum\AppointmentStatus;
 use App\Enum\ConcernType as ConcernKind;
+use App\Form\AppointmentRescheduleType;
 use App\Form\AppointmentType;
 use App\Form\CareRequestType;
 use App\Form\ConcernType;
 use App\Form\DocumentRequestType;
-use App\Form\ProfileType;
 use App\Form\ServiceRequestType;
 use App\Repository\AnnouncementRepository;
 use App\Repository\AppointmentRepository;
@@ -22,13 +22,13 @@ use App\Repository\CareCaseRepository;
 use App\Repository\ConcernRepository;
 use App\Repository\DocumentRequestRepository;
 use App\Repository\NotificationRepository;
-use App\Repository\QueueTicketRepository;
 use App\Repository\SasUnitRepository;
 use App\Repository\ServiceRequestRepository;
 use App\Service\AppNotifier;
+use App\Service\AppointmentAvailability;
 use App\Service\CalendarIcs;
-use App\Service\QueueService;
 use App\Service\ReferenceCodeGenerator;
+use App\Service\StudentServiceCatalog;
 use App\Service\TrackingService;
 use App\Service\WorkspaceActivity;
 use Doctrine\ORM\EntityManagerInterface;
@@ -69,81 +69,8 @@ class PortalController extends AbstractController
             'documents' => \array_slice($documentRows, 0, 5),
             'activity' => $activity->summarize($appointmentRows, $concernRows, $serviceRows, $documentRows),
             'careCases' => \array_slice($careCases->findForStudent($user), 0, 5),
-            'notifications' => $notifications->latestFor($user, 8),
             'unreadCount' => $notifications->unreadCount($user),
         ]);
-    }
-
-    #[Route('/profile', name: 'portal_profile', methods: ['GET', 'POST'])]
-    public function profile(
-        Request $request,
-        EntityManagerInterface $entityManager,
-        #[CurrentUser] User $user,
-    ): Response {
-        $profile = $user->getStudentProfile();
-        $form = $this->createForm(ProfileType::class, $user, ['profile' => $profile]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid() && $profile instanceof \App\Entity\StudentProfile) {
-            $profile->setContactNumber((string) $form->get('contactNumber')->getData());
-            $profile->setProgram((string) $form->get('program')->getData());
-            $profile->setCollege((string) $form->get('college')->getData());
-            $profile->setYearLevel((string) $form->get('yearLevel')->getData());
-            $entityManager->flush();
-            $this->addFlash('success', 'Profile updated.');
-
-            return $this->redirectToRoute('portal_profile');
-        }
-
-        return $this->render('portal/profile.html.twig', [
-            'form' => $form,
-            'profile' => $profile,
-        ]);
-    }
-
-    #[Route('/notifications', name: 'portal_notifications', methods: ['GET'])]
-    public function notifications(
-        NotificationRepository $notifications,
-        #[CurrentUser] User $user,
-    ): Response {
-        return $this->render('portal/notifications.html.twig', [
-            'notifications' => $notifications->latestFor($user, 50),
-        ]);
-    }
-
-    #[Route('/notifications/{id}/read', name: 'portal_notification_read', methods: ['POST'])]
-    public function readNotification(
-        int $id,
-        Request $request,
-        NotificationRepository $notifications,
-        EntityManagerInterface $entityManager,
-        #[CurrentUser] User $user,
-    ): Response {
-        if (!$this->isCsrfTokenValid('notification-read-'.$id, (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException();
-        }
-        $notification = $notifications->find($id);
-        if (!$notification || $notification->getRecipient()->getId() !== $user->getId()) {
-            throw $this->createAccessDeniedException();
-        }
-        $notification->markRead();
-        $entityManager->flush();
-
-        return $this->redirectToRoute('portal_notifications');
-    }
-
-    #[Route('/notifications/read-all', name: 'portal_notifications_read_all', methods: ['POST'])]
-    public function readAllNotifications(
-        Request $request,
-        NotificationRepository $notifications,
-        #[CurrentUser] User $user,
-    ): Response {
-        if (!$this->isCsrfTokenValid('notifications-read-all', (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException();
-        }
-        $notifications->markAllRead($user);
-
-        return $this->redirectToRoute('portal_notifications');
     }
 
     #[Route('/announcements', name: 'portal_announcements', methods: ['GET'])]
@@ -166,6 +93,22 @@ class PortalController extends AbstractController
         ]);
     }
 
+    /** Step one of booking: pick the official to meet, laid out like the organizational chart. */
+    #[Route('/appointments/officials', name: 'portal_appointment_officials', methods: ['GET'])]
+    public function officials(StudentServiceCatalog $catalog, SasUnitRepository $units): Response
+    {
+        $bookable = [];
+        foreach ($units->findBy(['handlesAppointments' => true]) as $unit) {
+            $bookable[$unit->getCode()] = true;
+        }
+
+        return $this->render('portal/appointments/officials.html.twig', [
+            'officials' => $catalog->officials(),
+            'bookable' => $bookable,
+        ]);
+    }
+
+    /** Step two: with ?unit=CODE the student books that official; without it the plain form is shown. */
     #[Route('/appointments/new', name: 'portal_appointment_new', methods: ['GET', 'POST'])]
     public function newAppointment(
         Request $request,
@@ -173,6 +116,8 @@ class PortalController extends AbstractController
         ReferenceCodeGenerator $codes,
         TrackingService $tracking,
         AppNotifier $notifier,
+        SasUnitRepository $units,
+        StudentServiceCatalog $catalog,
         #[CurrentUser] User $user,
     ): Response {
         $campus = $user->getCampus();
@@ -185,7 +130,20 @@ class PortalController extends AbstractController
         $appointment = new Appointment();
         $appointment->setStudent($user);
         $appointment->setCampus($campus);
-        $form = $this->createForm(AppointmentType::class, $appointment);
+
+        $lockedUnit = null;
+        $unitCode = (string) $request->query->get('unit', '');
+        if ('' !== $unitCode) {
+            $lockedUnit = $units->findOneBy(['code' => $unitCode]);
+            if (!$lockedUnit || !$lockedUnit->handlesAppointments()) {
+                $this->addFlash('danger', 'That office is not open for appointments. Please choose another official.');
+
+                return $this->redirectToRoute('portal_appointment_officials');
+            }
+            $appointment->setUnit($lockedUnit);
+        }
+
+        $form = $this->createForm(AppointmentType::class, $appointment, ['detailed' => null !== $lockedUnit, 'locked_unit' => $lockedUnit]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -199,6 +157,16 @@ class PortalController extends AbstractController
             $this->addFlash('success', 'Appointment request submitted. Reference: '.$appointment->getReferenceCode());
 
             return $this->redirectToRoute('portal_appointment_show', ['id' => $appointment->getId()]);
+        }
+
+        if ($lockedUnit) {
+            return $this->render('portal/appointments/book.html.twig', [
+                'form' => $form,
+                'unit' => $lockedUnit,
+                'official' => $catalog->officialForUnit($lockedUnit->getCode()),
+                'slotsUrl' => $this->generateUrl('appointment_slots'),
+                'slotMinutes' => AppointmentAvailability::SLOT_MINUTES,
+            ]);
         }
 
         return $this->render('portal/appointments/form.html.twig', [
@@ -219,6 +187,44 @@ class PortalController extends AbstractController
         return $this->render('portal/appointments/show.html.twig', [
             'appointment' => $appointment,
             'history' => $tracking->history($appointment),
+            'rescheduleForm' => $appointment->canStudentChange()
+                ? $this->createForm(AppointmentRescheduleType::class, $appointment, ['action' => $this->generateUrl('portal_appointment_reschedule', ['id' => $id])])->createView()
+                : null,
+        ]);
+    }
+
+    #[Route('/appointments/{id}/edit', name: 'portal_appointment_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function editAppointment(
+        int $id,
+        Request $request,
+        AppointmentRepository $appointments,
+        EntityManagerInterface $entityManager,
+        TrackingService $tracking,
+        #[CurrentUser] User $user,
+    ): Response {
+        $appointment = $this->loadStudentAppointment($appointments, $id, $user);
+        if (!$appointment->canStudentChange()) {
+            throw $this->createAccessDeniedException('This appointment can no longer be updated.');
+        }
+
+        $from = $appointment->getStatus()->label();
+        $form = $this->createForm(AppointmentType::class, $appointment);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $appointment->setStatus(AppointmentStatus::Pending);
+            $appointment->setMeetingUrl(null);
+            $tracking->record($appointment, $from, AppointmentStatus::Pending->label(), $user, 'Student updated the appointment. Awaiting staff approval.');
+            $entityManager->flush();
+            $this->addFlash('success', 'Appointment updated and submitted for staff approval.');
+
+            return $this->redirectToRoute('portal_appointment_show', ['id' => $id], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('portal/appointments/form.html.twig', [
+            'form' => $form,
+            'title' => 'Edit appointment',
+            'submit_label' => 'Save changes',
+            'appointment' => $appointment,
         ]);
     }
 
@@ -242,26 +248,31 @@ class PortalController extends AbstractController
         #[CurrentUser] User $user,
     ): Response {
         $appointment = $this->loadStudentAppointment($appointments, $id, $user);
-        if (!$this->isCsrfTokenValid('appointment-reschedule-'.$id, (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException();
-        }
+        $back = $this->redirectToRoute('portal_appointment_show', ['id' => $id]);
         if (!$appointment->canStudentChange()) {
             $this->addFlash('danger', 'This appointment can no longer be rescheduled.');
 
-            return $this->redirectToRoute('portal_appointment_show', ['id' => $id]);
-        }
-
-        $when = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i', (string) $request->request->get('scheduledAt'));
-        if (!$when instanceof \DateTimeImmutable) {
-            $this->addFlash('danger', 'Please choose a valid date and time.');
-
-            return $this->redirectToRoute('portal_appointment_show', ['id' => $id]);
+            return $back;
         }
 
         $from = $appointment->getStatus()->label();
-        $appointment->setScheduledAt($when);
+        $previous = $appointment->getScheduledAt();
+        $form = $this->createForm(AppointmentRescheduleType::class, $appointment);
+        $form->handleRequest($request);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('danger', (string) ($form->getErrors(true)->current()?->getMessage() ?? 'Please choose a new date and time.'));
+
+            return $back;
+        }
+
         $appointment->setStatus(AppointmentStatus::Pending);
-        $tracking->record($appointment, $from, AppointmentStatus::Pending->label(), $user, 'Student requested a new schedule.');
+        $appointment->setMeetingUrl(null);
+        $zone = new \DateTimeZone(AppointmentAvailability::TIMEZONE);
+        $note = \sprintf('Student requested a new schedule: from %s to %s.', $previous->setTimezone($zone)->format('M j, Y g:i A'), $appointment->getScheduledAt()->setTimezone($zone)->format('M j, Y g:i A'));
+        if ($reason = trim((string) $form->get('note')->getData())) {
+            $note .= ' Reason: '.$reason;
+        }
+        $tracking->record($appointment, $from, AppointmentStatus::Pending->label(), $user, $note);
         $entityManager->flush();
         $this->addFlash('success', 'Reschedule request submitted for staff approval.');
 
@@ -294,43 +305,6 @@ class PortalController extends AbstractController
         $this->addFlash('success', 'Appointment cancelled.');
 
         return $this->redirectToRoute('portal_appointment_show', ['id' => $id]);
-    }
-
-    #[Route('/queue', name: 'portal_queue', methods: ['GET', 'POST'])]
-    public function queue(
-        Request $request,
-        QueueService $queueService,
-        QueueTicketRepository $tickets,
-        SasUnitRepository $units,
-        #[CurrentUser] User $user,
-    ): Response {
-        $campus = $user->getCampus();
-        if (!$campus) {
-            $this->addFlash('danger', 'Your account has no campus assigned.');
-
-            return $this->redirectToRoute('portal_dashboard');
-        }
-
-        if ($request->isMethod('POST')) {
-            if (!$this->isCsrfTokenValid('portal-queue', (string) $request->request->get('_token'))) {
-                throw $this->createAccessDeniedException();
-            }
-            $unit = $units->find((int) $request->request->get('unit'));
-            if (!$unit || !$unit->handlesAppointments()) {
-                $this->addFlash('danger', 'Choose a SAS unit that accepts walk-ins.');
-
-                return $this->redirectToRoute('portal_queue');
-            }
-            $ticket = $queueService->issue($campus, $unit, $user->getFullName(), $user);
-            $this->addFlash('success', 'Walk-in ticket #'.$ticket->getNumber().' issued for '.$unit->getName().'.');
-
-            return $this->redirectToRoute('portal_queue');
-        }
-
-        return $this->render('portal/queue.html.twig', [
-            'tickets' => $tickets->todayForStudent($user),
-            'units' => $units->findAppointmentUnits(),
-        ]);
     }
 
     #[Route('/services', name: 'portal_services', methods: ['GET'])]

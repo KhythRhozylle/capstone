@@ -1,0 +1,3 @@
+{% set profile = office_profile(app.user) %}
+<turbo-stream action="update" target="office-profile-name"><template>{{ profile.name }} <span aria-hidden="true">&#9662;</span></template></turbo-stream>
+<turbo-stream action="update" target="office-profile-avatar"><template>{% if profile.photo %}<img src="{{ asset('uploads/profile-photos/' ~ profile.photo) }}" alt="">{% else %}{{ profile.initials }}{% endif %}</template></turbo-stream>

@@ -25,39 +25,68 @@
 </main>
 
 <footer class="landing-footer">
+    <section class="footer-legacy" style="--legacy-image: url('{{ asset('images/gradddd(1).jpg') }}')" aria-label="Join SAS">
+        <div class="footer-legacy-inner">
+            <h2>Be part of our community.<br>Let SAS support your journey.</h2>
+            <a class="footer-legacy-btn" href="{{ path('app_login') }}" data-action="login-morph#open">Sign in today</a>
+        </div>
+    </section>
     <div class="footer-inner">
         <div class="footer-brand">
-            <img src="{{ asset('images/sas-logo.png') }}" alt="" width="72" height="72" loading="lazy">
-            <div>
-                <strong>NORSU Student Affairs &amp; Services</strong>
-                <span>Negros Oriental State University</span>
-            </div>
-            <p>One place to ask for help and follow it through, on every campus.</p>
+            <a class="footer-identity" href="{{ path('app_home') }}#welcome" aria-label="Back to the top">
+                <img src="{{ asset('images/sas-logo.png') }}" alt="" width="56" height="56" loading="lazy">
+                <span class="footer-name">Negros Oriental<br>State University<small>Student Affairs &amp; Services</small></span>
+            </a>
+            <p class="footer-tagline">One place to ask for help<br>and follow it through, on every campus.</p>
         </div>
-        <nav class="footer-col" aria-label="Footer">
-            <h2>Explore</h2>
-            <a href="{{ path('app_home') }}#about">About</a>
+        <nav class="footer-col" aria-label="Quick links">
+            <h2>Quick Links</h2>
+            <a href="{{ path('app_home') }}#about">About SAS</a>
             <a href="{{ path('app_home') }}#campuses">Campuses</a>
-            <a href="{{ path('app_home') }}#services">Services</a>
+            <a href="{{ path('app_home') }}#services">Student Services</a>
             <a href="{{ path('app_home') }}#announcements">Announcements</a>
             <a href="{{ path('app_vpsas_office') }}">Office of the VPSAS</a>
+            <a href="{{ path('app_contact') }}">Contact Us</a>
         </nav>
-        <div class="footer-col">
-            <h2>Services</h2>
-            <a href="{{ path('app_sds') }}">Student Development</a>
-            <a href="{{ path('app_sws') }}">Student Welfare</a>
-            <a href="{{ path('app_isps') }}">Institutional Programs</a>
-            <a href="{{ path('app_login') }}" data-action="login-morph#open">Sign in</a>
-        </div>
         <div class="footer-col footer-contact">
-            <h2>Contact</h2>
-            <span>{{ sas_contact.address }}</span>
-            <a href="mailto:{{ sas_contact.email }}">{{ sas_contact.email }}</a>
-            <span>{{ sas_contact.office_hours }}</span>
+            <h2>Contact Us</h2>
+            <p class="footer-line">
+                <svg class="footer-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+                <span>{{ sas_contact.address }}</span>
+            </p>
+            {% for phone in sas_contact.phones|filter(p => p.label != 'University OSAS')|slice(0, 2) %}
+                <p class="footer-line">
+                    <svg class="footer-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
+                    <a href="tel:{{ phone.number|replace({' ': '', '(': '', ')': '', '-': ''}) }}">{{ phone.number }}<small>{{ phone.label }}</small></a>
+                </p>
+            {% endfor %}
+            <p class="footer-line">
+                <svg class="footer-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                <a href="mailto:{{ sas_contact.email }}">{{ sas_contact.email }}</a>
+            </p>
+            <p class="footer-line">
+                <svg class="footer-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                <span>{{ sas_contact.office_hours }}</span>
+            </p>
+        </div>
+        <div class="footer-col footer-connect">
+            <h2>Connect With Us</h2>
+            <div class="footer-social">
+                {% for network, url in sas_contact.social|default({}) %}
+                    {% if url %}
+                        <a href="{{ url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ network|capitalize }}" title="{{ network|capitalize }}">
+                            {% if network == 'facebook' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v2H7v4h3v7h4v-7h3l1-4h-4V8.5c0-.3.2-.5.5-.5Z"/></svg>
+                            {% elseif network == 'youtube' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.200 5 12 5 12 5s-6.200 0-7.800.4A2.500 2.500 0 0 0 2.400 7.200C2 8.800 2 12 2 12s0 3.200.4 4.800a2.500 2.500 0 0 0 1.800 1.800C5.800 19 12 19 12 19s6.200 0 7.800-.4a2.500 2.500 0 0 0 1.800-1.800c.4-1.600.4-4.800.4-4.800s0-3.200-.4-4.800ZM10 15V9l5 3-5 3Z"/></svg>
+                            {% else %}<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>{% endif %}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                <a href="mailto:{{ sas_contact.email }}" aria-label="Email SAS" title="Email SAS"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></a>
+            </div>
             <a class="footer-cta" href="{{ path('app_contact') }}">Get in touch</a>
         </div>
     </div>
-    <p class="footer-legal">&copy; {{ 'now'|date('Y') }} Negros Oriental State University &middot; Student Affairs &amp; Services</p>
+    <p class="footer-legal">&copy; {{ 'now'|date('Y') }} Negros Oriental State University. All Rights Reserved.</p>
 </footer>
 
 <div class="login-modal" id="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title" hidden

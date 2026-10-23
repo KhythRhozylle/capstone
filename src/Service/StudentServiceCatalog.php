@@ -6,25 +6,14 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @phpstan-type GalleryImage array{image: string, alt: string, title: string}
- * @phpstan-type Person array{image: string, name: string, role: string}
- * @phpstan-type Offering array{code: string, slug: string, name: string, description: string, images: list<GalleryImage>}
- * @phpstan-type StudentService array{code: string, name: string, summary: string, description: string, focus: string, route: string, director: Person, heads: list<Person>, offerings: list<Offering>, slides: list<GalleryImage>}
+ * @phpstan-type Person array{image: string, name: string, role: string, unitCode: string}
+ * @phpstan-type UnitHead array{image: string, name: string, role: string, unitCode: string, unit: string, summary: string, responsibilities: string, services: list<string>, photos: list<string>}
+ * @phpstan-type StudentService array{code: string, name: string, summary: string, description: string, focus: string, route: string, director: Person, heads: list<UnitHead>}
  */
 class StudentServiceCatalog
 {
-    private const SLIDES = [
-        [
-            'image' => 'images/login-building.jpg',
-            'alt' => 'Blue architectural illustration of a university building with a curved facade and glass windows.',
-            'title' => 'Campus building illustration',
-        ],
-        [
-            'image' => 'images/newlogin.jpeg',
-            'alt' => 'Elevated view of campus buildings surrounding a courtyard at sunset.',
-            'title' => 'Campus courtyard',
-        ],
-    ];
+    /** The Vice President sits above the three directorates in the organizational chart. */
+    private const VICE_PRESIDENT = ['image' => 'images/vpsas/vice-president.jpg', 'name' => 'Dr. Cesar P. Estrope', 'role' => 'Vice President, Student Affairs & Services', 'unitCode' => 'VPSAS'];
 
     private const SERVICES = [
         'SDS' => [
@@ -34,34 +23,12 @@ class StudentServiceCatalog
             'description' => 'Student Development Services (SDS) brings together the units that support student leadership, participation, responsible conduct and sports. It helps students build confidence, teamwork and a sense of responsibility alongside their academic learning.',
             'focus' => 'Leadership, participation and personal growth',
             'route' => 'app_sds',
-            'director' => ['image' => 'images/people/ventolero.jpg', 'name' => 'Julio E. Ventolero, MTE, MMM', 'role' => 'Director, Student Development Services'],
+            'director' => ['image' => 'images/people/ventolero.jpg', 'name' => 'Julio E. Ventolero, MTE, MMM', 'role' => 'Director, Student Development Services', 'unitCode' => 'SDS_OFFICE'],
             'heads' => [
-                ['image' => 'images/people/cabanlit.jpg', 'name' => 'Roche Cabanlit', 'role' => 'Head, Student Government'],
-                ['image' => 'images/people/bugay.jpg', 'name' => 'Dr. Apollo Marr F. Bugay', 'role' => 'Head, Board of Discipline & League of Student Organization'],
-                ['image' => 'images/people/torres.jpg', 'name' => 'Donald S. Torres', 'role' => 'Head, Student Publication'],
-                ['image' => 'images/people/llera.jpg', 'name' => 'Stella Marie Llera', 'role' => 'Head, Foreign International Student Services'],
-            ],
-            'offerings' => [
-                [
-                    'code' => 'OSAS',
-                    'name' => 'University OSAS',
-                    'description' => 'A starting point for student affairs inquiries and help finding the SAS unit that fits your concern.',
-                ],
-                [
-                    'code' => 'GOV',
-                    'name' => 'Student Government',
-                    'description' => 'Student representation, leadership and opportunities to take part in campus initiatives.',
-                ],
-                [
-                    'code' => 'DISC',
-                    'name' => 'Board of Discipline & Campus Student Organization',
-                    'description' => 'Support for responsible student conduct, discipline concerns and participation in campus student organizations.',
-                ],
-                [
-                    'code' => 'SPORT',
-                    'name' => 'Sports Development Program',
-                    'description' => 'Student sports participation and development, with an emphasis on teamwork, discipline and an active campus life.',
-                ],
+                ['image' => 'images/people/cabanlit.jpg', 'name' => 'Roche Cabanlit', 'role' => 'Head, Student Government', 'unitCode' => 'GOV', 'unit' => 'Student Government', 'summary' => 'Leads the office that supports student representation and student-led initiatives on campus.', 'responsibilities' => 'Guides the student government, supports student representation, and helps student leaders plan and carry out campus activities.', 'services' => ['Student council guidance', 'Leadership programs', 'Student representation']],
+                ['image' => 'images/people/bugay.jpg', 'name' => 'Dr. Apollo Marr F. Bugay', 'role' => 'Head, Board of Discipline & League of Student Organization', 'unitCode' => 'DISC', 'unit' => 'Board of Discipline & League of Student Organizations', 'summary' => 'Oversees student conduct concerns and supports recognized student organizations.', 'responsibilities' => 'Handles discipline concerns fairly, promotes responsible conduct, and supports the accreditation and activities of student organizations.', 'services' => ['Discipline concerns', 'Student organization support', 'Conduct guidance']],
+                ['image' => 'images/people/torres.jpg', 'name' => 'Donald S. Torres', 'role' => 'Head, Student Publication', 'unitCode' => 'PUB', 'unit' => 'Student Publication', 'summary' => 'Guides the student publication and campus journalism programs.', 'responsibilities' => 'Supports student writers and editors, upholds responsible campus journalism, and helps the publication reach the student body.', 'services' => ['Campus journalism', 'Publication guidance', 'Writing and layout support']],
+                ['image' => 'images/people/llera.jpg', 'name' => 'Stella Marie Llera', 'role' => 'Head, Foreign International Student Services', 'unitCode' => 'INTL', 'unit' => 'Foreign International Student Services', 'summary' => 'Assists foreign and international students throughout their stay at NORSU.', 'responsibilities' => 'Helps international students with orientation, documentation and adjusting to university and local life.', 'services' => ['International student orientation', 'Documentation support', 'Cultural adjustment help']],
             ],
         ],
         'SWS' => [
@@ -71,22 +38,10 @@ class StudentServiceCatalog
             'description' => 'Student Welfare Services (SWS) focuses on student well-being and support throughout university life. Its units bring together counselling, assessment, resources and enhancement, along with student enterprise development, to help students address concerns and explore their potential.',
             'focus' => 'Well-being, guidance and student enterprise',
             'route' => 'app_sws',
-            'director' => ['image' => 'images/people/taguba.jpg', 'name' => 'Annie Rose Taguba, RGC, RPM', 'role' => 'Director, Student Welfare Services'],
+            'director' => ['image' => 'images/people/taguba.jpg', 'name' => 'Annie Rose Taguba, RGC, RPM', 'role' => 'Director, Student Welfare Services', 'unitCode' => 'SWS_OFFICE'],
             'heads' => [
-                ['image' => 'images/people/de-guzman.jpg', 'name' => 'Dulce Maria Rosario S. De Guzman', 'role' => 'Head, Counseling Assessment, Resources & Enhancement'],
-                ['image' => 'images/people/enquilino.jpg', 'name' => 'Pirl I. Enquilino', 'role' => 'Head, Student Enterprise Development'],
-            ],
-            'offerings' => [
-                [
-                    'code' => 'CARE',
-                    'name' => 'CARE — Counselling, Assessment, Resources & Enhancement',
-                    'description' => 'Guidance and counselling support for personal or academic concerns, with assessment, referrals and follow-ups through the CARE service.',
-                ],
-                [
-                    'code' => 'ENT',
-                    'name' => 'Student Enterprise Development',
-                    'description' => 'Support for exploring student enterprise ideas and developing practical entrepreneurial skills.',
-                ],
+                ['image' => 'images/people/de-guzman.jpg', 'name' => 'Dulce Maria Rosario S. De Guzman', 'role' => 'Head, Counseling Assessment, Resources & Enhancement', 'unitCode' => 'CARE', 'unit' => 'CARE: Counseling, Assessment, Resources & Enhancement', 'summary' => 'Leads counselling and assessment services that support student well-being.', 'responsibilities' => 'Provides counselling, guidance and assessment, connects students with resources, and follows up on cases through the CARE service.', 'services' => ['Counselling and guidance', 'Psychological assessment', 'Referrals and follow-ups']],
+                ['image' => 'images/people/enquilino.jpg', 'name' => 'Pirl I. Enquilino', 'role' => 'Head, Student Enterprise Development', 'unitCode' => 'ENT', 'unit' => 'Student Enterprise Development', 'summary' => 'Supports students who want to build skills and small enterprises.', 'responsibilities' => 'Encourages entrepreneurship among students through training, mentoring and opportunities to practice enterprise skills.', 'services' => ['Entrepreneurship training', 'Mentoring', 'Student enterprise projects']],
             ],
         ],
         'ISPS' => [
@@ -96,49 +51,22 @@ class StudentServiceCatalog
             'description' => 'Institutional Student Programs & Services (ISPS) brings together programs that support students with different backgrounds, interests and needs. It covers scholarship and financial assistance, multi-faith services, student publications, international student support, food and housing concerns, and services for students with special needs.',
             'focus' => 'Access, inclusion and everyday student support',
             'route' => 'app_isps',
-            'director' => ['image' => 'images/people/bernaldez.jpg', 'name' => 'Dr. Carlou G. Bernaldez', 'role' => 'Director, Institutional Student Programs & Services'],
+            'director' => ['image' => 'images/people/bernaldez.jpg', 'name' => 'Dr. Carlou G. Bernaldez', 'role' => 'Director, Institutional Student Programs & Services', 'unitCode' => 'ISPS_OFFICE'],
             'heads' => [
-                ['image' => 'images/people/ibero.jpg', 'name' => 'Orly V. Ibero', 'role' => 'Head, Sports Development Program'],
-                ['image' => 'images/people/oliveros.jpg', 'name' => 'Dr. Michael Oliveros', 'role' => 'Head, University Clinic'],
-                ['image' => 'images/people/escorial.jpg', 'name' => 'Shiela May L. Escorial', 'role' => 'Head, Scholarship and Financial Assistance'],
-                ['image' => 'images/people/eliaga.jpg', 'name' => 'Miriam Eliaga', 'role' => 'Head, Multi-Faith Services'],
-                ['image' => 'images/people/rizada.jpg', 'name' => 'Ma. Leroz P. Rizada', 'role' => 'Head, Food, Student Housing & Residential'],
-                ['image' => 'images/people/alama.jpg', 'name' => 'Efreneth G. Alama', 'role' => 'Head, Services for Students w/ Special Needs'],
-            ],
-            'offerings' => [
-                [
-                    'code' => 'SCHOL',
-                    'name' => 'Scholarship and Financial Assistance',
-                    'description' => 'Information and assistance with scholarship or financial support inquiries. Ask the unit about available opportunities and their requirements.',
-                ],
-                [
-                    'code' => 'FAITH',
-                    'name' => 'Multi-Faith Services',
-                    'description' => 'Support for students’ faith-related needs and participation in a diverse university community.',
-                ],
-                [
-                    'code' => 'PUB',
-                    'name' => 'Student Publication',
-                    'description' => 'A place for student journalism, writing and participation in campus publications.',
-                ],
-                [
-                    'code' => 'INTL',
-                    'name' => 'Foreign / International Student Services',
-                    'description' => 'Information and support for foreign and international students navigating university life.',
-                ],
-                [
-                    'code' => 'HOUS',
-                    'name' => 'Food, Student Housing & Residential',
-                    'description' => 'Help with questions or concerns about student food services, housing and residential life.',
-                ],
-                [
-                    'code' => 'SSN',
-                    'name' => 'Services for Students with Special Needs',
-                    'description' => 'A starting point for discussing accessibility and support needs so students can participate in university life.',
-                ],
+                ['image' => 'images/people/ibero.jpg', 'name' => 'Orly V. Ibero', 'role' => 'Head, Sports Development Program', 'unitCode' => 'SPORT', 'unit' => 'Sports Development Program', 'summary' => 'Leads student sports participation and development.', 'responsibilities' => 'Organizes sports activities and training, supports student athletes, and promotes teamwork, discipline and an active campus life.', 'services' => ['Sports training', 'Inter-campus competitions', 'Student athlete support']],
+                ['image' => 'images/people/oliveros.jpg', 'name' => 'Dr. Michael Oliveros', 'role' => 'Head, University Clinic', 'unitCode' => 'CLINIC', 'unit' => 'University Clinic', 'summary' => 'Oversees the university clinic and student health services.', 'responsibilities' => 'Provides basic medical and dental assistance, health monitoring and referrals to protect student health on campus.', 'services' => ['Basic medical assistance', 'Health monitoring', 'Referrals']],
+                ['image' => 'images/people/escorial.jpg', 'name' => 'Shiela May L. Escorial', 'role' => 'Head, Scholarship and Financial Assistance', 'unitCode' => 'SCHOL', 'unit' => 'Scholarship and Financial Assistance', 'summary' => 'Manages scholarships and financial aid for students.', 'responsibilities' => 'Informs students about scholarship and grant opportunities, processes applications and helps deserving students continue their studies.', 'services' => ['Scholarship information', 'Application processing', 'Financial aid guidance']],
+                ['image' => 'images/people/eliaga.jpg', 'name' => 'Miriam Eliaga', 'role' => 'Head, Multi-Faith Services', 'unitCode' => 'FAITH', 'unit' => 'Multi-Faith Services', 'summary' => 'Leads spiritual and multi-faith programs for the university community.', 'responsibilities' => 'Promotes mutual respect among faiths and offers spiritual activities and support open to students of every belief.', 'services' => ['Spiritual activities', 'Interfaith programs', 'Student spiritual support']],
+                ['image' => 'images/people/rizada.jpg', 'name' => 'Ma. Leroz P. Rizada', 'role' => 'Head, Food, Student Housing & Residential', 'unitCode' => 'HOUS', 'unit' => 'Food, Student Housing & Residential', 'summary' => 'Looks after student housing, residential and food services.', 'responsibilities' => 'Supports safe and comfortable student residences and helps students find housing and food services around the university.', 'services' => ['Student housing support', 'Residential concerns', 'Food services']],
+                ['image' => 'images/people/alama.jpg', 'name' => 'Efreneth G. Alama', 'role' => 'Head, Services for Students w/ Special Needs', 'unitCode' => 'SSN', 'unit' => 'Services for Students with Special Needs', 'summary' => 'Supports students with special needs so they can learn on equal terms.', 'responsibilities' => 'Coordinates accommodations and assistance for students with special needs and works with offices and faculty to make learning accessible.', 'services' => ['Accessibility accommodations', 'Learning support', 'Coordination with faculty']],
             ],
         ],
     ];
+
+    /** Campus views fill any of a unit's six photo slots that have no picture of their own yet. */
+    private const FALLBACK_PHOTOS = ['images/login-building.jpg', 'images/newlogin.jpeg'];
+
+    private const PHOTO_COUNT = 6;
 
     public function __construct(
         #[Autowire('%kernel.project_dir%')]
@@ -151,41 +79,85 @@ class StudentServiceCatalog
     {
         $services = self::SERVICES;
         foreach ($services as $code => $service) {
-            $services[$code]['slides'] = self::SLIDES;
-            foreach ($service['offerings'] as $index => $offering) {
-                $services[$code]['offerings'][$index]['slug'] = strtolower($offering['code']);
-                $services[$code]['offerings'][$index]['images'] = $this->galleryImages($code, $offering['code'], $offering['name']);
+            foreach ($service['heads'] as $index => $head) {
+                $services[$code]['heads'][$index]['photos'] = $this->photosFor(pathinfo($head['image'], \PATHINFO_FILENAME));
             }
         }
 
         return $services;
     }
 
+    /**
+     * Unit photos live in public/images/units/<head-slug>/ (any jpg, png or webp, sorted by name).
+     *
+     * @return list<string>
+     */
+    private function photosFor(string $slug): array
+    {
+        $relativeDirectory = 'images/units/'.$slug;
+        $photos = [];
+
+        if (is_dir($this->projectDir.'/public/'.$relativeDirectory)) {
+            $files = Finder::create()->files()->depth('== 0')->name('/\.(jpe?g|png|webp)$/i')->sortByName()->in($this->projectDir.'/public/'.$relativeDirectory);
+            foreach ($files as $file) {
+                $photos[] = $relativeDirectory.'/'.$file->getFilename();
+            }
+        }
+
+        for ($i = \count($photos); $i < self::PHOTO_COUNT; ++$i) {
+            $photos[] = self::FALLBACK_PHOTOS[$i % \count(self::FALLBACK_PHOTOS)];
+        }
+
+        return \array_slice($photos, 0, self::PHOTO_COUNT);
+    }
+
+    /**
+     * The officials students can book, in organizational chart order: the Vice President, then each
+     * directorate's director followed by that directorate's unit heads.
+     *
+     * @return array{vicePresident: Person, directorates: list<array{code: string, name: string, route: string, director: Person, heads: list<UnitHead>}>}
+     */
+    public function officials(): array
+    {
+        $directorates = [];
+        foreach ($this->all() as $service) {
+            $directorates[] = [
+                'code' => $service['code'],
+                'name' => $service['name'],
+                'route' => $service['route'],
+                'director' => $service['director'],
+                'heads' => $service['heads'],
+            ];
+        }
+
+        return ['vicePresident' => self::VICE_PRESIDENT, 'directorates' => $directorates];
+    }
+
+    /**
+     * The official who takes appointments for a SAS unit, or null when the unit has no listed official.
+     *
+     * @return Person|null
+     */
+    public function officialForUnit(string $unitCode): ?array
+    {
+        $officials = $this->officials();
+        if ($officials['vicePresident']['unitCode'] === $unitCode) {
+            return $officials['vicePresident'];
+        }
+        foreach ($officials['directorates'] as $directorate) {
+            foreach ([$directorate['director'], ...$directorate['heads']] as $person) {
+                if ($person['unitCode'] === $unitCode) {
+                    return $person;
+                }
+            }
+        }
+
+        return null;
+    }
+
     /** @return StudentService|null */
     public function get(string $code): ?array
     {
         return $this->all()[strtoupper($code)] ?? null;
-    }
-
-    /** @return list<GalleryImage> */
-    private function galleryImages(string $directorateCode, string $unitCode, string $unitName): array
-    {
-        $relativeDirectory = 'images/services/'.strtolower($directorateCode).'/'.strtolower($unitCode);
-        $directory = $this->projectDir.'/public/'.$relativeDirectory;
-        $images = [];
-
-        if (is_dir($directory)) {
-            $files = Finder::create()->files()->depth('== 0')->name('/\.(jpe?g|png|webp)$/i')->sortByName()->in($directory);
-            foreach ($files as $file) {
-                $images[] = [
-                    'image' => $relativeDirectory.'/'.$file->getFilename(),
-                    'alt' => 'Photo from the '.$unitName.' gallery.',
-                    'title' => $unitName.' photo '.(\count($images) + 1),
-                ];
-            }
-        }
-
-        // Campus views keep each gallery usable until its own service photos are supplied.
-        return $images ?: self::SLIDES;
     }
 }

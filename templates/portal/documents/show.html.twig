@@ -2,7 +2,7 @@
 {% import 'macros.html.twig' as ui %}
 {% block title %}{{ document.referenceCode }}{% endblock %}
 {% block content %}
-<div class="page-header"><div><h1>{{ document.referenceCode }}</h1><p class="page-description">Your document request and release updates.</p></div><a class="btn btn-outline" href="{{ path('portal_documents') }}">Back to documents</a></div>
+<div class="page-header"><div><h1>{{ document.referenceCode }}</h1><p class="page-description">Your document tracking and release updates.</p></div><a class="btn btn-outline" href="{{ path('portal_documents') }}">Back to documents</a></div>
 <div class="content-grid">
 <div>
 <section class="panel">
@@ -22,4 +22,5 @@
 </div>
 <section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
 </div>
+{% set feedback = feedback_panel(document) %}{% if feedback %}{{ include('feedback/_panel.html.twig', feedback) }}{% endif %}
 {% endblock %}

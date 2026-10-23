@@ -1,0 +1,18 @@
+<turbo-frame id="office-profile-panel" aria-live="polite">
+    <section class="office-person-card account-details-editor" aria-labelledby="account-edit-heading">
+        <h2 id="account-edit-heading">Edit profile details</h2>
+        {{ form_start(form, {attr: {'data-turbo-frame': 'office-profile-panel'}}) }}
+            {{ form_errors(form) }}
+            {{ form_row(form.firstName) }}
+            {{ form_row(form.lastName) }}
+            {% if form.contactNumber is defined %}
+                {{ form_row(form.contactNumber) }}
+                {{ form_row(form.program) }}
+                {{ form_row(form.college) }}
+                {{ form_row(form.yearLevel) }}
+            {% endif %}
+            <button class="btn btn-primary" type="submit">Save changes</button>
+            <a class="btn btn-outline" href="{{ path('account_profile') }}" data-turbo-frame="office-profile-panel">Cancel</a>
+        {{ form_end(form) }}
+    </section>
+</turbo-frame>

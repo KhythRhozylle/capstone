@@ -5,6 +5,7 @@
 {% set workspace_title = 'VPSAS workspace' %}
 {% set workspace_label = 'Executive office' %}
 {% set workspace_home = 'vpsas_dashboard' %}
+{% set notification_count = notification_unread_count(app.user) %}
 {% set current_route = app.request.attributes.get('_route') %}
 {% set groups = [
     {label: 'Executive overview', items: [
@@ -14,4 +15,7 @@
         {label: 'Staff operations', route: 'staff_dashboard', icon: 'request', active: current_route starts with 'staff_'}
     ]}
 ] %}
+{% if is_granted('DOCUMENTATION_MANAGE') %}
+    {% set groups = groups|merge([{label: 'Student resources', items: [{label: 'Documentation guide', route: 'documentation_index', icon: 'document', active: current_route starts with 'documentation_'}]}]) %}
+{% endif %}
 {% set sidebar %}{% include 'partials/_sidebar.html.twig' with {label: 'VPSAS navigation', groups: groups} only %}{% endset %}

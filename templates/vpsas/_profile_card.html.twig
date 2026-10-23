@@ -1,0 +1,44 @@
+{% set profile = office_profile(app.user) %}
+<div class="office-profile-page">
+    <section class="office-person-card" aria-labelledby="office-person-name">
+        {{ form_start(form, {attr: {class: 'office-photo-form', 'data-controller': 'office-photo'}}) }}
+            <div class="office-portrait-wrap">
+                <div class="office-profile-picture" aria-label="Profile picture for {{ selected.displayName }}">
+                    {% if profile.photo %}
+                        <img src="{{ asset('uploads/profile-photos/' ~ profile.photo) }}" alt="{{ selected.displayName }}">
+                    {% else %}
+                        {% include 'partials/_profile_silhouette.html.twig' %}
+                    {% endif %}
+                </div>
+                <button class="office-photo-add" type="button" data-action="office-photo#choose" aria-label="Add or change profile picture for {{ selected.displayName }}" title="Add profile picture"><span aria-hidden="true">+</span></button>
+            </div>
+            {{ form_widget(form.photo, {attr: {class: 'office-photo-input', hidden: 'hidden', tabindex: '-1', 'aria-label': 'Profile picture', 'data-office-photo-target': 'input', 'data-action': 'change->office-photo#upload'}}) }}
+            {{ form_errors(form.photo) }}
+            {{ form_errors(form) }}
+            <span class="office-upload-status" role="status" data-office-photo-target="status"></span>
+            <button class="office-photo-input" hidden tabindex="-1" type="submit">Upload photo</button>
+        {{ form_end(form) }}
+        <h1 id="office-person-name">{{ selected.displayName }}</h1>
+        <p class="office-person-position">{{ profile.title }}</p>
+        <ul class="office-person-contact">
+            <li><span class="office-social-icon" aria-hidden="true">f</span><span>Student Affairs and Services NORSU MAIN<br>Campus I &amp; II</span></li>
+            <li><span class="office-contact-icon" aria-hidden="true">&#9993;</span><a href="mailto:{{ app.user.email }}">{{ app.user.email }}</a></li>
+            <li><span class="office-contact-icon" aria-hidden="true">&#9742;</span><a href="tel:1190">1190</a></li>
+        </ul>
+        <div class="office-other-profiles">
+            <h2>Other profiles</h2>
+            {% for choice in enum('App\\Enum\\OfficeProfile').cases() %}
+                {% if choice.value != profile.key %}
+                    <form method="post" action="{{ path('vpsas_profile_switch') }}">
+                        <input type="hidden" name="office_profile_switch[_token]" value="{{ csrf_token('switch_office_profile') }}">
+                        <button type="submit" name="office_profile_switch[profile]" value="{{ choice.value }}">
+                            <span class="office-mini-portrait">{% if app.user.profilePhoto(choice.value) %}<img src="{{ asset('uploads/profile-photos/' ~ app.user.profilePhoto(choice.value)) }}" alt="">{% else %}{% include 'partials/_profile_silhouette.html.twig' %}{% endif %}</span>
+                            <span>{{ choice.displayName }}</span>
+                        </button>
+                    </form>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+    <a class="office-profile-history" href="{{ path('vpsas_profile_activity') }}">View activity history</a>
+</div>

@@ -2,9 +2,13 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <div class="page-header">
-    <div><h1>Welcome, {{ app.user.firstName }}</h1><p class="page-description">{{ app.user.campus ? app.user.campus.name : 'Your student workspace' }} &middot; {{ unreadCount }} unread notification{{ unreadCount == 1 ? '' : 's' }}</p></div>
-    <a class="btn btn-sm" href="{{ path('portal_appointment_new') }}">{{ include('partials/_icon.html.twig', {name: 'calendar'}) }}Book appointment</a>
+    <div><h1>Welcome back, Admin! <span class="wave" aria-hidden="true">&#128075;</span></h1><p class="page-description">{{ app.user.campus ? app.user.campus.name : 'Your student workspace' }} &middot; {{ unreadCount }} unread notification{{ unreadCount == 1 ? '' : 's' }}</p></div>
+    <a class="btn btn-sm" href="{{ path('portal_appointment_officials') }}">{{ include('partials/_icon.html.twig', {name: 'calendar'}) }}Book appointment</a>
 </div>
+{% set events = [] %}
+{% for a in appointments %}{% set events = events|merge([{date: a.scheduledAt|date('Y-m-d'), time: a.scheduledAt|date('g:i A'), title: a.unit.name, sub: a.mode.label, status: a.status.label, url: path('portal_appointment_show', {id: a.id})}]) %}{% endfor %}
+<div class="dash-layout">
+<div class="dash-main">
 {% set routes = ['portal_appointments', 'portal_concerns', 'portal_services', 'portal_documents'] %}
 <div class="metric-grid">
     {% for category in activity.categories %}
@@ -12,7 +16,6 @@
     {% endfor %}
 </div>
 {{ include('partials/_activity_charts.html.twig') }}
-<div class="dashboard-bottom">
     <section class="panel">
         <div class="panel-header"><div><h2 class="panel-title">Announcements</h2><p class="panel-kicker">University and campus updates</p></div><a class="panel-link" href="{{ path('portal_announcements') }}">View all &rarr;</a></div>
         <ul class="activity-feed">
@@ -21,13 +24,10 @@
             {% else %}<li class="empty-state">No announcements for your campus yet.</li>{% endfor %}
         </ul>
     </section>
-    <section class="panel">
-        <div class="panel-header"><div><h2 class="panel-title">Recent notifications</h2><p class="panel-kicker">Updates on your requests</p></div><a class="panel-link" href="{{ path('portal_notifications') }}">View all &rarr;</a></div>
-        <ul class="activity-feed">
-            {% for notification in notifications|slice(0, 5) %}
-                <li><span class="feed-icon">{{ include('partials/_icon.html.twig', {name: 'bell'}) }}</span><div><h3>{{ notification.title }}</h3><p>{{ notification.body }}</p><time datetime="{{ notification.createdAt|date('c') }}">{{ notification.createdAt|date('M j, g:i A') }}</time></div></li>
-            {% else %}<li class="empty-state">You're all caught up. New updates will appear here.</li>{% endfor %}
-        </ul>
-    </section>
+</div>
+<aside class="dash-aside" aria-label="Schedule and shortcuts">
+    {{ include('partials/_promo_card.html.twig', {kicker: 'CARE counseling', title: 'Someone to talk to', text: 'Confidential guidance and support from the SAS counselors.', cta: 'Request support', route: 'portal_care'}) }}
+    {{ include('partials/_calendar_widget.html.twig', {events: events, calendar_route: 'portal_appointments'}) }}
+</aside>
 </div>
 {% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'layouts/portal.html.twig' %}
+{% block title %}Book an appointment with {{ official ? official.name : unit.name }}{% endblock %}
+
+{% block content %}
+{% set person = official ?? {name: unit.name, role: unit.directorate.name, image: 'images/sas-logo.png'} %}
+<div class="page-header">
+    <div>
+        <h1>Book an appointment</h1>
+        <p class="page-description">Pick a day and time on {{ person.name }}'s calendar, then tell us what your visit is about.</p>
+    </div>
+    <a class="btn btn-outline" href="{{ path('portal_appointment_officials') }}">Choose another official</a>
+</div>
+
+{{ form_start(form, {attr: {
+    class: 'booking',
+    'data-controller': 'booking-calendar',
+    'data-booking-calendar-url-value': slotsUrl,
+    'data-booking-calendar-unit-value': unit.id,
+    'data-booking-calendar-submitted-value': form.vars.submitted ? 'true' : 'false',
+}}) }}
+    {{ form_errors(form) }}
+    <div class="booking-hidden" hidden>{{ form_widget(form.unit) }}</div>
+
+    <div class="booking-card">
+        <aside class="booking-info">
+            <p class="booking-kicker">Book an appointment with</p>
+            <h2>{{ person.name }}</h2>
+            <div class="booking-person">
+                <img src="{{ asset(person.image) }}" width="96" height="96" alt="Portrait of {{ person.name }}">
+                <div><strong>{{ person.role }}</strong><span>{{ unit.name }}</span></div>
+            </div>
+            <p class="booking-duration">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                {{ slotMinutes }} minutes
+            </p>
+            <div class="booking-field">{{ form_row(form.mode) }}</div>
+            <p class="booking-blurb">Schedule a visit with the {{ unit.name }}. Choose a day, pick an open time and share a few details so the office can prepare. Your request is confirmed by the office.</p>
+        </aside>
+
+        <section class="booking-calendar" aria-label="Choose a day">
+            <header class="booking-month">
+                <h3 data-booking-calendar-target="month" aria-live="polite"></h3>
+                <div>
+                    <button type="button" class="booking-nav" data-action="booking-calendar#previous" data-booking-calendar-target="previous" aria-label="Previous month">&#8249;</button>
+                    <button type="button" class="booking-nav" data-action="booking-calendar#next" data-booking-calendar-target="next" aria-label="Next month">&#8250;</button>
+                </div>
+            </header>
+            <div class="booking-weekdays" aria-hidden="true"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+            <div class="booking-days" data-booking-calendar-target="days"></div>
+        </section>
+
+        <section class="booking-times" aria-label="Available times" aria-live="polite" data-booking-calendar-target="times">
+            <p class="booking-placeholder">Choose a day to see available times.</p>
+        </section>
+    </div>
+
+    <div class="booking-fallback">
+        {{ form_row(form.scheduledAt) }}
+    </div>
+
+    <section class="booking-details panel">
+        <div class="panel-header"><div><p class="panel-kicker">Your visit</p><h2 class="panel-title">Tell us a little more</h2></div></div>
+        <p class="booking-selected" data-booking-calendar-target="summary" hidden></p>
+        <div class="booking-fields">
+            {{ form_row(form.topic) }}
+            {{ form_row(form.contactNumber) }}
+            <div class="booking-wide">{{ form_row(form.purpose) }}</div>
+            <div class="booking-wide">{{ form_row(form.accommodationNote) }}</div>
+        </div>
+        {{ form_rest(form) }}
+        <div class="form-actions">
+            <button class="btn" type="submit" data-booking-calendar-target="submit">Submit request</button>
+        </div>
+    </section>
+{{ form_end(form) }}
+{% endblock %}

@@ -25,11 +25,17 @@
             <li>
                 <small class="timeline-date">{{ item.createdAt|date('M j, Y g:i A') }}</small>
                 <div class="timeline-status">{% if item.fromStatus %}{{ item.fromStatus|replace({'_': ' '})|title }} &rarr; {% endif %}<strong>{{ item.toStatus|replace({'_': ' '})|title }}</strong></div>
-                {% if item.actor %}<span class="muted">{{ item.actor.fullName }}</span>{% endif %}
+                {% if item.actor %}<span class="muted">{{ item.actorDisplayName }}</span>{% endif %}
                 {% if item.note %}<p class="muted">{{ item.note }}</p>{% endif %}
             </li>
         {% else %}
             <li class="muted">No status updates yet.</li>
         {% endfor %}
     </ul>
+{% endmacro %}
+
+{# Soft pill with a dot, as used by the people-style lists. #}
+{% macro status_pill(value, label) %}
+    {% set tone = {approved: 'ok', checked_in: 'ok', completed: 'ok', pending: 'warn', rescheduled: 'warn', rejected: 'bad', cancelled: 'bad', no_show: 'bad'}[value]|default('info') %}
+    <span class="pill pill-{{ tone }}"><i aria-hidden="true"></i>{{ label }}</span>
 {% endmacro %}

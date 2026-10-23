@@ -1,0 +1,14 @@
+{% if searching %}<p class="chat-list-caption">Matching accounts</p>{% endif %}
+{% for row in rows %}
+    {% set person = row.person %}
+    <a class="office-chat-contact chat-contact{{ recipient and recipient.id == person.id ? ' is-selected' : '' }}" href="{{ path('vpsas_chat_thread', {id: person.id, view: view}) }}"{% if recipient and recipient.id == person.id %} aria-current="page"{% endif %}>
+        {% include 'chat/_avatar.html.twig' with {person: person} only %}
+        <span class="chat-contact-copy"><span class="chat-contact-top"><strong>{{ person.fullName ?: person.email }}</strong>{% if row.last %}<time datetime="{{ row.last.createdAt|date('c') }}">{{ row.last.createdAt|date('M j', 'Asia/Manila') }}</time>{% endif %}</span>
+        <span class="chat-contact-bottom"><span class="chat-contact-preview">{% if row.last %}{{ row.last.sender.id == app.user.id ? 'You: ' : '' }}{{ row.last.body ? row.last.body|slice(0, 75) : (row.last.photoFilename ? 'Photo' : (row.last.attachmentFilename ? 'File: ' ~ row.last.attachmentName : '')) }}{{ row.last.body|length > 75 ? '…' : '' }}{% else %}{{ person.userIdentifier }}{% endif %}</span>{% if row.unreadCount > 0 %}<span class="chat-received-count" aria-label="{{ row.unreadCount }} unread {{ row.unreadCount == 1 ? 'message' : 'messages' }}" title="Unread messages">{{ row.unreadCount }}</span>{% endif %}</span></span>
+    </a>
+{% else %}
+    <div class="chat-list-empty"><strong>{{ searching ? 'No matching accounts found.' : (view == 'archive' ? 'No archived conversations.' : 'Your inbox is ready.') }}</strong>
+        <p>{{ searching ? 'Try another name, username, or email address.' : 'Search for someone or browse People to start a conversation.' }}</p>
+        {% if not searching and view != 'people' %}<a href="{{ path('vpsas_chat', {view: 'people'}) }}">Browse people {% include 'partials/_icon.html.twig' with {name: 'arrow'} only %}</a>{% endif %}
+    </div>
+{% endfor %}

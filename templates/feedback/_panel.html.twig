@@ -1,0 +1,26 @@
+{# kind: FeedbackKind, feedback: existing Feedback or null, form: FeedbackType view or null #}
+<section class="panel feedback-panel">
+    <div class="panel-header"><div><p class="panel-kicker">Your experience</p><h2 class="panel-title">{{ feedback ? 'Thanks for your feedback' : 'How was this ' ~ kind.label ~ '?' }}</h2></div></div>
+    {% if feedback %}
+        <p class="stars" role="img" aria-label="Rated {{ feedback.rating }} out of 5">
+            {% for i in 1..5 %}<span class="star{{ i <= feedback.rating ? ' is-on' : '' }}" aria-hidden="true">&#9733;</span>{% endfor %}
+            <strong>{{ feedback.rating }}/5</strong>
+        </p>
+        {% if feedback.comment %}<p class="feedback-comment">&ldquo;{{ feedback.comment }}&rdquo;</p>{% endif %}
+        <small class="muted">Sent {{ feedback.createdAt|date('M j, Y') }}</small>
+    {% else %}
+        <p class="panel-kicker">Rate the service you received. It takes a few seconds and helps SAS improve.</p>
+        {{ form_start(form, {attr: {class: 'stack-form feedback-form'}}) }}
+            <div class="star-input" role="radiogroup" aria-label="Rating">
+                {% for choice in form.rating|reverse %}
+                    {{ form_widget(choice, {label_attr: {}}) }}
+                    <label for="{{ choice.vars.id }}" title="{{ choice.vars.label }}" aria-label="{{ choice.vars.label }}">&#9733;</label>
+                {% endfor %}
+            </div>
+            {{ form_errors(form.rating) }}
+            {{ form_row(form.comment) }}
+            {{ form_rest(form) }}
+            <div class="form-actions"><button class="btn" type="submit">Send feedback</button></div>
+        {{ form_end(form, {render_rest: false}) }}
+    {% endif %}
+</section>

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Feedback;
 use App\Enum\AppointmentMode;
 use App\Enum\AppointmentStatus;
 use App\Enum\CareCaseStatus;
@@ -41,7 +42,16 @@ class DashboardStats
             'servicesByUnit' => $this->servicesByUnit(),
             'careByStatus' => $this->careByStatus(),
             'avgResolutionHours' => $this->avgResolutionHours(),
+            'satisfaction' => $this->satisfaction(),
         ];
+    }
+
+    /** @return array{overall: array{average: float|null, responses: int, distribution: array<int, int>}, byUnit: list<array{unit: string, average: float, responses: int}>} */
+    private function satisfaction(): array
+    {
+        $feedback = $this->em->getRepository(Feedback::class);
+
+        return ['overall' => $feedback->overall(), 'byUnit' => $feedback->summaryByUnit()];
     }
 
     /** @param array<string, mixed> $params */
@@ -63,16 +73,19 @@ class DashboardStats
     private function campusComparison(): array
     {
         $campuses = $this->em->createQuery('SELECT c.id, c.name FROM App\Entity\Campus c ORDER BY c.name')->getResult();
+        $totals = [];
+        foreach (['appointments' => 'Appointment', 'concerns' => 'Concern', 'services' => 'ServiceRequest', 'documents' => 'DocumentRequest'] as $key => $entity) {
+            $totals[$key] = array_column($this->em->createQuery(
+                'SELECT IDENTITY(e.campus) AS campus, COUNT(e.id) AS total FROM App\\Entity\\'.$entity.' e GROUP BY e.campus'
+            )->getArrayResult(), 'total', 'campus');
+        }
         $rows = [];
         foreach ($campuses as $campus) {
-            $id = $campus['id'];
-            $rows[] = [
-                'name' => $campus['name'],
-                'appointments' => $this->count('App\Entity\Appointment', 'e', '', 'IDENTITY(e.campus) = :id', ['id' => $id]),
-                'concerns' => $this->count('App\Entity\Concern', 'e', '', 'IDENTITY(e.campus) = :id', ['id' => $id]),
-                'services' => $this->count('App\Entity\ServiceRequest', 'e', '', 'IDENTITY(e.campus) = :id', ['id' => $id]),
-                'documents' => $this->count('App\Entity\DocumentRequest', 'e', '', 'IDENTITY(e.campus) = :id', ['id' => $id]),
-            ];
+            $row = ['name' => $campus['name']];
+            foreach ($totals as $key => $counts) {
+                $row[$key] = (int) ($counts[$campus['id']] ?? 0);
+            }
+            $rows[] = $row;
         }
 
         return $rows;
@@ -81,45 +94,40 @@ class DashboardStats
     /** @return array<string, int> */
     private function appointmentsByMode(): array
     {
-        $out = [];
-        foreach (AppointmentMode::cases() as $mode) {
-            $out[$mode->label()] = $this->count('App\Entity\Appointment', 'e', '', 'e.mode = :m', ['m' => $mode]);
-        }
-
-        return $out;
+        return $this->groupedCounts('Appointment', 'mode', AppointmentMode::cases());
     }
 
     /** @return array<string, int> */
     private function appointmentsByStatus(): array
     {
-        $out = [];
-        foreach (AppointmentStatus::cases() as $status) {
-            $out[$status->label()] = $this->count('App\Entity\Appointment', 'e', '', 'e.status = :s', ['s' => $status]);
-        }
-
-        return $out;
+        return $this->groupedCounts('Appointment', 'status', AppointmentStatus::cases());
     }
 
     /** @return array<string, int> */
     private function concernsByStatus(): array
     {
-        $out = [];
-        foreach (RequestStatus::cases() as $status) {
-            $n = $this->count('App\Entity\Concern', 'e', '', 'e.status = :s', ['s' => $status]);
-            if ($n > 0) {
-                $out[$status->label()] = $n;
-            }
-        }
-
-        return $out;
+        return array_filter($this->groupedCounts('Concern', 'status', RequestStatus::cases()), static fn (int $count) => $count > 0);
     }
 
     /** @return array<string, int> */
     private function careByStatus(): array
     {
+        return $this->groupedCounts('CareCase', 'status', CareCaseStatus::cases());
+    }
+
+    /** @param list<\BackedEnum> $cases
+     * @return array<string, int>
+     */
+    private function groupedCounts(string $entity, string $field, array $cases): array
+    {
+        $counts = [];
+        foreach ($this->em->createQuery('SELECT e.'.$field.' AS value, COUNT(e.id) AS total FROM App\\Entity\\'.$entity.' e GROUP BY e.'.$field)->getArrayResult() as $row) {
+            $value = $row['value'] instanceof \BackedEnum ? $row['value']->value : $row['value'];
+            $counts[$value] = (int) $row['total'];
+        }
         $out = [];
-        foreach (CareCaseStatus::cases() as $status) {
-            $out[$status->label()] = $this->count('App\Entity\CareCase', 'e', '', 'e.status = :s', ['s' => $status]);
+        foreach ($cases as $case) {
+            $out[$case->label()] = $counts[$case->value] ?? 0;
         }
 
         return $out;
@@ -135,16 +143,16 @@ class DashboardStats
 
     private function avgResolutionHours(): ?float
     {
-        /** @var list<\App\Entity\Concern> $rows */
-        $rows = $this->em->createQuery('SELECT c FROM App\Entity\Concern c WHERE c.resolvedAt IS NOT NULL')->getResult();
+        /** @var list<array{createdAt: \DateTimeImmutable, resolvedAt: \DateTimeImmutable}> $rows */
+        $rows = $this->em->createQuery('SELECT c.createdAt, c.resolvedAt FROM App\Entity\Concern c WHERE c.resolvedAt IS NOT NULL')->getResult();
         if ($rows === []) {
             return null;
         }
         $hours = [];
         foreach ($rows as $concern) {
-            $resolved = $concern->getResolvedAt();
+            $resolved = $concern['resolvedAt'];
             if ($resolved instanceof \DateTimeImmutable) {
-                $hours[] = ($resolved->getTimestamp() - $concern->getCreatedAt()->getTimestamp()) / 3600;
+                $hours[] = ($resolved->getTimestamp() - $concern['createdAt']->getTimestamp()) / 3600;
             }
         }
 

@@ -16,11 +16,12 @@
     </div>
 
     <label for="password">Password</label>
-    <div class="input-wrap">
+    <div class="input-wrap password-field" data-controller="password-visibility" data-action="turbo:before-cache@document->password-visibility#hide">
         <span class="input-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
         </span>
-        <input type="password" id="password" name="_password" placeholder="Enter your password" required autocomplete="current-password">
+        <input type="password" id="password" data-password-visibility-target="input" name="_password" placeholder="Enter your password" required autocomplete="current-password">
+        {% include 'security/_password_toggle.html.twig' with {password_id: 'password'} only %}
     </div>
 
     <div class="auth-row">
@@ -32,4 +33,3 @@
 </form>
 
 <p class="auth-footer">Don’t have an account? <a href="{{ path('app_register') }}">Sign up</a></p>
-<p class="auth-demo">Demo student: <code>student@norsu.edu.ph</code> · <code>Password123!</code></p>

@@ -3,7 +3,8 @@
 {% block title %}{{ document.referenceCode }}{% endblock %}
 {% block content %}
 <div class="page-header">
-    <div><h1>{{ document.referenceCode }}</h1><p class="page-description">Document request details and release tracking.</p></div>
+    <div><h1>{{ document.referenceCode }}</h1><p class="page-description">Document tracking details and release updates.</p></div>
+    <a class="btn btn-primary" href="{{ path('staff_document_edit', {id: document.id}) }}">Edit document</a>
     <a class="btn btn-outline" href="{{ path('staff_documents') }}">Back to documents</a>
 </div>
 <div class="content-grid">
@@ -24,4 +25,5 @@
     </div>
     <section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
 </div>
+<section class="panel"><h2>Delete document</h2><p>Deleting this document permanently removes it from tracking.</p><form method="post" action="{{ path('staff_document_delete', {id: document.id}) }}"><input type="hidden" name="_token" value="{{ csrf_token('document-delete-' ~ document.id) }}"><button class="btn btn-outline" type="submit">Delete document</button></form></section>
 {% endblock %}

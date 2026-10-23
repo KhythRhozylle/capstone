@@ -1,0 +1,4 @@
+<turbo-frame id="office-profile-panel" aria-live="polite">
+    {% include 'partials/_office_profile_choices.html.twig' with {profile: office_profile(app.user)} %}
+    {% include 'vpsas/_profile_identity_updates.html.twig' %}
+</turbo-frame>

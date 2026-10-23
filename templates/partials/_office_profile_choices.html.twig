@@ -1,0 +1,12 @@
+<div class="office-profile-choices" role="menu">
+            <p>Who is using this account?</p>
+            {% for choice in office_profile_choices() %}
+                <form method="post" action="{{ path('vpsas_profile_switch') }}">
+                    <input type="hidden" name="office_profile_switch[_token]" value="{{ csrf_token('switch_office_profile') }}">
+                    <button type="submit" role="menuitem" name="office_profile_switch[profile]" value="{{ choice.key }}" {{ choice.key == profile.key ? 'aria-current="true"' }}><span class="menu-icon">{% include 'partials/_icon.html.twig' with {name: 'profile'} only %}</span><span class="menu-label">{{ choice.name }}</span>{% if choice.key == profile.key %}<span class="menu-check" aria-hidden="true">{% include 'partials/_icon.html.twig' with {name: 'check'} only %}</span>{% endif %}</button>
+                </form>
+            {% endfor %}
+            <hr class="menu-divider">
+            <a href="{{ path('vpsas_profile') }}" role="menuitem"><span class="menu-icon">{% include 'partials/_icon.html.twig' with {name: 'document'} only %}</span><span class="menu-label">View profile and photo</span></a>
+            <a href="{{ path('vpsas_profile_activity') }}" role="menuitem"><span class="menu-icon">{% include 'partials/_icon.html.twig' with {name: 'clock'} only %}</span><span class="menu-label">Activity history</span></a>
+</div>

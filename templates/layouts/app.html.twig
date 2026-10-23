@@ -5,56 +5,68 @@
 {% set workspace_label = workspace_label|default('Student affairs and services') %}
 {% set workspace_home = workspace_home|default('app_home') %}
 {% set initials = app.user ? (app.user.firstName|slice(0, 1) ~ app.user.lastName|slice(0, 1))|upper : 'SAS' %}
-<div class="app-shell" data-controller="app-shell" data-action="keydown@window->app-shell#onKeydown turbo:before-cache@document->app-shell#beforeCache">
+<div class="app-shell" data-controller="app-shell notification-badge" data-notification-badge-url-value="{{ path('notifications_count') }}" data-action="keydown@window->app-shell#onKeydown turbo:before-cache@document->app-shell#beforeCache focus@window->notification-badge#refresh visibilitychange@document->notification-badge#refresh">
     <a class="workspace-skip-link" href="#workspace-content">Skip to content</a>
-    <header class="topbar">
-        <a class="brand" href="{{ path(workspace_home) }}" aria-label="{{ workspace_title }} home">
-            <img class="brand-mark" src="{{ asset('images/sas-logo.png') }}" alt="" width="42" height="42">
-            <span class="brand-text"><strong>NORSU <span class="brand-divider">/</span> SAS</strong><span>Student Affairs &amp; Services</span></span>
-        </a>
-        <button class="shell-menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="workspace-sidebar" aria-expanded="true" data-app-shell-target="toggle" data-action="app-shell#toggle">
-            {% include 'partials/_icon.html.twig' with {name: 'menu'} only %}
-        </button>
-        <div class="topbar-context"><span class="topbar-context-label">{{ workspace_title }}</span><span class="topbar-context-subtitle">Negros Oriental State University</span></div>
-        <nav class="topnav" aria-label="Account and shortcuts">
-            <a class="topbar-icon" href="{{ path(workspace_home) }}" aria-label="Go to dashboard" title="Dashboard">{% include 'partials/_icon.html.twig' with {name: 'home'} only %}</a>
-            {% if app.user and is_granted('ROLE_STUDENT') %}
-                <a class="topbar-icon" href="{{ path('portal_notifications') }}" aria-label="Notifications" title="Notifications">{% include 'partials/_icon.html.twig' with {name: 'bell'} only %}</a>
-            {% elseif app.user and is_granted('ROLE_STAFF') %}
-                <a class="topbar-icon" href="{{ path('staff_appointment_calendar') }}" aria-label="Appointment calendar" title="Appointment calendar">{% include 'partials/_icon.html.twig' with {name: 'calendar'} only %}</a>
-            {% endif %}
-            {% if app.user %}
-                <span class="user-chip"><span class="user-avatar" aria-hidden="true">{{ initials }}</span><span class="user-chip-name">{{ app.user.fullName }}</span></span>
-                <a class="topbar-icon" href="{{ path('app_logout') }}" aria-label="Sign out" title="Sign out">{% include 'partials/_icon.html.twig' with {name: 'logout'} only %}</a>
-            {% else %}
-                <a href="{{ path('app_login') }}">Sign in</a>
-            {% endif %}
-        </nav>
-    </header>
-    <div class="app-body">
-        {% if sidebar is defined %}
-            <aside class="sidebar" id="workspace-sidebar" aria-label="Workspace navigation" tabindex="-1" data-app-shell-target="sidebar">
-                <button class="sidebar-close" type="button" aria-label="Close navigation" data-action="app-shell#close">{% include 'partials/_icon.html.twig' with {name: 'close'} only %}</button>
-                <div class="sidebar-profile">
-                    <img class="sidebar-cover" src="{{ asset('images/login-building.jpg') }}" alt="" width="280" height="180">
-                    <span class="sidebar-avatar" aria-hidden="true">{{ initials }}</span>
-                    <div class="sidebar-person">{{ app.user ? app.user.fullName : 'NORSU community' }}</div>
-                    <div class="sidebar-role">{{ workspace_label }}</div>
-                </div>
-                {{ sidebar|raw }}
-                <div class="sidebar-bottom"><span class="sidebar-bottom-mark">NORSU</span><span>One university.<br>Every student matters.</span></div>
-            </aside>
-            <button class="sidebar-backdrop" type="button" tabindex="-1" aria-label="Close navigation" aria-hidden="true" data-action="app-shell#close"></button>
-        {% endif %}
-        <main class="content" id="workspace-content" tabindex="-1" data-app-shell-target="content">
-            <nav class="workspace-breadcrumbs" aria-label="Breadcrumb">
-                <a href="{{ path(workspace_home) }}">{% include 'partials/_icon.html.twig' with {name: 'home'} only %}<span>{{ workspace_title }}</span></a>
-                {% include 'partials/_icon.html.twig' with {name: 'chevron'} only %}
-                <span aria-current="page">{{ block('title') }}</span>
+    {% if sidebar is defined %}
+        <aside class="sidebar" id="workspace-sidebar" aria-label="Workspace navigation" tabindex="-1" data-app-shell-target="sidebar">
+            <button class="sidebar-close" type="button" aria-label="Close navigation" data-action="app-shell#close">{% include 'partials/_icon.html.twig' with {name: 'close'} only %}</button>
+            <a class="brand" href="{{ path(workspace_home) }}" aria-label="{{ workspace_title }} home">
+                <img class="brand-mark" src="{{ asset('images/sas-logo.png') }}" alt="" width="42" height="42">
+                <span class="brand-text"><strong>NORSU <span class="brand-divider">/</span> SAS</strong><span>{{ workspace_label }}</span></span>
+            </a>
+            {% if office_profile(app.user) %}{% include 'partials/_vpsas_navigation.html.twig' %}{% elseif staff_workspace(app.user) %}{% include 'partials/_staff_office_navigation.html.twig' %}{% else %}{{ sidebar|raw }}{% endif %}
+            <div class="sidebar-help">
+                <strong>Need help?</strong>
+                <span>Reach the SAS office for any question.</span>
+                <a class="sidebar-help-btn" href="{{ path('app_contact') }}">Contact SAS</a>
+            </div>
+        </aside>
+        <button class="sidebar-backdrop" type="button" tabindex="-1" aria-label="Close navigation" aria-hidden="true" data-action="app-shell#close"></button>
+    {% endif %}
+    <div class="app-main">
+        <header class="topbar">
+            <button class="shell-menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="workspace-sidebar" aria-expanded="true" data-app-shell-target="toggle" data-action="app-shell#toggle">
+                {% include 'partials/_icon.html.twig' with {name: 'menu'} only %}
+            </button>
+            <div class="topbar-context"><span class="topbar-context-label">{{ workspace_title }}</span><span class="topbar-context-subtitle">Negros Oriental State University</span></div>
+            <div class="quick-search" data-controller="quick-search" data-action="keydown@window->quick-search#shortcut click@window->quick-search#outside">
+                {% include 'partials/_icon.html.twig' with {name: 'search', class: 'app-icon quick-search-icon'} only %}
+                <input type="search" placeholder="Search pages…" aria-label="Search workspace pages" autocomplete="off" data-quick-search-target="input" data-action="input->quick-search#filter focus->quick-search#filter keydown->quick-search#keydown">
+                <kbd aria-hidden="true">/</kbd>
+                <ul class="quick-results" role="listbox" hidden data-quick-search-target="results"></ul>
+            </div>
+            <nav class="topnav" aria-label="Account and shortcuts">
+                {% if app.user %}
+                    <a class="topbar-icon notification-bell" href="{{ path(is_granted('ROLE_STUDENT') ? 'portal_notifications' : 'notifications_index') }}" data-notification-badge-target="link" aria-label="{{ notification_count > 0 ? 'Notifications, ' ~ notification_count ~ ' unread' : 'Notifications' }}" title="Notifications">{% include 'partials/_icon.html.twig' with {name: 'bell'} only %}{% include 'partials/_notification_count.html.twig' with {count: notification_count} only %}</a>
+                {% endif %}
+                {% if app.user and is_granted('ROLE_STAFF') and not is_granted('ROLE_STUDENT') %}
+                    <a class="topbar-icon" href="{{ path('staff_appointment_calendar') }}" aria-label="Appointment calendar" title="Appointment calendar">{% include 'partials/_icon.html.twig' with {name: 'calendar'} only %}</a>
+                {% endif %}
+                {% if app.user %}
+                    {% set active_office_profile = office_profile(app.user) %}
+                    <a class="topbar-icon" href="{{ path('vpsas_chat') }}" aria-label="Chat" title="Chat">{% include 'partials/_icon.html.twig' with {name: 'chat'} only %}</a>
+                    {% if active_office_profile %}
+                        {% include 'partials/_office_profile_menu.html.twig' with {profile: active_office_profile} %}
+                    {% else %}
+                        {% include 'partials/_account_profile_menu.html.twig' %}
+                    {% endif %}
+                    {% include 'partials/_logout_confirmation.html.twig' %}
+                {% else %}
+                    <a href="{{ path('app_login') }}">Sign in</a>
+                {% endif %}
             </nav>
-            {% block content %}{% endblock %}
-            <footer class="workspace-footer"><span>Negros Oriental State University</span><span>Office of Student Affairs &amp; Services</span></footer>
-        </main>
+        </header>
+        <div class="app-body">
+            <main class="content" id="workspace-content" tabindex="-1" data-app-shell-target="content">
+                <nav class="workspace-breadcrumbs" aria-label="Breadcrumb">
+                    <a href="{{ path(workspace_home) }}">{% include 'partials/_icon.html.twig' with {name: 'home'} only %}<span>{{ workspace_title }}</span></a>
+                    {% include 'partials/_icon.html.twig' with {name: 'chevron'} only %}
+                    <span aria-current="page">{{ block('title') }}</span>
+                </nav>
+                {% block content %}{% endblock %}
+                <footer class="workspace-footer"><span>Negros Oriental State University</span><span>Office of Student Affairs &amp; Services</span></footer>
+            </main>
+        </div>
     </div>
 </div>
 {% endblock %}

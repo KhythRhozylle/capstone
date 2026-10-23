@@ -5,11 +5,13 @@ namespace App\Entity;
 use App\Enum\AppointmentMode;
 use App\Enum\AppointmentStatus;
 use App\Repository\AppointmentRepository;
+use App\Validator\AvailableAppointmentSlot;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AppointmentRepository::class)]
+#[AvailableAppointmentSlot(groups: ['scheduling'])]
 class Appointment
 {
     #[ORM\Id]
@@ -48,6 +50,17 @@ class Appointment
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
     private string $purpose = '';
+
+    #[ORM\Column(length: 80, nullable: true)]
+    private ?string $topic = null;
+
+    #[ORM\Column(length: 32, nullable: true)]
+    #[Assert\Regex(pattern: '/^[0-9+()\-\s]{7,32}$/', message: 'Enter a valid contact number.')]
+    private ?string $contactNumber = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(max: 1000)]
+    private ?string $accommodationNote = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $staffNotes = null;
@@ -177,6 +190,42 @@ class Appointment
         return $this;
     }
 
+    public function getTopic(): ?string
+    {
+        return $this->topic;
+    }
+
+    public function setTopic(?string $topic): static
+    {
+        $this->topic = $topic;
+
+        return $this;
+    }
+
+    public function getContactNumber(): ?string
+    {
+        return $this->contactNumber;
+    }
+
+    public function setContactNumber(?string $contactNumber): static
+    {
+        $this->contactNumber = $contactNumber;
+
+        return $this;
+    }
+
+    public function getAccommodationNote(): ?string
+    {
+        return $this->accommodationNote;
+    }
+
+    public function setAccommodationNote(?string $accommodationNote): static
+    {
+        $this->accommodationNote = $accommodationNote;
+
+        return $this;
+    }
+
     public function getStaffNotes(): ?string
     {
         return $this->staffNotes;
@@ -204,6 +253,11 @@ class Appointment
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function canManageMeetingUrl(): bool
+    {
+        return AppointmentMode::Virtual === $this->mode && AppointmentStatus::Approved === $this->status;
     }
 
     public function canStudentChange(): bool

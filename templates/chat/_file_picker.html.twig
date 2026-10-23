@@ -1,0 +1,5 @@
+<div class="chat-photo-control chat-file-control" title="Attach a file (any type, up to 2 MB)">
+    <span class="chat-attach-button" aria-hidden="true">{% include 'chat/_file_icon.html.twig' %}</span>
+    {{ form_label(form.file, 'Attach a file', {label_attr: {class: 'chat-sr-only'}}) }}
+    {{ form_widget(form.file, {attr: {class: 'chat-photo-input', 'data-chat-file-target': 'input', 'data-action': 'change->chat-file#select'}}) }}
+</div>

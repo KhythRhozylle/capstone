@@ -1,30 +1,78 @@
 {% extends 'layouts/staff.html.twig' %}
-{% import 'macros.html.twig' as ui %}
 {% block title %}Appointment calendar{% endblock %}
 {% block content %}
+{% set events = [] %}
+{% for a in appointments %}
+    {% set events = events|merge([{
+        id: a.id,
+        date: a.scheduledAt|date('Y-m-d', 'Asia/Manila'),
+        time: a.scheduledAt|date('H:i', 'Asia/Manila'),
+        student: a.student.fullName,
+        email: a.student.email,
+        unit: a.unit.name,
+        campus: a.campus.name,
+        mode: a.mode.label,
+        purpose: a.purpose,
+        ref: a.referenceCode,
+        status: a.status.value,
+        statusLabel: a.status.label,
+        meetingUrl: a.meetingUrl,
+        url: path('staff_appointment_show', {id: a.id}),
+        statusUrl: path('staff_appointment_status', {id: a.id}),
+        token: csrf_token('appointment-status-' ~ a.id)
+    }]) %}
+{% endfor %}
+{% set statuses = [] %}
+{% for s in enum('App\\Enum\\AppointmentStatus').cases() %}{% set statuses = statuses|merge([{value: s.value, label: s.label}]) %}{% endfor %}
+
 <div class="page-header">
-    <div><h1>Appointment calendar</h1><p class="page-description">Plan the week ahead, one student visit at a time.</p></div>
+    <div><h1>Appointment</h1><p class="page-description">Plan the week ahead, one student visit at a time.</p></div>
+    {% if staff_workspace(app.user) and staff_workspace(app.user).code %}<a class="btn btn-outline" href="{{ path('staff_office_hours') }}">Office hours</a>{% endif %}
     <a class="btn btn-outline" href="{{ path('staff_appointments') }}">List view</a>
 </div>
-<section class="panel">
-    <div class="panel-header"><div><p class="panel-kicker">Weekly schedule</p><h2 class="panel-title">{{ start|date('M j') }} &ndash; {{ end|date('M j, Y') }}</h2></div></div>
-<div class="calendar-grid">
-{% for day in days %}
-    <section class="calendar-day">
-        <div class="calendar-day-heading"><h3>{{ day.label }}</h3><span class="calendar-count">{{ day.items|length }}</span></div>
-        <ul class="calendar-events">
-            {% for a in day.items %}
-                <li class="calendar-event">
-                    <a class="table-link" href="{{ path('staff_appointment_show', {id: a.id}) }}"><span class="calendar-time">{{ a.scheduledAt|date('g:i A') }}</span><strong>{{ a.student.fullName }}</strong></a>
-                    <p class="muted">{{ a.unit.name }}</p>
-                    {{ ui.status_badge(a.status.label) }}
-                </li>
-            {% else %}
-                <li class="calendar-empty">No appointments</li>
-            {% endfor %}
-        </ul>
-    </section>
-{% endfor %}
+
+<div class="appt" data-controller="appointment-calendar"
+     data-appointment-calendar-availability-url-value="{{ path('staff_calendar_slot_availability') }}"
+     data-appointment-calendar-csrf-value="{{ csrf_token('calendar-slot-availability') }}"
+     data-appointment-calendar-editable-value="{{ canEditAvailability ? 'true' : 'false' }}"
+     data-appointment-calendar-office-label-value="{{ staff_workspace(app.user).name|default('Office') }}"
+     data-appointment-calendar-periods-value="{{ unavailablePeriods|default([])|json_encode }}"
+     data-appointment-calendar-unavailable-value="{{ unavailableDates|default([])|json_encode }}"
+     data-appointment-calendar-events-value="{{ events|json_encode }}"
+     data-appointment-calendar-statuses-value="{{ statuses|json_encode }}">
+    {% if canEditAvailability %}
+    <div popover="auto" class="panel calendar-slot-popup" data-appointment-calendar-target="availabilityPopup" role="dialog" aria-label="Slot availability">
+        <p data-appointment-calendar-target="availabilityLabel"></p>
+        <label>Period<select data-appointment-calendar-target="availabilityScope" data-action="change->appointment-calendar#changeAvailability"><option value="day">Whole day</option><option value="time">Selected time (one hour)</option></select></label>
+        <label data-appointment-calendar-target="availabilityTimeField" hidden>Time<select data-appointment-calendar-target="availabilityTime" data-action="change->appointment-calendar#changeAvailability">{% for hour in 0..23 %}<option value="{{ hour * 60 }}">{{ '%02d:00'|format(hour) }} – {{ '%02d:00'|format(hour + 1) }}</option>{% endfor %}</select></label>
+        <button class="btn btn-primary" type="button" data-appointment-calendar-target="availabilityAction" data-action="appointment-calendar#saveAvailability">Mark as unavailable</button>
+        <p role="alert" data-appointment-calendar-target="availabilityError" hidden></p>
+    </div>
+    {% endif %}
+    <div class="appt-main">
+        <div class="appt-toolbar">
+            <button type="button" class="appt-today" data-action="appointment-calendar#today">Today</button>
+            <div class="appt-range">
+                <h2 data-appointment-calendar-target="range" aria-live="polite"></h2>
+                <button type="button" class="appt-step appt-prev" aria-label="Previous" data-action="appointment-calendar#prev">{{ include('partials/_icon.html.twig', {name: 'chevron'}) }}</button>
+                <button type="button" class="appt-step" aria-label="Next" data-action="appointment-calendar#next">{{ include('partials/_icon.html.twig', {name: 'chevron'}) }}</button>
+            </div>
+            <div class="appt-views" role="group" aria-label="Calendar view">
+                <button type="button" data-view="day" data-action="appointment-calendar#setView" data-appointment-calendar-target="viewButton">Day</button>
+                <button type="button" data-view="week" data-action="appointment-calendar#setView" data-appointment-calendar-target="viewButton">Week</button>
+                <button type="button" data-view="month" data-action="appointment-calendar#setView" data-appointment-calendar-target="viewButton">Month</button>
+            </div>
+            <select class="appt-select" aria-label="Filter by status" data-appointment-calendar-target="statusFilter" data-action="change->appointment-calendar#filter"></select>
+            <select class="appt-select" aria-label="Filter by unit" data-appointment-calendar-target="unitFilter" data-action="change->appointment-calendar#filter"></select>
+        </div>
+
+        <div class="appt-kpis" data-appointment-calendar-target="kpis"></div>
+
+        <section class="panel appt-calendar" aria-label="Appointment calendar">
+            <div class="appt-board" data-appointment-calendar-target="board"></div>
+        </section>
+    </div>
+
+    <aside class="appt-detail" aria-label="Appointment details" data-appointment-calendar-target="detail"></aside>
 </div>
-</section>
 {% endblock %}

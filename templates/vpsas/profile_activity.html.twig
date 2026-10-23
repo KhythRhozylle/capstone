@@ -1,0 +1,6 @@
+{% extends 'layouts/vpsas.html.twig' %}
+{% block title %}Profile activity{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Activity logs</h1><p class="page-description">Account activity, including sign-ins, sign-outs, edits, uploads and deletions. Times are shown in Philippine time.</p></div><a class="btn btn-outline" href="{{ path('vpsas_profile') }}">My profile</a></div>
+{% include 'vpsas/_profile_activity_table.html.twig' %}
+{% endblock %}

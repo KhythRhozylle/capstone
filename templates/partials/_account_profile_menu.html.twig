@@ -1,0 +1,14 @@
+{% set personal_name = app.user.fullName ?: app.user.email %}
+<div class="user-chip office-account account-profile-chip" data-controller="office-profile-menu" data-action="click@window->office-profile-menu#outside keydown@window->office-profile-menu#escape turbo:before-cache@document->office-profile-menu#close turbo:frame-load->office-profile-menu#loaded">
+    <details class="office-profile-menu account-profile-menu" data-office-profile-menu-target="details">
+        <summary class="account-profile-trigger" aria-label="View profile of {{ personal_name }}">
+            <span id="account-profile-avatar" class="user-avatar office-avatar-link" aria-hidden="true">{% if app.user.profilePhoto('account') %}<img src="{{ asset('uploads/profile-photos/' ~ app.user.profilePhoto('account')) }}" alt="">{% else %}{{ initials }}{% endif %}</span>
+            <span id="account-profile-name" class="user-chip-name">{{ personal_name }}</span><span class="account-profile-chevron" aria-hidden="true">&#9662;</span>
+        </summary>
+        <div class="office-profile-dropdown account-profile-dropdown">
+            <turbo-frame id="office-profile-panel" src="{{ path('account_profile') }}" loading="lazy" aria-live="polite">
+                <p role="status">Loading profile…</p>
+            </turbo-frame>
+        </div>
+    </details>
+</div>

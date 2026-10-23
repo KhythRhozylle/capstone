@@ -1,7 +1,7 @@
 {% extends 'layouts/staff.html.twig' %}
 {% block title %}Announcements{% endblock %}
 {% block content %}
-<div class="page-header"><div><h1>Announcements</h1><p class="page-description">Share updates and keep the campus community informed.</p></div><a class="btn" href="{{ path('staff_announcement_new') }}">Publish announcement</a></div>
+<div class="page-header"><div><h1>{{ archived|default(false) ? 'Archived announcements' : 'Announcements' }}</h1><p class="page-description">Share updates and keep the campus community informed.</p></div>{% if staff_workspace(app.user) %}<a class="topbar-icon" href="{{ path(archived|default(false) ? 'staff_announcements' : 'staff_announcements_archive') }}" aria-label="{{ archived|default(false) ? 'Active announcements' : 'Announcement archive' }}" title="{{ archived|default(false) ? 'Active announcements' : 'Announcement archive' }}">{% include 'partials/_icon.html.twig' with {name: 'archive'} only %}</a>{% endif %}<a class="btn" href="{{ path('staff_announcement_new') }}">Publish announcement</a></div>
 <div class="announcement-grid">
 {% for item in announcements %}
     <article class="panel announcement-card">
@@ -10,7 +10,7 @@
         <p>{{ item.body|length > 240 ? item.body|slice(0, 240) ~ '…' : item.body }}</p>
     </article>
 {% else %}
-    <section class="panel empty-state"><strong>No announcements published</strong><p>Publish an update to share it with the campus community.</p><a class="btn btn-outline" href="{{ path('staff_announcement_new') }}">Create announcement</a></section>
+    <section class="panel empty-state"><strong>{{ archived|default(false) ? 'No archived announcements' : 'No announcements published' }}</strong><p>Publish an update to share it with the campus community.</p><a class="btn btn-outline" href="{{ path('staff_announcement_new') }}">Create announcement</a></section>
 {% endfor %}
 </div>
 {% endblock %}

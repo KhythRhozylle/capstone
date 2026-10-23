@@ -17,6 +17,13 @@ class AnnouncementRepository extends ServiceEntityRepository
     }
 
     /** @return list<Announcement> */
+    public function forArchiveView(\DateTimeImmutable $cutoff, bool $archived): array
+    {
+        return $this->createQueryBuilder('a')->andWhere('a.publishedAt '.($archived ? '<=' : '>').' :cutoff')
+            ->setParameter('cutoff', $cutoff)->orderBy('a.publishedAt', 'DESC')->getQuery()->getResult();
+    }
+
+    /** @return list<Announcement> */
     public function visibleFor(?Campus $campus, int $limit = 20): array
     {
         $qb = $this->createQueryBuilder('a')

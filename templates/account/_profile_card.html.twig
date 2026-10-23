@@ -1,0 +1,36 @@
+{% set personal_name = app.user.fullName ?: app.user.email %}
+{% set personal_photo = app.user.profilePhoto('account') %}
+{% set heading_id = inline|default(false) ? 'account-inline-person-name' : (embedded|default(false) ? 'account-embedded-person-name' : 'account-person-name') %}
+{% set office = staff_workspace(app.user) %}
+<div class="office-profile-page account-profile-page">
+    <section class="office-person-card account-person-card" aria-labelledby="{{ heading_id }}">
+        {{ form_start(photo_form, {attr: {class: 'office-photo-form', 'data-controller': 'office-photo'}}) }}
+            <div class="office-portrait-wrap">
+                <div class="office-profile-picture" aria-label="Profile picture for {{ personal_name }}">
+                    {% if personal_photo %}<img src="{{ asset('uploads/profile-photos/' ~ personal_photo) }}" alt="{{ personal_name }}">{% else %}{% include 'partials/_profile_silhouette.html.twig' %}{% endif %}
+                </div>
+                <button class="office-photo-add" type="button" data-action="office-photo#choose" aria-label="Add or change profile picture for {{ personal_name }}" title="Change profile photo"><span aria-hidden="true">+</span></button>
+            </div>
+            {{ form_widget(photo_form.photo, {attr: {class: 'office-photo-input', hidden: 'hidden', tabindex: '-1', 'aria-label': 'Profile picture', 'data-office-photo-target': 'input', 'data-action': 'change->office-photo#upload'}}) }}
+            {{ form_errors(photo_form.photo) }}{{ form_errors(photo_form) }}
+            <span class="office-upload-status" role="status" data-office-photo-target="status"></span>
+            <button class="office-photo-input" hidden tabindex="-1" type="submit">Upload photo</button>
+        {{ form_end(photo_form) }}
+        {% if inline|default(false) or embedded|default(false) %}<h2 id="{{ heading_id }}" class="account-person-name">{{ personal_name }}</h2>{% else %}<h1 id="{{ heading_id }}" class="account-person-name">{{ personal_name }}</h1>{% endif %}
+        <p class="office-person-position">{{ is_granted('ROLE_STUDENT') ? 'Student' : (office ? (office.directorate ? 'Director, ' ~ office.directorate : 'Unit head') : (is_granted('ROLE_GUIDANCE') ? 'Counselor' : (is_granted('ROLE_STAFF') ? 'SAS staff' : 'Account holder'))) }}</p>
+        <ul class="office-person-contact">
+            <li><span class="office-contact-icon" aria-hidden="true">{% include 'partials/_icon.html.twig' with {name: 'profile'} only %}</span><span>{{ personal_name }}</span></li>
+            <li><span class="office-contact-icon" aria-hidden="true">&#9993;</span><a href="mailto:{{ app.user.email }}">{{ app.user.email }}</a></li>
+            {% if app.user.campus %}<li><span class="office-contact-icon" aria-hidden="true">{% include 'partials/_icon.html.twig' with {name: 'home'} only %}</span><span>{{ app.user.campus.name }}</span></li>{% endif %}
+            {% if office %}<li><span class="office-contact-icon" aria-hidden="true">{% include 'partials/_icon.html.twig' with {name: 'document'} only %}</span><span>{{ office.name }}</span></li>{% elseif app.user.staffUnit %}<li><span>{{ app.user.staffUnit.name }}</span></li>{% endif %}
+            {% if app.user.studentProfile %}<li><span class="office-contact-icon" aria-hidden="true">#</span><span>Student no. {{ app.user.studentProfile.studentNumber }}</span></li>{% if app.user.studentProfile.contactNumber %}<li><span class="office-contact-icon" aria-hidden="true">&#9742;</span><span>{{ app.user.studentProfile.contactNumber }}</span></li>{% endif %}{% endif %}
+        </ul>
+        <p class="account-photo-help">JPG, PNG or WebP · Up to 2 MB</p>
+        <nav class="office-profile-choices account-profile-menu-list" aria-label="Account">
+            <hr class="menu-divider">
+            <a class="account-profile-edit" href="{{ path('account_profile_edit') }}" data-turbo-frame="office-profile-panel"><span class="menu-icon">{% include 'partials/_icon.html.twig' with {name: 'profile'} only %}</span><span class="menu-label">Edit profile details</span></a>
+            <a href="{{ path(is_granted('ROLE_STUDENT') ? 'portal_notifications' : 'notifications_index') }}" data-turbo-frame="_top"><span class="menu-icon">{% include 'partials/_icon.html.twig' with {name: 'bell'} only %}</span><span class="menu-label">Notifications</span></a>
+            <a href="{{ path('vpsas_chat') }}" data-turbo-frame="_top"><span class="menu-icon">{% include 'partials/_icon.html.twig' with {name: 'chat'} only %}</span><span class="menu-label">Chat</span></a>
+        </nav>
+    </section>
+</div>

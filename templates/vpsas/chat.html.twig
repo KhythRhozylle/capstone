@@ -1,0 +1,63 @@
+{% extends office_profile(app.user) ? 'layouts/vpsas.html.twig' : (is_granted('ROLE_STUDENT') ? 'layouts/portal.html.twig' : 'layouts/staff.html.twig') %}
+{% block title %}Chat{% endblock %}
+{% block stylesheets %}{{ parent() }}<link rel="stylesheet" href="{{ asset('styles/chat.css') }}">{% endblock %}
+{% block body_class %}{{ parent() }} chat-page{% endblock %}
+{% block content %}
+<section class="chat-inbox office-chat-layout{{ recipient ? ' has-conversation' : '' }}" aria-label="Chat inbox" data-controller="chat-inbox" data-chat-inbox-view-value="{{ view }}" data-chat-inbox-search-url-value="{{ path('chat_search') }}">
+    <nav class="chat-rail" aria-label="Chat navigation">
+        <div class="chat-rail-title">Messages</div>
+        {% for item in [{key: 'chat', label: 'Chat', icon: 'chat'}, {key: 'people', label: 'People', icon: 'queue'}, {key: 'archive', label: 'Archive', icon: 'archive'}] %}
+            <a class="chat-rail-link{{ view == item.key ? ' is-active' : '' }}" href="{{ path('vpsas_chat', {view: item.key}) }}"{% if view == item.key %} aria-current="page"{% endif %}>{% include 'partials/_icon.html.twig' with {name: item.icon} only %}<span>{{ item.label }}</span></a>
+        {% endfor %}
+        <div class="chat-rail-account">{% include 'chat/_avatar.html.twig' with {person: app.user} only %}<span>{{ app.user.firstName }}</span></div>
+    </nav>
+    <aside class="chat-list-panel" aria-label="Conversations and people">
+        <div class="chat-list-header"><div><span class="chat-eyebrow">YOUR WORKSPACE</span><h1>{{ view == 'people' ? 'People' : (view == 'archive' ? 'Archive' : 'Chats') }}</h1></div>
+            <a class="chat-new" href="{{ path('vpsas_chat', {view: 'people'}) }}" aria-label="Start a new chat" title="Start a new chat">+</a>
+        </div>
+        <form class="chat-search" action="{{ path('vpsas_chat') }}" method="get" role="search" data-action="submit->chat-inbox#submitSearch">
+            <input type="hidden" name="view" value="{{ view }}">
+            {% include 'partials/_icon.html.twig' with {name: 'search'} only %}
+            <label class="chat-sr-only" for="chat-account-search">Search by name, username, or email</label>
+            <input id="chat-account-search" type="search" name="q" value="{{ query }}" placeholder="Search accounts…" maxlength="120" autocomplete="off" data-chat-inbox-target="search" data-action="input->chat-inbox#search keydown.esc->chat-inbox#clear">
+        </form>
+        <p class="chat-search-status chat-sr-only" role="status" aria-live="polite" data-chat-inbox-target="status"></p>
+        <div class="chat-contacts" data-chat-inbox-target="results" aria-label="Accounts and conversations">{% include 'chat/_contacts.html.twig' %}</div>
+    </aside>
+    <section class="chat-thread-panel" aria-label="{{ recipient ? 'Conversation with ' ~ recipient.fullName : 'Conversation' }}">
+        {% if recipient %}
+            <header class="chat-thread-header">
+                <a class="chat-back" href="{{ path('vpsas_chat', {view: view}) }}" aria-label="Back to conversations">{% include 'partials/_icon.html.twig' with {name: 'arrow'} only %}</a>
+                {% include 'chat/_avatar.html.twig' with {person: recipient} only %}
+                <div class="chat-thread-person"><h2>{{ recipient.fullName ?: recipient.email }}</h2><span>{{ recipient.userIdentifier }}</span></div>
+                <form method="post" action="{{ path('chat_archive', {id: recipient.id}) }}" class="chat-archive-form">
+                    <input type="hidden" name="_token" value="{{ csrf_token('chat-archive-' ~ recipient.id) }}">
+                    <button class="chat-archive-button" type="submit" title="{{ archived ? 'Move to chats' : 'Archive conversation' }}" aria-label="{{ archived ? 'Move to chats' : 'Archive conversation' }}">{% include 'partials/_icon.html.twig' with {name: 'archive'} only %}<span>{{ archived ? 'Unarchive' : 'Archive' }}</span></button>
+                </form>
+            </header>
+            <div class="office-chat-messages chat-messages" data-chat-inbox-target="messages" role="log" aria-label="Messages">
+                {% if messages is empty %}<div class="chat-conversation-start">{% include 'chat/_avatar.html.twig' with {person: recipient} only %}<h3>{{ recipient.fullName ?: recipient.email }}</h3><p>Say hello to start your conversation.</p></div>{% endif %}
+                {% set previous_day = '' %}
+                {% for message in messages %}
+                    {% set day = message.createdAt|date('M j, Y', 'Asia/Manila') %}
+                    {% if day != previous_day %}<div class="chat-date-divider">{{ day }}</div>{% set previous_day = day %}{% endif %}
+                    <article class="office-chat-message chat-message{{ message.sender.id == app.user.id ? ' is-own' : '' }}">
+                        {% include 'chat/_avatar.html.twig' with {person: message.sender} only %}
+                        <div class="chat-message-copy"><span class="chat-sr-only">{{ message.senderName }}</span>{% if message.photoFilename %}<a class="chat-message-photo" href="{{ path('chat_photo', {id: message.id}) }}" target="_blank" rel="noopener" aria-label="Open photo from {{ message.senderName }}"><img src="{{ path('chat_photo', {id: message.id}) }}" alt="Photo from {{ message.senderName }}" loading="lazy"></a>{% endif %}{% if message.attachmentFilename %}<a class="chat-message-file" href="{{ path('chat_file', {id: message.id}) }}" aria-label="Download {{ message.attachmentName }}">{% include 'chat/_file_icon.html.twig' %}<span><strong>{{ message.attachmentName }}</strong><small>{{ (message.attachmentSize / 1024)|number_format(1) }} KB · Download</small></span>{% include 'partials/_icon.html.twig' with {name: 'arrow'} only %}</a>{% endif %}{% if message.body %}<p>{{ message.body }}</p>{% endif %}<time datetime="{{ message.createdAt|date('c') }}">{{ message.createdAt|date('g:i A', 'Asia/Manila') }}</time></div>
+                    </article>
+                {% endfor %}
+            </div>
+            <div class="chat-composer">
+                {{ form_start(form, {attr: {class: 'chat-compose-form', 'data-controller': 'chat-photo chat-file', 'data-action': 'turbo:before-cache@document->chat-photo#clear turbo:before-cache@document->chat-file#clear'}}) }}
+                    <div class="chat-attachment-buttons">{% include 'chat/_photo_picker.html.twig' %}{% include 'chat/_file_picker.html.twig' %}</div>
+                    <div class="chat-compose-field"><div class="chat-photo-preview" hidden data-chat-photo-target="preview"><img alt="Selected photo preview" data-chat-photo-target="image"><span data-chat-photo-target="filename"></span><button type="button" aria-label="Remove selected photo" data-action="chat-photo#clear">×</button></div><div class="chat-file-preview" hidden data-chat-file-target="preview">{% include 'chat/_file_icon.html.twig' %}<span class="chat-file-preview-copy"><strong data-chat-file-target="filename"></strong><small data-chat-file-target="size"></small></span><button type="button" aria-label="Remove selected file" data-action="chat-file#clear">×</button></div><span class="chat-photo-status" role="status" aria-live="polite" data-chat-file-target="status"></span>{{ form_errors(form.file) }}<span class="chat-photo-status" role="status" aria-live="polite" data-chat-photo-target="status"></span>{{ form_errors(form.photo) }}{{ form_label(form.body, 'Message', {label_attr: {class: 'chat-sr-only'}}) }}{{ form_widget(form.body, {attr: {placeholder: 'Write a message…', rows: 1, 'aria-label': 'Message'}}) }}{{ form_errors(form.body) }}{{ form_errors(form) }}</div>
+                    <button class="chat-send" type="submit">Send <span aria-hidden="true">{% include 'partials/_icon.html.twig' with {name: 'arrow'} only %}</span></button>
+                {{ form_end(form) }}
+                <span class="chat-composer-note">Only you and {{ recipient.firstName ?: 'this user' }} can view this conversation.</span>
+            </div>
+        {% else %}
+            <div class="chat-welcome"><span class="chat-welcome-icon">{% include 'partials/_icon.html.twig' with {name: 'chat'} only %}</span><span class="chat-eyebrow">LET'S CONNECT</span><h2>Your conversations,<br>all in one place.</h2><p>Select a chat to pick up where you left off,<br>or find someone new in People.</p><a class="chat-welcome-button" href="{{ path('vpsas_chat', {view: 'people'}) }}">Start a conversation {% include 'partials/_icon.html.twig' with {name: 'arrow'} only %}</a></div>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}

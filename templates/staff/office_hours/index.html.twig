@@ -1,0 +1,50 @@
+{% extends 'layouts/staff.html.twig' %}
+{% block title %}Office hours{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Office hours</h1><p class="page-description">Students can only book appointments inside these hours. Each slot lasts one hour.</p></div>
+    {% if units|length > 1 %}
+        <form method="get" class="inline-form" action="{{ path('staff_office_hours') }}">
+            <label class="visually-hidden" for="office-unit">SAS unit</label>
+            <select id="office-unit" name="unit" onchange="this.form.requestSubmit()">
+                {% for u in units %}<option value="{{ u.id }}"{{ u.id == unit.id ? ' selected' : '' }}>{{ u.name }}</option>{% endfor %}
+            </select>
+            <noscript><button class="btn btn-sm" type="submit">Show</button></noscript>
+        </form>
+    {% endif %}
+</div>
+{% if usingDefaults %}
+    <p class="flash flash-info">{{ unit.name }} has no office hours yet, so students can currently book Monday to Friday, 8:00 AM to 12:00 PM and 1:00 PM to 5:00 PM. Add hours below to replace this default.</p>
+{% endif %}
+<div class="content-grid">
+    <section class="panel">
+        <div class="panel-header"><div><p class="panel-kicker">{{ unit.name }}</p><h2 class="panel-title">Weekly schedule</h2></div></div>
+        <ul class="office-week">
+            {% for day, rows in byDay %}
+                <li class="office-day">
+                    <strong>{{ days[day] }}</strong>
+                    <div class="office-windows">
+                        {% for hour in rows %}
+                            <form method="post" action="{{ path('staff_office_hours_delete', {id: hour.id}) }}" class="office-window">
+                                <input type="hidden" name="_token" value="{{ csrf_token('office-hour-delete-' ~ hour.id) }}">
+                                <span>{{ hour.opensAt|date('g:i A') }} &ndash; {{ hour.closesAt|date('g:i A') }}</span>
+                                <button type="submit" aria-label="Remove {{ days[day] }} {{ hour.opensAt|date('g:i A') }} to {{ hour.closesAt|date('g:i A') }}" onclick="return confirm('Remove these office hours?')">&times;</button>
+                            </form>
+                        {% else %}
+                            <span class="muted">{{ usingDefaults and day <= 5 ? 'Default hours' : 'Closed' }}</span>
+                        {% endfor %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+    <section class="panel">
+        <div class="panel-header"><div><p class="panel-kicker">Add an opening</p><h2 class="panel-title">New office hours</h2></div></div>
+        {{ form_start(form, {action: path('staff_office_hours', {unit: unit.id}), attr: {class: 'stack-form'}}) }}
+            {{ form_widget(form) }}
+            <div class="form-actions"><button class="btn" type="submit">Add hours</button></div>
+        {{ form_end(form, {render_rest: false}) }}
+        <p class="panel-kicker">Add two rows for a day with a lunch break, for example 8:00&ndash;12:00 and 13:00&ndash;17:00. Times are in Philippine time.</p>
+    </section>
+</div>
+{% endblock %}

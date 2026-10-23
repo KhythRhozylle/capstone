@@ -1,0 +1,4 @@
+{% set photo = person.profilePhoto('account') ?: (person.email == 'vpsas@norsu.edu.ph' ? person.profilePhoto('cesar') : null) %}
+<span class="chat-avatar" aria-hidden="true">
+    {% if photo %}<img src="{{ asset('uploads/profile-photos/' ~ photo) }}" alt="" loading="lazy" width="44" height="44">{% else %}{{ person.firstName|slice(0, 1)|upper }}{{ person.lastName|slice(0, 1)|upper }}{% endif %}
+</span>

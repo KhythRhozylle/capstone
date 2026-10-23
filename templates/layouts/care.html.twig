@@ -5,6 +5,7 @@
 {% set workspace_title = 'CARE workspace' %}
 {% set workspace_label = 'Guidance and counseling' %}
 {% set workspace_home = 'care_dashboard' %}
+{% set notification_count = notification_unread_count(app.user) %}
 {% set current_route = app.request.attributes.get('_route') %}
 {% set groups = [
     {label: 'Guidance desk', items: [

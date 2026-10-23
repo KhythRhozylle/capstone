@@ -1,0 +1,13 @@
+<div class="user-chip office-account" data-controller="office-profile-menu" data-action="click@window->office-profile-menu#outside keydown@window->office-profile-menu#escape turbo:before-cache@document->office-profile-menu#close turbo:frame-load->office-profile-menu#loaded">
+    <a id="office-profile-avatar" class="user-avatar office-avatar-link" data-turbo-frame="office-profile-panel" data-action="office-profile-menu#openProfile" href="{{ path('vpsas_profile') }}" aria-label="View profile of {{ profile.name }}" title="View profile">
+        {% if profile.photo %}<img src="{{ asset('uploads/profile-photos/' ~ profile.photo) }}" alt="">{% else %}{{ profile.initials }}{% endif %}
+    </a>
+    <details class="office-profile-menu" data-office-profile-menu-target="details">
+        <summary id="office-profile-name" class="user-chip-name">{{ profile.name }} <span aria-hidden="true">&#9662;</span></summary>
+        <div class="office-profile-dropdown">
+            <turbo-frame id="office-profile-panel" aria-live="polite">
+                {% include 'partials/_office_profile_choices.html.twig' %}
+            </turbo-frame>
+        </div>
+    </details>
+</div>

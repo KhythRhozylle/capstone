@@ -1,0 +1,10 @@
+<div data-controller="logout-confirmation" data-action="turbo:before-cache@document->logout-confirmation#close">
+    <button class="topbar-icon" type="button" aria-label="Sign out" title="Sign out" aria-haspopup="dialog" data-action="logout-confirmation#open">{% include 'partials/_icon.html.twig' with {name: 'logout'} only %}</button>
+    <dialog class="logout-confirmation" aria-labelledby="logout-confirmation-title" data-logout-confirmation-target="dialog">
+        <h2 id="logout-confirmation-title">Are you sure you want to log out?</h2>
+        <div class="logout-confirmation-actions">
+            <a class="btn btn-primary" href="{{ path('app_logout') }}" data-turbo="false">Yes</a>
+            <button class="btn btn-outline" type="button" autofocus data-action="logout-confirmation#close">No</button>
+        </div>
+    </dialog>
+</div>

@@ -10,19 +10,27 @@ use App\Enum\AppointmentStatus;
 use App\Enum\QueueStatus;
 use App\Enum\RequestStatus;
 use App\Form\AnnouncementType;
+use App\Form\AppointmentMeetingType;
+use App\Form\AppointmentRescheduleType;
 use App\Form\ReferralType;
 use App\Repository\AnnouncementRepository;
 use App\Repository\AppointmentRepository;
 use App\Repository\ConcernRepository;
 use App\Repository\DocumentRequestRepository;
 use App\Repository\QueueTicketRepository;
+use App\Repository\OfficeUnavailableRepository;
+use App\Repository\SasUnitRepository;
 use App\Repository\ServiceRequestRepository;
 use App\Repository\UserRepository;
 use App\Service\AppNotifier;
+use App\Service\AppointmentAvailability;
 use App\Service\CalendarIcs;
 use App\Service\QueueService;
 use App\Service\ReferenceCodeGenerator;
 use App\Service\StaffScope;
+use App\Service\OfficeProfileContext;
+use App\Service\StaffWorkspace;
+use Symfony\Component\Clock\ClockInterface;
 use App\Service\TrackingService;
 use App\Service\WorkspaceActivity;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,6 +45,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_STAFF')]
 class StaffController extends AbstractController
 {
+    public function __construct(private readonly StaffWorkspace $workspace)
+    {
+    }
+
     #[Route('', name: 'staff_dashboard', methods: ['GET'])]
     public function dashboard(
         #[CurrentUser] User $user,
@@ -47,10 +59,10 @@ class StaffController extends AbstractController
         WorkspaceActivity $activity,
     ): Response {
         $scope = StaffScope::for($user);
-        $appointmentRows = $appointments->findForStaff($scope->unit, $scope->campus);
-        $concernRows = $concerns->findForStaff($scope->unit, $scope->campus);
-        $serviceRows = $services->findForStaff($scope->unit, $scope->campus);
-        $documentRows = $documents->findForStaff($scope->unit, $scope->campus);
+        $appointmentRows = $appointments->findForStaff($scope->unit, $scope->campus, $scope->directorateCode);
+        $concernRows = $concerns->findForStaff($scope->unit, $scope->campus, $scope->directorateCode);
+        $serviceRows = $services->findForStaff($scope->unit, $scope->campus, $scope->directorateCode);
+        $documentRows = $documents->findForStaff($scope->unit, $scope->campus, $scope->directorateCode);
 
         return $this->render('staff/dashboard.html.twig', [
             'appointments' => \array_slice($appointmentRows, 0, 8),
@@ -63,22 +75,29 @@ class StaffController extends AbstractController
     }
 
     #[Route('/appointments', name: 'staff_appointments', methods: ['GET'])]
-    public function appointments(AppointmentRepository $appointments, #[CurrentUser] User $user): Response
+    public function appointments(AppointmentRepository $appointments, #[CurrentUser] User $user, SasUnitRepository $units, OfficeProfileContext $profiles): Response
     {
         $scope = StaffScope::for($user);
+        $unit = $profiles->supports($user)
+            ? ($units->findOneBy(['code' => 'VPSAS']) ?? throw $this->createNotFoundException('The VPSAS office is not configured.'))
+            : $scope->unit;
 
         return $this->render('staff/appointments/index.html.twig', [
-            'appointments' => $appointments->findForStaff($scope->unit, $scope->campus),
+            'appointments' => $appointments->findForStaff($unit, $scope->campus, $scope->directorateCode),
         ]);
     }
 
     #[Route('/appointments/calendar', name: 'staff_appointment_calendar', methods: ['GET'])]
-    public function appointmentCalendar(AppointmentRepository $appointments, #[CurrentUser] User $user): Response
+    public function appointmentCalendar(AppointmentRepository $appointments, #[CurrentUser] User $user, OfficeUnavailableRepository $unavailable, SasUnitRepository $units, OfficeProfileContext $profiles): Response
     {
         $scope = StaffScope::for($user);
+        $unit = $profiles->supports($user)
+            ? ($units->findOneBy(['code' => 'VPSAS']) ?? throw $this->createNotFoundException('The VPSAS office is not configured.'))
+            : $scope->unit;
+        $office = $this->workspace->supports($user) ? $this->workspace->personalUnit($user) : null;
         $start = new \DateTimeImmutable('monday this week 00:00');
         $end = $start->modify('+7 days');
-        $rows = $appointments->scheduledBetween($scope->unit, $scope->campus, $start, $end);
+        $rows = $appointments->scheduledBetween($unit, $scope->campus, $start, $end, $scope->directorateCode);
         $days = [];
         for ($i = 0; $i < 7; ++$i) {
             $day = $start->modify('+'.$i.' days');
@@ -95,21 +114,100 @@ class StaffController extends AbstractController
         }
 
         return $this->render('staff/appointments/calendar.html.twig', [
+            'unavailablePeriods' => $office ? $unavailable->periods($office) : [],
+            'canEditAvailability' => null !== $office,
+            'unavailableDates' => $this->workspace->supports($user) && ($office = $this->workspace->personalUnit($user)) ? $unavailable->dates($office) : [],
             'days' => $days,
             'start' => $start,
             'end' => $end,
+            'appointments' => array_values(array_filter(
+                $appointments->findForStaff($unit, $scope->campus, $scope->directorateCode),
+                static fn (\App\Entity\Appointment $appointment): bool => in_array($appointment->getStatus(), [AppointmentStatus::Approved, AppointmentStatus::Rescheduled, AppointmentStatus::CheckedIn, AppointmentStatus::Completed, AppointmentStatus::NoShow], true),
+            )),
         ]);
     }
 
-    #[Route('/appointments/{id}', name: 'staff_appointment_show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function showAppointment(int $id, AppointmentRepository $appointments, TrackingService $tracking, #[CurrentUser] User $user): Response
-    {
+    #[Route('/appointments/{id}', name: 'staff_appointment_show', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function showAppointment(
+        int $id,
+        Request $request,
+        AppointmentRepository $appointments,
+        TrackingService $tracking,
+        EntityManagerInterface $entityManager,
+        #[CurrentUser] User $user,
+    ): Response {
         $appointment = $this->loadStaffAppointment($appointments, $id, $user);
+        $meetingForm = null;
+        if ($appointment->canManageMeetingUrl()) {
+            $meetingForm = $this->createForm(AppointmentMeetingType::class, $appointment);
+            $meetingForm->handleRequest($request);
+            if ($meetingForm->isSubmitted() && $meetingForm->isValid()) {
+                $entityManager->flush();
+                $this->addFlash('success', 'Meeting URL saved. The student can view it in their appointment details.');
+
+                return $this->redirectToRoute('staff_appointment_show', ['id' => $id], Response::HTTP_SEE_OTHER);
+            }
+        } elseif ($request->isMethod('POST')) {
+            throw $this->createAccessDeniedException('Meeting URLs can only be set for approved virtual appointments.');
+        }
 
         return $this->render('staff/appointments/show.html.twig', [
             'appointment' => $appointment,
             'history' => $tracking->history($appointment),
+            'meetingForm' => $meetingForm,
+            'rescheduleForm' => \in_array($appointment->getStatus(), AppointmentStatus::occupying(), true)
+                ? $this->createForm(AppointmentRescheduleType::class, $appointment, ['action' => $this->generateUrl('staff_appointment_reschedule', ['id' => $id])])->createView()
+                : null,
         ]);
+    }
+
+    #[Route('/appointments/{id}/reschedule', name: 'staff_appointment_reschedule', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function rescheduleAppointment(
+        int $id,
+        Request $request,
+        AppointmentRepository $appointments,
+        EntityManagerInterface $entityManager,
+        TrackingService $tracking,
+        AppNotifier $notifier,
+        #[CurrentUser] User $user,
+    ): Response {
+        $appointment = $this->loadStaffAppointment($appointments, $id, $user);
+        $back = $this->redirectToRoute('staff_appointment_show', ['id' => $id]);
+        if (!\in_array($appointment->getStatus(), AppointmentStatus::occupying(), true)) {
+            $this->addFlash('danger', 'Only pending or upcoming appointments can be rescheduled.');
+
+            return $back;
+        }
+
+        $from = $appointment->getStatus()->label();
+        $previous = $appointment->getScheduledAt();
+        $form = $this->createForm(AppointmentRescheduleType::class, $appointment);
+        $form->handleRequest($request);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('danger', (string) ($form->getErrors(true)->current()?->getMessage() ?? 'Please choose a new date and time.'));
+
+            return $back;
+        }
+
+        $appointment->setStatus(AppointmentStatus::Rescheduled);
+        $appointment->setMeetingUrl(null);
+        $zone = new \DateTimeZone(AppointmentAvailability::TIMEZONE);
+        $note = \sprintf('Rescheduled by staff from %s to %s.', $previous->setTimezone($zone)->format('M j, Y g:i A'), $appointment->getScheduledAt()->setTimezone($zone)->format('M j, Y g:i A'));
+        if ($reason = trim((string) $form->get('note')->getData())) {
+            $note .= ' Reason: '.$reason;
+        }
+        $tracking->record($appointment, $from, AppointmentStatus::Rescheduled->label(), $user, $note);
+        $entityManager->flush();
+
+        $notifier->notify(
+            $appointment->getStudent(),
+            'Appointment rescheduled',
+            $appointment->getReferenceCode().' has been moved to '.$appointment->getScheduledAt()->setTimezone($zone)->format('M j, Y g:i A').'.',
+            $this->generateUrl('portal_appointment_show', ['id' => $id])
+        );
+        $this->addFlash('success', 'Appointment rescheduled and the student has been notified.');
+
+        return $back;
     }
 
     #[Route('/appointments/{id}/status', name: 'staff_appointment_status', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -156,7 +254,7 @@ class StaffController extends AbstractController
         $scope = StaffScope::for($user);
 
         return $this->render('staff/concerns/index.html.twig', [
-            'concerns' => $concerns->findForStaff($scope->unit, $scope->campus),
+            'concerns' => $concerns->findForStaff($scope->unit, $scope->campus, $scope->directorateCode),
         ]);
     }
 
@@ -237,7 +335,7 @@ class StaffController extends AbstractController
         $scope = StaffScope::for($user);
 
         return $this->render('staff/services/index.html.twig', [
-            'requests' => $services->findForStaff($scope->unit, $scope->campus),
+            'requests' => $services->findForStaff($scope->unit, $scope->campus, $scope->directorateCode),
         ]);
     }
 
@@ -290,7 +388,7 @@ class StaffController extends AbstractController
         $scope = StaffScope::for($user);
 
         return $this->render('staff/documents/index.html.twig', [
-            'documents' => $documents->findForStaff($scope->unit, $scope->campus),
+            'documents' => $documents->findForStaff($scope->unit, $scope->campus, $scope->directorateCode),
         ]);
     }
 
@@ -377,11 +475,22 @@ class StaffController extends AbstractController
     }
 
     #[Route('/announcements', name: 'staff_announcements', methods: ['GET'])]
-    public function announcements(AnnouncementRepository $announcements): Response
+    public function announcements(AnnouncementRepository $announcements, #[CurrentUser] User $user, OfficeProfileContext $profiles, ClockInterface $clock): Response
     {
         return $this->render('staff/announcements/index.html.twig', [
-            'announcements' => $announcements->findBy([], ['publishedAt' => 'DESC'], 50),
+            'announcements' => $this->workspace->supports($user) ? $announcements->forArchiveView($clock->now()->modify('-7 days'), false) : $announcements->findBy([], ['publishedAt' => 'DESC'], 50),
+            'archived' => false,
         ]);
+    }
+
+    #[Route('/announcements/archive', name: 'staff_announcements_archive', methods: ['GET'])]
+    public function archivedAnnouncements(AnnouncementRepository $announcements, #[CurrentUser] User $user, OfficeProfileContext $profiles, ClockInterface $clock): Response
+    {
+        if (!$this->workspace->supports($user)) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->render('staff/announcements/index.html.twig', ['announcements' => $announcements->forArchiveView($clock->now()->modify('-7 days'), true), 'archived' => true]);
     }
 
     #[Route('/announcements/new', name: 'staff_announcement_new', methods: ['GET', 'POST'])]
@@ -479,15 +588,9 @@ class StaffController extends AbstractController
 
     private function assertStaffEntityAccess(User $user, \App\Entity\Campus $campus, \App\Entity\SasUnit $unit): void
     {
-        $scope = StaffScope::for($user);
-        if ($scope->unrestricted) {
-            return;
-        }
-        if ($scope->campus && $scope->campus->getId() !== $campus->getId()) {
-            throw $this->createAccessDeniedException();
-        }
-        if ($scope->unit && $scope->unit->getId() !== $unit->getId()) {
+        if (!StaffScope::for($user)->allows($campus, $unit)) {
             throw $this->createAccessDeniedException();
         }
     }
+
 }

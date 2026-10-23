@@ -10,10 +10,25 @@
     <dt>Unit</dt><dd>{{ appointment.unit.name }}</dd>
     <dt>Schedule</dt><dd>{{ appointment.scheduledAt|date('M j, Y g:i A') }}</dd>
     <dt>Mode</dt><dd>{{ appointment.mode.label }}</dd>
-    {% if appointment.meetingUrl %}<dt>Meeting URL</dt><dd><a href="{{ appointment.meetingUrl }}" target="_blank" rel="noopener">{{ appointment.meetingUrl }}</a></dd>{% endif %}
+    {% if appointment.canManageMeetingUrl and appointment.meetingUrl %}<dt>Meeting URL</dt><dd><a href="{{ appointment.meetingUrl }}" target="_blank" rel="noopener">{{ appointment.meetingUrl }}</a></dd>{% endif %}
+    {% if appointment.topic %}<dt>Topic</dt><dd>{{ appointment.topic }}</dd>{% endif %}
+    {% if appointment.contactNumber %}<dt>Contact number</dt><dd>{{ appointment.contactNumber }}</dd>{% endif %}
+    {% if appointment.accommodationNote %}<dt>Accommodation note</dt><dd>{{ appointment.accommodationNote|nl2br }}</dd>{% endif %}
     <dt>Purpose</dt><dd>{{ appointment.purpose|nl2br }}</dd>
 </dl>
+{% if appointment.canStudentChange %}
+<div class="form-actions">
+    <a class="btn" href="{{ path('portal_appointment_edit', {id: appointment.id}) }}">Edit appointment</a>
+    <a class="btn btn-outline" href="#reschedule">Request a new time</a>
+    <form method="post" action="{{ path('portal_appointment_cancel', {id: appointment.id}) }}" onsubmit="return confirm('Cancel this appointment?')">
+        <input type="hidden" name="_token" value="{{ csrf_token('appointment-cancel-' ~ appointment.id) }}">
+        <button class="btn btn-outline btn-danger" type="submit">Cancel appointment</button>
+    </form>
+</div>
+{% endif %}
 </section>
+{% if rescheduleForm %}{{ include('partials/_reschedule_panel.html.twig', {form: rescheduleForm, appointment: appointment, intro: 'Pick another open slot. Staff will confirm the new time.'}) }}{% endif %}
+{% set feedback = feedback_panel(appointment) %}{% if feedback %}{{ include('feedback/_panel.html.twig', feedback) }}{% endif %}
 <section class="panel"><div class="panel-header"><div><p class="panel-kicker">Activity</p><h2 class="panel-title">Tracking history</h2></div></div>{{ ui.history_list(history) }}</section>
 </div>
 {% endblock %}

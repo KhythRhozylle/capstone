@@ -1,0 +1,6 @@
+{% extends 'layouts/staff.html.twig' %}
+{% block title %}{{ editing ? 'Edit document' : 'Create document' }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ editing ? 'Edit document' : 'Create document' }}</h1><p class="page-description">Record student documents and track their progress.</p></div><a class="btn btn-outline" href="{{ path('staff_documents') }}">Back to documents</a></div>
+<section class="panel">{{ form_start(form) }}{{ form_widget(form) }}<button class="btn btn-primary" type="submit">{{ editing ? 'Save changes' : 'Create document' }}</button>{{ form_end(form) }}</section>
+{% endblock %}

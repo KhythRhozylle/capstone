@@ -1,0 +1,16 @@
+{% set route = app.request.attributes.get('_route') %}
+{% set office = staff_workspace(app.user) %}
+{% set operations = [
+ {label: 'Dashboard', route: 'staff_dashboard', icon: 'dashboard', active: route == 'staff_dashboard'},
+ {label: 'Appointments', route: 'staff_appointments', icon: 'clock', active: route starts with 'staff_appointment' or route starts with 'staff_availability' or route starts with 'staff_office_hours'},
+ {label: 'Concerns', route: 'staff_concerns', icon: 'chat', active: route starts with 'staff_concern'}
+] %}
+{% set operations = operations|merge([{label: 'Document tracking and monitoring', route: 'staff_documents', icon: 'document', active: route starts with 'staff_document'}]) %}
+{% set operations = operations|merge([
+ {label: 'Announcements', route: 'staff_announcements', icon: 'announcement', active: route starts with 'staff_announcement'},
+ {label: 'Documentation guide', route: 'documentation_index', icon: 'document', active: route starts with 'documentation_'},
+ {label: 'Feedbacks', route: 'staff_feedback', icon: 'star', active: route == 'staff_feedback'}
+]) %}
+{% set desks = [{label: office.specialist, route: 'staff_specialist_desk', icon: 'profile', active: route == 'staff_specialist_desk'}] %}
+{% if office.care %}{% set desks = desks|merge([{label: 'Counseling and follow-ups', route: 'care_cases', icon: 'care', active: route starts with 'care_'}]) %}{% endif %}
+{% include 'partials/_sidebar.html.twig' with {label: 'Office navigation', groups: [{label: 'Workspace', items: operations}, {label: 'Specialist desk', items: desks}, {label: 'Activity logs', items: [{label: 'Activity log', route: 'staff_activity', icon: 'clock', active: route == 'staff_activity'}]}]} only %}
