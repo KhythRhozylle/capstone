@@ -18,6 +18,11 @@ class OfficeProfileContext
             && in_array('ROLE_VPSAS', $user->getRoles(), true);
     }
 
+    public function actorName(User $user): string
+    {
+        return $this->supports($user) ? $this->current($user)->label() : $user->getFullName();
+    }
+
     public function current(User $user): OfficeProfile
     {
         if (!$this->supports($user)) {

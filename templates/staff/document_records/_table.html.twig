@@ -1,0 +1,6 @@
+<div class="table-wrap document-sheet" data-action="input->document-sheet#dirty change->document-sheet#dirty keydown->document-sheet#keyboard">
+<p class="sheet-hint">Type directly in the cells. Changes save automatically after a short pause. Complete the required fields in the last row to add a new record.</p>
+<table class="data-table office-document-table"><thead><tr><th scope="col">Campus</th><th scope="col">Particular</th><th scope="col">Amount (PHP)</th><th scope="col">Date received</th><th scope="col">Received by</th><th scope="col">Date released</th><th scope="col">Released by</th><th scope="col">Status</th>{% for column in columns %}<th scope="col" data-column-id="{{ column.id }}">{{ column.label }}</th>{% endfor %}<th scope="col">Actions</th></tr></thead>
+<tbody>{% for record in records %}{{ include('staff/document_records/_row.html.twig', {record: record, form: recordForms[record.id]}) }}{% endfor %}
+{% if newRecordForm %}{{ include('staff/document_records/_row.html.twig', {record: newRecord, form: newRecordForm}) }}{% endif %}
+</tbody></table></div>

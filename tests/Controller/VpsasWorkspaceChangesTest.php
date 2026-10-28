@@ -651,7 +651,7 @@ class VpsasWorkspaceChangesTest extends WebTestCase
             $this->files[] = self::getContainer()->getParameter('kernel.project_dir').'/var/chat-files/'.$message->getAttachmentFilename();
             $download = '/messages/files/'.$message->getId();
             $this->client->followRedirect();
-            self::assertSelectorExists('.chat-message-file[href="'.$download.'"]');
+            self::assertSelectorExists('.chat-message-file[data-turbo="false"][href="'.$download.'"]');
             self::assertSelectorTextContains('.chat-message-file[href="'.$download.'"]', $name);
             $this->client->request('GET', $download);
             self::assertResponseIsSuccessful();

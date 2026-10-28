@@ -3,6 +3,20 @@ import { Controller } from '@hotwired/stimulus';
 export default class extends Controller {
     static targets = ['details'];
 
+    connect() {
+        const label = this.element.querySelector('#office-profile-name');
+        if (!label) return;
+        this.identityObserver = new MutationObserver(() => {
+            const name = label.textContent.replace('▾', '').trim();
+            window.dispatchEvent(new CustomEvent('office-profile:changed', {detail: {name}}));
+        });
+        this.identityObserver.observe(label, {childList: true, subtree: true, characterData: true});
+    }
+
+    disconnect() {
+        this.identityObserver?.disconnect();
+    }
+
     openProfile() {
         this.detailsTarget.open = true;
     }

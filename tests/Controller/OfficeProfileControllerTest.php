@@ -186,7 +186,9 @@ class OfficeProfileControllerTest extends WebTestCase
         $actor = $this->manager->getConnection()->fetchOne('SELECT actor_name FROM office_activity WHERE route = ?', ['app_logout']);
         self::assertSame('Dianne Futalan', $actor);
         $this->client->request('GET', '/login');
-        $this->client->submitForm('Log in', ['_username' => 'vpsas@norsu.edu.ph', '_password' => 'PASSWORD123!']);
+        $tabKey = str_repeat('c', 64);
+        $this->client->submitForm('Log in', ['_username' => 'vpsas@norsu.edu.ph', '_password' => 'PASSWORD123!', '_browser_session' => $tabKey]);
+        $this->client->setServerParameter('HTTP_X_BROWSER_SESSION', $tabKey);
         self::assertResponseRedirects('http://localhost/');
         $this->client->request('GET', '/vpsas/profile');
         self::assertSelectorTextContains('h1', 'Dr. Cesar P. Estrope');

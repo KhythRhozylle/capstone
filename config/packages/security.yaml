@@ -22,9 +22,6 @@ security:
                 default_target_path: app_home
             logout:
                 path: app_logout
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800
 
     role_hierarchy:
         ROLE_STAFF: ROLE_USER

@@ -1,0 +1,10 @@
+{% set isNew = record.id is null %}
+<tr data-document-sheet-row data-new="{{ isNew ? 'true' : 'false' }}" data-record-id="{{ record.id }}" data-unit-id="{{ record.unit.id }}">
+{% for name in ['campus', 'particular', 'amount', 'receivedAt', 'receivedBy', 'releasedAt', 'releasedBy', 'status'] %}
+<td>{{ form_widget(form[name], {attr: {form: form.vars.id, 'aria-label': form[name].vars.label ?: name, 'aria-invalid': form[name].vars.valid ? 'false' : 'true', rows: 2}}) }}{{ form_errors(form[name]) }}{% if name == 'particular' %}<small class="sheet-office">{{ record.unit.name }}</small>{% endif %}</td>
+{% endfor %}
+{% for column in columns %}<td data-column-id="{{ column.id }}">{% set field = 'column_' ~ column.id %}{% if form[field] is defined %}{{ form_widget(form[field], {attr: {form: form.vars.id, 'aria-label': column.label}}) }}{{ form_errors(form[field]) }}{% else %}—{% endif %}</td>{% endfor %}
+<td class="sheet-actions">{{ form_start(form) }}{{ form_widget(form._token) }}{{ form_errors(form) }}{{ form_end(form, {render_rest: false}) }}
+{% if not isNew %}<button class="btn btn-sm btn-outline" type="button" data-action="document-sheet#remove" data-url="{{ path('office_document_delete', {id: record.id}) }}" data-token="{{ csrf_token('office-document-delete-' ~ record.id) }}">Delete</button>{% endif %}
+<small class="sheet-message" role="status" aria-live="polite" data-row-message>{% if form.vars.submitted and not form.vars.valid %}Please correct the highlighted fields.{% endif %}</small></td>
+</tr>

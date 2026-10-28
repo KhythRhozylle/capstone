@@ -3,7 +3,7 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <div class="page-header">
-    <div><h1>Welcome back, Admin! <span class="wave" aria-hidden="true">&#128075;</span></h1><p class="page-description"> {% if scope.unrestricted %}Your university-wide SAS overview.{% else %}{{ scope.unit ? scope.unit.name : 'All units' }} &middot; {{ scope.campus ? scope.campus.name : 'All campuses' }}{% endif %}</p></div>
+    <div><h1>{% if app.user.email|lower == 'vpsas@norsu.edu.ph' %}Welcome back, Admin!{% else %}Welcome, {{ app.user.fullName }}!{% endif %} <span class="wave" aria-hidden="true">&#128075;</span></h1><p class="page-description"> {% if scope.unrestricted %}Your university-wide SAS overview.{% else %}{{ scope.unit ? scope.unit.name : 'All units' }} &middot; {{ scope.campus ? scope.campus.name : 'All campuses' }}{% endif %}</p></div>
     <a class="btn btn-outline btn-sm" href="{{ path('staff_appointment_calendar') }}">{{ include('partials/_icon.html.twig', {name: 'calendar'}) }}View calendar</a>
 </div>
 {% set events = [] %}

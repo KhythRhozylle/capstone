@@ -5,10 +5,10 @@
 {% set workspace_label = workspace_label|default('Student affairs and services') %}
 {% set workspace_home = workspace_home|default('app_home') %}
 {% set initials = app.user ? (app.user.firstName|slice(0, 1) ~ app.user.lastName|slice(0, 1))|upper : 'SAS' %}
-<div class="app-shell" data-controller="app-shell notification-badge" data-notification-badge-url-value="{{ path('notifications_count') }}" data-action="keydown@window->app-shell#onKeydown turbo:before-cache@document->app-shell#beforeCache focus@window->notification-badge#refresh visibilitychange@document->notification-badge#refresh">
+<div class="app-shell" data-controller="app-shell notification-badge" data-notification-badge-url-value="{{ path('notifications_count') }}" data-action="resize@window->app-shell#hideNavLabel scroll@window->app-shell#onNavScroll keydown@window->app-shell#onKeydown turbo:before-cache@document->app-shell#beforeCache focus@window->notification-badge#refresh visibilitychange@document->notification-badge#refresh">
     <a class="workspace-skip-link" href="#workspace-content">Skip to content</a>
     {% if sidebar is defined %}
-        <aside class="sidebar" id="workspace-sidebar" aria-label="Workspace navigation" tabindex="-1" data-app-shell-target="sidebar">
+        <aside class="sidebar" id="workspace-sidebar" aria-label="Workspace navigation" tabindex="-1" data-app-shell-target="sidebar" data-action="pointerover->app-shell#showNavLabel pointerout->app-shell#queueNavLabelHide focusin->app-shell#showNavLabel focusout->app-shell#queueNavLabelHide scroll->app-shell#onNavScroll click->app-shell#hideNavLabel">
             <button class="sidebar-close" type="button" aria-label="Close navigation" data-action="app-shell#close">{% include 'partials/_icon.html.twig' with {name: 'close'} only %}</button>
             <a class="brand" href="{{ path(workspace_home) }}" aria-label="{{ workspace_title }} home">
                 <img class="brand-mark" src="{{ asset('images/sas-logo.png') }}" alt="" width="42" height="42">
@@ -23,6 +23,7 @@
         </aside>
         <button class="sidebar-backdrop" type="button" tabindex="-1" aria-label="Close navigation" aria-hidden="true" data-action="app-shell#close"></button>
     {% endif %}
+    <span class="sidebar-tooltip" data-app-shell-target="navTooltip" aria-hidden="true" hidden data-action="pointerenter->app-shell#keepNavLabel pointerleave->app-shell#queueNavLabelHide"></span>
     <div class="app-main">
         <header class="topbar">
             <button class="shell-menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="workspace-sidebar" aria-expanded="true" data-app-shell-target="toggle" data-action="app-shell#toggle">

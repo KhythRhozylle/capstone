@@ -1,3 +1,4 @@
+import './browser_session.js';
 import './submission_guard.js';
 import './stimulus_bootstrap.js';
 import './select_menu.js';

@@ -383,11 +383,24 @@ class StaffController extends AbstractController
     }
 
     #[Route('/documents', name: 'staff_documents', methods: ['GET'])]
-    public function documents(DocumentRequestRepository $documents, #[CurrentUser] User $user): Response
+    public function documents(DocumentRequestRepository $documents, \App\Repository\OfficeDocumentRecordRepository $records, \App\Service\OfficeDocumentRowForm $rowForms, \App\Service\OfficeDocumentRegister $register, \App\Repository\OfficeDocumentColumnRepository $columns, #[CurrentUser] User $user): Response
     {
         $scope = StaffScope::for($user);
 
+        $rows = $records->forOfficial($user);
+        $recordForms = [];
+        foreach ($rows as $row) {
+            $recordForms[$row->getId()] = $rowForms->create($row)->createView();
+        }
+        $newRecord = ($this->workspace->personalUnit($user) ?? $user->getStaffUnit()) ? $register->create($user) : null;
+
         return $this->render('staff/documents/index.html.twig', [
+            'records' => $rows,
+            'recordForms' => $recordForms,
+            'columns' => $columns->forOfficial($user),
+            'columnForm' => $newRecord ? $this->createForm(\App\Form\OfficeDocumentColumnType::class, new \App\Entity\OfficeDocumentColumn($newRecord->getUnit()), ['action' => $this->generateUrl('office_document_column_new'), 'attr' => ['data-action' => 'submit->document-sheet#addColumn', 'data-turbo' => 'false']])->createView() : null,
+            'newRecord' => $newRecord,
+            'newRecordForm' => $newRecord ? $rowForms->create($newRecord)->createView() : null,
             'documents' => $documents->findForStaff($scope->unit, $scope->campus, $scope->directorateCode),
         ]);
     }

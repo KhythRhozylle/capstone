@@ -2,20 +2,23 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <div class="page-header">
-    <div><h1>Welcome back, Admin! <span class="wave" aria-hidden="true">&#128075;</span></h1><p class="page-description">{{ app.user.campus ? app.user.campus.name : 'Your student workspace' }} &middot; {{ unreadCount }} unread notification{{ unreadCount == 1 ? '' : 's' }}</p></div>
+    <div><h1>{% if app.user.email|lower == 'vpsas@norsu.edu.ph' %}Welcome back, Admin!{% else %}Welcome, {{ app.user.fullName }}!{% endif %} <span class="wave" aria-hidden="true">&#128075;</span></h1><p class="page-description">{{ app.user.campus ? app.user.campus.name : 'Your student workspace' }} &middot; {{ unreadCount }} unread notification{{ unreadCount == 1 ? '' : 's' }}</p></div>
     <a class="btn btn-sm" href="{{ path('portal_appointment_officials') }}">{{ include('partials/_icon.html.twig', {name: 'calendar'}) }}Book appointment</a>
 </div>
 {% set events = [] %}
 {% for a in appointments %}{% set events = events|merge([{date: a.scheduledAt|date('Y-m-d'), time: a.scheduledAt|date('g:i A'), title: a.unit.name, sub: a.mode.label, status: a.status.label, url: path('portal_appointment_show', {id: a.id})}]) %}{% endfor %}
 <div class="dash-layout">
 <div class="dash-main">
-{% set routes = ['portal_appointments', 'portal_concerns', 'portal_services', 'portal_documents'] %}
-<div class="metric-grid">
-    {% for category in activity.categories %}
-        <a class="metric-card" href="{{ path(routes[loop.index0]) }}"><span class="metric-icon metric-icon-{{ loop.index }}">{{ include('partials/_icon.html.twig', {name: category.icon}) }}</span><div><p class="metric-label">{{ category.label }}</p><strong class="metric-value">{{ category.total }}</strong><span class="metric-caption">{{ category.open }} open &middot; {{ category.closed }} closed</span></div></a>
-    {% endfor %}
-</div>
-{{ include('partials/_activity_charts.html.twig') }}
+{% set categories = activity.categories|filter(category => category.icon != 'request') %}
+{% set activity = {
+    categories: categories,
+    total: categories|reduce((total, category) => total + category.total, 0),
+    open: categories|reduce((total, category) => total + category.open, 0),
+    closed: categories|reduce((total, category) => total + category.closed, 0),
+    maximum: max([1]|merge(categories|map(category => category.open))|merge(categories|map(category => category.closed)))
+} %}
+{% set routes = ['portal_appointments', 'portal_concerns', 'portal_documents'] %}
+{{ include('partials/_activity_charts.html.twig', {metric_routes: routes}) }}
     <section class="panel">
         <div class="panel-header"><div><h2 class="panel-title">Announcements</h2><p class="panel-kicker">University and campus updates</p></div><a class="panel-link" href="{{ path('portal_announcements') }}">View all &rarr;</a></div>
         <ul class="activity-feed">

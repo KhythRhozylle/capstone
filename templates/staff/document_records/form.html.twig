@@ -1,0 +1,6 @@
+{% extends 'layouts/staff.html.twig' %}
+{% block title %}{{ editing ? 'Edit office record' : 'Record received document' }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ editing ? 'Edit office record' : 'Record received document' }}</h1><p class="page-description">{{ record.unit.name }} · Enter the document received by your office.</p></div><a class="btn btn-outline" href="{{ path('staff_documents') }}">Back to monitoring</a></div>
+<section class="panel">{{ form_start(form) }}{{ form_widget(form) }}<button class="btn btn-primary" type="submit">{{ editing ? 'Save changes' : 'Save record' }}</button>{{ form_end(form) }}</section>
+{% endblock %}

@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="browser-session-continue" content="{{ path('app_session_continue') }}">
+    <meta name="browser-session-logout" content="{{ path('app_logout') }}">
+    {% if app.token and app.token.hasAttribute('_browser_session') %}
+        <meta name="browser-session-active" content="true">
+        <meta name="turbo-cache-control" content="no-cache">
+    {% endif %}
     <title>{% block title %}NORSU-SAS Insight{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +19,7 @@
     {% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
-    {% include 'partials/_flash.html.twig' %}
+    {% block flashes %}{% include 'partials/_flash.html.twig' %}{% endblock %}
     {% block layout %}{% block body %}{% endblock %}{% endblock %}
 
     

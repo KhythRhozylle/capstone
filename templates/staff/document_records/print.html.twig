@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Office document register</title>
+<style>
+@page { size: A4 landscape; margin: 14mm; }
+body { font-family: "DejaVu Sans", sans-serif; font-size: 9px; color: #17212b; }
+h1 { margin-bottom: 4px; font-size: 20px; } p { margin-top: 0; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; } th, td { border: 1px solid #b8c0c8; padding: 6px 4px; vertical-align: top; overflow-wrap: break-word; word-wrap: break-word; } th { background: #eef1f4; text-align: left; } thead { display: table-header-group; } tr { page-break-inside: avoid; }
+.particular { width: 18%; } .amount { text-align: right; } .print-actions { margin: 18px 0; font-size: 14px; }
+@media print { .print-actions { display: none; } }
+</style>{% if not pdf %}<script type="module" src="{{ asset('print_document.js') }}"></script>{% endif %}</head>
+<body>{% if not pdf %}<div class="print-actions"><button type="button" data-print-document>Print</button> <a href="{{ path('staff_documents') }}">Back to monitoring</a></div>{% endif %}
+<h1>Document tracking and monitoring</h1><p>Office document register · {{ records|length }} record{{ records|length == 1 ? '' : 's' }}</p>
+<table><thead><tr><th>Office</th><th>Campus</th><th class="particular">Particular</th><th>Amount (PHP)</th><th>Date received</th><th>Received by</th><th>Date released</th><th>Released by</th><th>Status</th>{% for column in columns %}<th>{{ column.label }}</th>{% endfor %}</tr></thead>
+<tbody>{% for record in records %}<tr><td>{{ record.unit.name }}</td><td>{{ record.campus.name }}</td><td>{{ record.particular|nl2br }}</td><td class="amount">{{ record.amount|number_format(2) }}</td><td>{{ record.receivedAt|date('Y-m-d', false) }}</td><td>{{ record.receivedBy }}</td><td>{{ record.releasedAt ? record.releasedAt|date('Y-m-d', false) : '—' }}</td><td>{{ record.releasedBy ?: '—' }}</td><td>{{ record.status.label }}</td>{% for column in columns %}<td>{{ column.unit.id == record.unit.id ? record.extraData[column.id]|default('') : '—' }}</td>{% endfor %}</tr>{% else %}<tr><td colspan="{{ 9 + columns|length }}">No office records.</td></tr>{% endfor %}</tbody></table>
+</body></html>

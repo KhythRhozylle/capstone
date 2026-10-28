@@ -3,7 +3,10 @@ framework:
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    session:
+        # Use a new cookie name so previously remembered sessions are ignored.
+        name: NORSU_SAS_SESSION
+        cookie_lifetime: 0
 
     #esi: true
     #fragments: true

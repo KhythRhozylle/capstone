@@ -528,3 +528,40 @@
     .workspace-page .official-card, .workspace-page .booking-day { transition: none; }
     .workspace-page .official-card:hover, .workspace-page .booking-day:hover { scale: none; }
 }
+
+/* Editable office register. */
+.document-sheet .sheet-hint { padding: 0 1rem; color: var(--muted, #64748b); font-size: .85rem; }
+.document-sheet table { min-width: 1560px; table-layout: fixed; }
+.document-sheet th:nth-child(1) { width: 190px; }
+.document-sheet th:nth-child(2) { width: 250px; }
+.document-sheet th:nth-child(3) { width: 115px; }
+.document-sheet th:nth-child(4), .document-sheet th:nth-child(6) { width: 155px; }
+.document-sheet th:nth-child(5), .document-sheet th:nth-child(7) { width: 170px; }
+.document-sheet th:nth-child(8) { width: 155px; }
+.document-sheet th:last-child { width: 170px; }
+.document-sheet td { padding: .4rem; vertical-align: top; border: 1px solid #e2e8f0; }
+.document-sheet td input, .document-sheet td select, .document-sheet td textarea { width: 100%; min-width: 0; margin: 0; border: 1px solid transparent; border-radius: 3px; background: transparent; padding: .55rem; box-sizing: border-box; }
+.document-sheet td input:focus, .document-sheet td select:focus, .document-sheet td textarea:focus { outline: 2px solid #3b82f6; background: #fff; }
+.document-sheet tr[data-new="true"] { background: #f0f9ff; }
+.document-sheet tr.is-dirty { background: #fffbeb; }
+.document-sheet tr[aria-busy="true"] { opacity: .65; }
+.document-sheet .sheet-actions form { display: inline; }
+.document-sheet .sheet-message, .document-sheet .sheet-office { display: block; font-size: .75rem; margin-top: .3rem; white-space: normal; }
+.document-sheet .sheet-message { color: #475569; }
+.document-sheet td ul { color: #b91c1c; padding-left: 1rem; white-space: normal; font-size: .8rem; }
+
+.document-sheet [aria-invalid="true"] { border-color: #dc2626; background: #fff1f2; }
+
+.sheet-toolbar { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.sheet-insert { position: relative; }
+.sheet-insert summary { cursor: pointer; list-style: none; }
+.sheet-insert-options { position: absolute; top: 100%; left: 0; z-index: 20; min-width: 160px; padding: .35rem; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 8px 24px #0002; }
+.sheet-insert-options button { display: block; width: 100%; border: 0; background: transparent; text-align: left; padding: .6rem .8rem; cursor: pointer; }
+.sheet-insert-options button:hover { background: #f1f5f9; }
+.sheet-column-editor { padding: .75rem 1rem; border-bottom: 1px solid #e2e8f0; }
+.sheet-column-editor form { display: flex; align-items: end; gap: .5rem; flex-wrap: wrap; }
+.sheet-toolbar-message { padding: 0 1rem; font-size: .85rem; }
+.document-sheet th[data-column-id] { width: 180px; }
+
+.sheet-row-count { display: block; padding: .5rem .7rem; font-size: .8rem; }
+.sheet-row-count select { display: block; width: 100%; margin-top: .35rem; }

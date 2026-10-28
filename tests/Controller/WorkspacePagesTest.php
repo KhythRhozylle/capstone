@@ -157,6 +157,44 @@ class WorkspacePagesTest extends WebTestCase
         yield 'executive' => ['/vpsas'];
     }
 
+    #[DataProvider('dashboardGreetings')]
+    public function testDashboardGreetsTheLoggedInUser(string $email, string $path): void
+    {
+        $client = $this->authenticatedClient($email);
+        $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => $email]);
+
+        $crawler = $client->request('GET', $path);
+
+        self::assertResponseIsSuccessful();
+        $expected = 'vpsas@norsu.edu.ph' === $email
+            ? 'Welcome back, Admin!'
+            : 'Welcome, '.$user->getFullName().'!';
+        self::assertSame($expected, trim($crawler->filter('main.content h1')->text()));
+    }
+
+    public static function dashboardGreetings(): iterable
+    {
+        yield 'staff name' => ['osas@norsu.edu.ph', '/staff'];
+        yield 'student name' => ['student@norsu.edu.ph', '/portal'];
+        yield 'VPSAS exception' => ['vpsas@norsu.edu.ph', '/staff'];
+    }
+    public function testStudentDashboardOmitsServiceRequests(): void
+    {
+        $client = $this->authenticatedClient('student@norsu.edu.ph');
+        $crawler = $client->request('GET', '/portal');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(3, $crawler->filter('main.content .metric-card'));
+        self::assertSelectorNotExists('main.content a[href="/portal/services"]');
+        self::assertStringNotContainsString('Service requests', $crawler->filter('main.content')->text());
+        self::assertSelectorExists('main.content .metric-card[href="/portal/documents"]');
+        self::assertCount(3, $crawler->filter('.chart-category'));
+        self::assertSelectorNotExists('.request-mix-panel');
+        self::assertSelectorNotExists('.donut-chart');
+        self::assertCount(3, $crawler->filter('.dashboard-grid-metrics > .activity-panel + .activity-metrics > .metric-card'));
+        self::assertSame(['Appointments', 'Concerns', 'Documents'], $crawler->filter('.activity-metrics .metric-label')->each(static fn ($label): string => $label->text()));
+        self::assertSame(['/portal/appointments', '/portal/concerns', '/portal/documents'], $crawler->filter('.activity-metrics .metric-card')->each(static fn ($card): string => $card->attr('href')));
+    }
     private function authenticatedClient(string $email): KernelBrowser
     {
         $client = static::createClient();

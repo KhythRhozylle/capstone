@@ -46,7 +46,7 @@ class OfficeActivityListener
         }
         $request = $event->getRequest();
         $route = (string) $request->attributes->get('_route', '');
-        if ('' === $route || str_starts_with($route, '_') || 'notifications_count' === $route) {
+        if ('' === $route || str_starts_with($route, '_') || in_array($route, ['notifications_count', 'app_session_continue'], true) || $request->attributes->get('_browser_session_check')) {
             return;
         }
         $actor = $request->attributes->get('_office_activity_actor');

@@ -3,7 +3,7 @@
         <div class="side-nav-group">
             <p class="side-nav-heading">{{ group.label }}</p>
             {% for item in group.items %}
-                <a class="side-nav-link{{ item.active ? ' is-active' : '' }}" href="{{ path(item.route) }}" title="{{ item.label }}"{% if item.active %} aria-current="page"{% endif %}>
+                <a class="side-nav-link{{ item.active ? ' is-active' : '' }}" href="{{ path(item.route) }}"{% if item.active %} aria-current="page"{% endif %}>
                     {% include 'partials/_icon.html.twig' with {name: item.icon, class: 'nav-icon'} only %}
                     <span class="nav-label">{{ item.label }}</span>
                     {% if item.active %}<span class="nav-active-dot" aria-hidden="true"></span>{% endif %}

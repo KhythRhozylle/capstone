@@ -1,0 +1,10 @@
+{% extends 'layouts/staff.html.twig' %}
+{% import 'macros.html.twig' as ui %}
+{% block title %}Office document #{{ record.id }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Office document #{{ record.id }}</h1><p class="page-description">{{ record.unit.name }}</p></div><a class="btn btn-primary" href="{{ path('office_document_edit', {id: record.id}) }}">Edit record</a><a class="btn btn-outline" href="{{ path('office_document_print', {id: record.id}) }}" target="_blank" rel="noopener">Print</a><a class="btn btn-outline" href="{{ path('office_document_pdf', {id: record.id}) }}" data-turbo="false">Download PDF</a><a class="btn btn-outline" href="{{ path('staff_documents') }}">Back to monitoring</a></div>
+<div class="content-grid"><section class="panel"><div class="panel-header"><h2>Record details</h2>{{ ui.status_badge(record.status.label) }}</div>
+<dl class="detail-grid"><dt>Campus</dt><dd>{{ record.campus.name }}</dd><dt>Particular</dt><dd>{{ record.particular|nl2br }}</dd><dt>Amount</dt><dd>PHP {{ record.amount|number_format(2) }}</dd><dt>Date received</dt><dd>{{ record.receivedAt|date('M j, Y', false) }}</dd><dt>Received by</dt><dd>{{ record.receivedBy }}</dd><dt>Date released</dt><dd>{{ record.releasedAt ? record.releasedAt|date('M j, Y', false) : '—' }}</dd><dt>Released by</dt><dd>{{ record.releasedBy ?: '—' }}</dd>{% for column in columns %}<dt>{{ column.label }}</dt><dd>{{ record.extraData[column.id]|default('—') }}</dd>{% endfor %}</dl></section>
+<section class="panel"><h2>Tracking history</h2>{{ ui.history_list(history) }}</section></div>
+<section class="panel"><h2>Delete record</h2><p>Deleting permanently removes this record from document monitoring.</p><form method="post" action="{{ path('office_document_delete', {id: record.id}) }}"><input type="hidden" name="_token" value="{{ csrf_token('office-document-delete-' ~ record.id) }}"><button class="btn btn-outline" type="submit">Delete record</button></form></section>
+{% endblock %}

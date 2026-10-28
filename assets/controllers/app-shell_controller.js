@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    static targets = ['sidebar', 'toggle', 'content'];
+    static targets = ['sidebar', 'toggle', 'content', 'navTooltip'];
 
     connect() {
         this.mobile = window.matchMedia('(max-width: 960px)');
@@ -16,6 +16,7 @@ export default class extends Controller {
     }
 
     disconnect() {
+        this.hideNavLabel();
         this.mobile.removeEventListener('change', this.onViewportChange);
         this.releasePage();
         if (this.hasSidebarTarget) {
@@ -52,6 +53,7 @@ export default class extends Controller {
     }
 
     onKeydown(event) {
+        if (event.key === 'Escape') this.hideNavLabel();
         if (!this.mobile.matches || !this.open) {
             return;
         }
@@ -87,6 +89,7 @@ export default class extends Controller {
     }
 
     update() {
+        this.hideNavLabel();
         if (!this.hasSidebarTarget) {
             return;
         }
@@ -114,6 +117,52 @@ export default class extends Controller {
             this.sidebarTarget.removeAttribute('aria-modal');
             this.releasePage();
         }
+    }
+
+    showNavLabel(event) {
+        if (this.mobile.matches || !this.collapsed || !this.hasNavTooltipTarget) return;
+        const link = event.target.closest?.('.side-nav-link');
+        if (!link || !this.sidebarTarget.contains(link)) return;
+        const label = link.querySelector('.nav-label')?.textContent.trim();
+        if (!label) return;
+        this.keepNavLabel();
+        this.activeNavLink = link;
+        this.navTooltipTarget.textContent = label;
+        this.navTooltipTarget.hidden = false;
+        this.positionNavLabel();
+    }
+
+    positionNavLabel() {
+        if (!this.activeNavLink || !this.hasNavTooltipTarget || this.navTooltipTarget.hidden) return;
+        const link = this.activeNavLink.getBoundingClientRect();
+        const tooltip = this.navTooltipTarget.getBoundingClientRect();
+        const right = this.sidebarTarget.getBoundingClientRect().right;
+        this.navTooltipTarget.style.left = `${Math.max(8, Math.min(right + 12, window.innerWidth - tooltip.width - 8))}px`;
+        this.navTooltipTarget.style.top = `${Math.max(8, Math.min(link.top + (link.height - tooltip.height) / 2, window.innerHeight - tooltip.height - 8))}px`;
+    }
+
+    keepNavLabel() {
+        window.clearTimeout(this.navLabelTimer);
+    }
+
+    queueNavLabelHide(event) {
+        if (!this.hasNavTooltipTarget) return;
+        if (this.activeNavLink?.contains(event.relatedTarget) || this.navTooltipTarget.contains(event.relatedTarget)) return;
+        if (event.type.startsWith('pointer') && this.activeNavLink === document.activeElement) return;
+        if (event.type === 'focusout' && this.activeNavLink?.matches(':hover')) return;
+        this.keepNavLabel();
+        this.navLabelTimer = window.setTimeout(() => this.hideNavLabel(), 120);
+    }
+
+    hideNavLabel() {
+        this.keepNavLabel();
+        if (this.hasNavTooltipTarget) this.navTooltipTarget.hidden = true;
+        this.activeNavLink = null;
+    }
+
+    onNavScroll() {
+        if (this.activeNavLink === document.activeElement) this.positionNavLabel();
+        else this.hideNavLabel();
     }
 
     releasePage() {

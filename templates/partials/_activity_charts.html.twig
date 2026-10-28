@@ -1,5 +1,5 @@
 {% set colors = ['#1c1b29', '#fccf2b', '#7193ac', '#aa8b3e'] %}
-<div class="dashboard-grid">
+<div class="dashboard-grid{{ metric_routes is defined ? ' dashboard-grid-metrics' : '' }}">
     <section class="panel activity-panel" aria-labelledby="activity-heading">
         <div class="panel-header">
             <div><h2 class="panel-title" id="activity-heading">Activity overview</h2><p class="panel-kicker">All records in your workspace</p></div>
@@ -22,6 +22,13 @@
         {% if not activity.total %}<p class="chart-empty">Your activity will appear here as requests come in.</p>{% endif %}
         <details class="chart-data"><summary>View chart data</summary><table class="data-table"><thead><tr><th scope="col">Category</th><th scope="col">Open</th><th scope="col">Closed</th></tr></thead><tbody>{% for category in activity.categories %}<tr><th scope="row">{{ category.label }}</th><td>{{ category.open }}</td><td>{{ category.closed }}</td></tr>{% endfor %}</tbody></table></details>
     </section>
+    {% if metric_routes is defined %}
+        <div class="activity-metrics" aria-label="Request totals">
+            {% for category in activity.categories %}
+                <a class="metric-card" href="{{ path(metric_routes[loop.index0]) }}"><span class="metric-icon metric-icon-{{ loop.index }}">{{ include('partials/_icon.html.twig', {name: category.icon}) }}</span><div><p class="metric-label">{{ category.label }}</p><strong class="metric-value">{{ category.total }}</strong><span class="metric-caption">{{ category.open }} open &middot; {{ category.closed }} closed</span></div></a>
+            {% endfor %}
+        </div>
+    {% else %}
     <section class="panel request-mix-panel" aria-labelledby="request-mix-heading">
         <div class="panel-header"><div><h2 id="request-mix-heading" class="panel-title">Request mix</h2><p class="panel-kicker">How your records are distributed</p></div></div>
         {% set stops = [] %}
@@ -38,4 +45,5 @@
         </div>
         <ul class="donut-legend">{% for category in activity.categories %}<li><span><i class="legend-dot" style="background: {{ colors[loop.index0] }}"></i>{{ category.label }}</span><strong>{{ category.total }}</strong></li>{% endfor %}</ul>
     </section>
+    {% endif %}
 </div>

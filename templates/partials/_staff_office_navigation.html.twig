@@ -5,7 +5,7 @@
  {label: 'Appointments', route: 'staff_appointments', icon: 'clock', active: route starts with 'staff_appointment' or route starts with 'staff_availability' or route starts with 'staff_office_hours'},
  {label: 'Concerns', route: 'staff_concerns', icon: 'chat', active: route starts with 'staff_concern'}
 ] %}
-{% set operations = operations|merge([{label: 'Document tracking and monitoring', route: 'staff_documents', icon: 'document', active: route starts with 'staff_document'}]) %}
+{% set operations = operations|merge([{label: 'Document tracking and monitoring', route: 'staff_documents', icon: 'document', active: route starts with 'staff_document' or route starts with 'office_document'}]) %}
 {% set operations = operations|merge([
  {label: 'Announcements', route: 'staff_announcements', icon: 'announcement', active: route starts with 'staff_announcement'},
  {label: 'Documentation guide', route: 'documentation_index', icon: 'document', active: route starts with 'documentation_'},

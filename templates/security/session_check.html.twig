@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checking your session · NORSU SAS{% endblock %}
+
+{% block flashes %}{% endblock %}
+
+{% block body %}
+<main class="container" data-browser-session-bridge data-target="{{ target }}" data-continue-url="{{ path('app_session_continue') }}">
+    <h1>Checking your session…</h1>
+    <p data-session-message>Please wait a moment.</p>
+    <p><a href="{{ path('app_logout') }}" data-turbo="false">Return to sign in</a></p>
+    <noscript><p>Enable JavaScript and browser session storage to use the system.</p></noscript>
+</main>
+{% endblock %}

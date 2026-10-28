@@ -812,3 +812,65 @@ select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 /* Clicking a day header (or month cell) blocks the whole day; the hover tint hints that it is clickable. */
 .workspace-page .tg-day.calendar-editable-day { transition: background .15s ease; }
 .workspace-page .tg-day.calendar-editable-day:hover { background: #f6f5f1; }
+
+/* Request totals alongside the student activity graph. */
+.workspace-page .dashboard-grid.dashboard-grid-metrics {
+    grid-template-columns: minmax(0, 1.65fr) minmax(190px, 1fr);
+    margin-bottom: 1.4rem;
+}
+.workspace-page .dashboard-grid-metrics .activity-panel { margin-bottom: 0; }
+.workspace-page .dashboard-grid-metrics .activity-metrics {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 1rem;
+    min-width: 0;
+}
+.workspace-page .dashboard-grid-metrics .metric-card { display: flex; gap: .85rem; padding: 1rem 1.15rem; }
+.workspace-page .dashboard-grid-metrics .metric-icon { margin-bottom: 0; }
+
+@media (max-width: 640px) {
+    .workspace-page .dashboard-grid.dashboard-grid-metrics { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Labels float outside the scrollable sidebar when only its icons are shown. */
+.workspace-page .sidebar-tooltip {
+    position: fixed;
+    z-index: 80;
+    max-width: min(260px, calc(100vw - 24px));
+    padding: .6rem .85rem;
+    border-radius: 10px;
+    background: var(--dash-ink);
+    color: #fff;
+    box-shadow: 0 8px 24px rgb(28 27 41 / 22%);
+    font-size: .8rem;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+.workspace-page .sidebar-tooltip[hidden] { display: none; }
+.workspace-page .sidebar-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -4px;
+    width: 8px;
+    height: 8px;
+    background: inherit;
+    transform: translateY(-50%) rotate(45deg);
+}
+@media (min-width: 961px) {
+    .workspace-page .is-sidebar-collapsed .side-nav-link:is(:hover, :focus-visible) {
+        background: var(--gold);
+        color: var(--dash-ink);
+        box-shadow: 0 8px 22px rgb(252 207 43 / 28%);
+        transform: translateY(-2px);
+    }
+    .workspace-page .is-sidebar-collapsed .side-nav-link:is(:hover, :focus-visible) .nav-icon {
+        color: var(--dash-ink);
+        transform: scale(1.1);
+    }
+}
+@media print {
+    .workspace-page .sidebar-tooltip { display: none; }
+}
